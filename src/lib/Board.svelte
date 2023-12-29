@@ -1,12 +1,13 @@
 <script lang="ts">
     import Field from './Field.svelte';
-    import boardConfig from './store';
+    import { boardConfig } from './store';
   
     type Field = {
         name: string;
         x: number;
         y: number;
         connections: string[];
+        color: string;
     };
   
     type Line = {
@@ -57,17 +58,42 @@
     });
     return lines;
   }
+
+function createCurvePath(line: Line): string {
+    const midX = (line.x1 + line.x2) / 2;
+    const midY = (line.y1 + line.y2) / 2;
+
+    // Bestimmung der Richtung der Krümmung
+    const isVertical = Math.abs(line.x1 - line.x2) < Math.abs(line.y1 - line.y2);
+    const curveIntensity = Math.max(Math.abs(line.x1 - line.x2), Math.abs(line.y1 - line.y2)) / 6;
+    
+    // Krümmungspunkt
+    let curveX = midX;
+    let curveY = midY;
+
+    if (isVertical) {
+        // Vertikale Linie: Krümmung nach rechts
+        curveX += curveIntensity;
+    } else {
+        // Horizontale Linie: Krümmung nach unten
+        curveY += curveIntensity;
+    }
+
+    return `M ${line.x1} ${line.y1} Q ${curveX} ${curveY}, ${line.x2} ${line.y2}`;
+    }
+
   </script>
   
   <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
-    <rect width={svgWidth} height={svgHeight} fill="navy" />
-        {#each fields as field (field.name)}
-        <g transform={`translate(${(field.x - 1) * gridSize}, ${(field.y - 1) * gridSize})`}>
-            <Field size={gridSize} name={field.name} />
-        </g>
-        {/each}
+    <rect width={svgWidth} height={svgHeight} fill="#90BEC2" />
         {#each lines as line}
-        <line x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} stroke="white" stroke-width="3"/>
+         <path d={createCurvePath(line)} stroke="navy" stroke-width="3" fill="none"/>
         {/each}
+        {#each fields as field (field.name)}
+            <g transform={`translate(${(field.x - 1) * gridSize}, ${(field.y - 1) * gridSize})`}>
+                <Field size={gridSize} name={field.name} color={field.color} />
+            </g>
+        {/each}
+     
   </svg>
   
