@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { players, activePlayerIndex, boardConfig } from '../lib/store';
-  import { getCurrentLocationFromHistory } from '../lib/utils';
+  import { players, activePlayerIndex, boardConfig, currentTurnActions, addActionToCurrentTurn } from '../lib/store';
+  import type { Action } from '../lib/player';
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
   export let color: string;
+  import { findPath } from '../lib/utils';
 
   let capacity: number;
   let supplies: number;
 
   $: activePlayer = $players[$activePlayerIndex];
-  $: actionsHistory = activePlayer.actionsHistory;
+  $: currentActions = $currentTurnActions.length;
 
   $: {
     const place = $boardConfig.find(p => p.name === name);
@@ -33,55 +34,24 @@
   const diceY = size / 2 - 40; // Y-Position der Würfel
   const diceXStart = size / 2 - (1.5 * diceSize + diceMargin); // X-Startposition für die Würfel
 
-  function findPath(target: string) {
-    let currentLocation = getCurrentLocationFromHistory(actionsHistory);
-
-    interface QueueItem {
-      name: string;
-      path: string[];
-    }
-
-    let queue: QueueItem[] = [{ name: currentLocation, path: [] }];
-    let visited = new Set();
-
-    while (queue.length > 0) {
-      let { name, path } = queue.shift() as QueueItem;
-
-      if (name === target) {
-        return path.concat(name).slice(1); // Pfad gefunden
-      }
-
-      if (!visited.has(name)) {
-        visited.add(name);
-        const neighbors = $boardConfig.find(f => f.name === name)?.connections || [];
-        neighbors.forEach(neighbor => {
-          if (!visited.has(neighbor)) {
-            queue.push({ name: neighbor, path: path.concat(name) });
-          }
-        });
-      }
-    }
-
-    return []; // Kein Pfad gefunden
-  }
+  
 
   function moveToLocation(targetLocation: string) {
-    let path = findPath(targetLocation);
-    if (path.length > 0 && activePlayer.actionsMade + path.length <= 4){
-      players.update(currentPlayers => {
-        let updatedPlayer = {...activePlayer};
-        // Füge jede Zwischenstation als Aktion hinzu
+    let path = findPath(activePlayer.currentLocation, targetLocation, $boardConfig);
+    if (path.length > 0 && currentActions + path.length <= 4){
         path.forEach(location => {
-          updatedPlayer.actionsHistory.push({ type: 'moveTo', location });
-          updatedPlayer.actionsMade++;
+          const action: Action = { type: 'moveTo', location };
+          addActionToCurrentTurn(action);
         });
-        currentPlayers[$activePlayerIndex] = updatedPlayer;
-        return currentPlayers;
-      });
- 
+        players.update(currentPlayers => {
+          let updatedPlayers = [...currentPlayers];
+          updatedPlayers[$activePlayerIndex].currentLocation = targetLocation;
+          return updatedPlayers;
+        });
     } else {
       console.log("Zug nicht möglich oder maximale Aktionen erreicht!");
     }
+    console.log($currentTurnActions)
 }
 
 </script>
@@ -106,7 +76,7 @@
   </defs>
 
   {#each $players as player, index}
-    {#if getCurrentLocationFromHistory(player.actionsHistory) === name}
+    {#if player.currentLocation === name}
     <circle cx={size / 2} cy={size / 2} r={$activePlayerIndex === index ? "17" : "15"}
     stroke={player.color} stroke-width={$activePlayerIndex === index ? "6" : "3"} fill="none"
     style:filter={$activePlayerIndex === index ? 'url(#strongGlow)' : ''} />

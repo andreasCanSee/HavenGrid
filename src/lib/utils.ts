@@ -1,10 +1,33 @@
-import type { Action } from './player'; 
+import type { FieldConfig } from "./store";
 
-export function getCurrentLocationFromHistory(actionsHistory: Action[]) {
-    for (let i = actionsHistory.length - 1; i >= 0; i--) {
-      if (actionsHistory[i].type === 'moveTo') {
-        return actionsHistory[i].location || '';
+export function findPath(currentLocation: string, target: string, boardConfig: FieldConfig[]): string[] {
+
+   
+    interface QueueItem {
+      name: string;
+      path: string[];
+    }
+
+    let queue: QueueItem[] = [{ name: currentLocation, path: [] }];
+    let visited = new Set();
+
+    while (queue.length > 0) {
+      let { name, path } = queue.shift() as QueueItem;
+
+      if (name === target) {
+        return path.concat(name).slice(1); // Pfad gefunden
+      }
+
+      if (!visited.has(name)) {
+        visited.add(name);
+        const neighbors = boardConfig.find(f => f.name === name)?.connections || [];
+        neighbors.forEach((neighbor: string) => {
+          if (!visited.has(neighbor)) {
+            queue.push({ name: neighbor, path: path.concat(name) });
+          }
+        });
       }
     }
-    return actionsHistory[0].location || ''; // Wenn kein moveTo-Objekt gefunden wird
-}
+
+    return []; // Kein Pfad gefunden
+  }

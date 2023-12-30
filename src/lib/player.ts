@@ -1,9 +1,8 @@
 export interface Player {
     name: string;
-    startingLocation: string
+    currentLocation: string
     supplies: number;
-    actionsMade: number;
-    actionsHistory: Action[];
+    actionsHistory: Action[][];
     color: string;
   }
 
@@ -15,10 +14,9 @@ export interface Action {
 export function createPlayer(name: string, startingLocation: string, color: string): Player {
     return {
       name,
-      startingLocation,
-      supplies: 0, // Startwert für Supplies
-      actionsMade: 0,
-      actionsHistory: [{ type: 'startAt', location: startingLocation }],
+      currentLocation: startingLocation,
+      supplies: 0,
+      actionsHistory: [[{ type: 'startAt', location: startingLocation }]],
       color
     }
 }

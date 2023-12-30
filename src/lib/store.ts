@@ -1,5 +1,16 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { createPlayer } from './player';
+import type { Action, Player } from './player'; 
+
+export interface FieldConfig {
+  name: string;
+  x: number;
+  y: number;
+  connections: string[];
+  color: string;
+  capacity: number;
+  supplies: number;
+}
 
 export const initialBoardConfig =[
     { name: 'Sao Paulo', x: 2, y: 5, connections: ['Lagos', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3 },
@@ -25,8 +36,33 @@ export function getInitialPlayers() {
   ];
 }
 
-export const players = writable(getInitialPlayers());
+export const players = writable<Player[]>(getInitialPlayers());
 
 export const activePlayerIndex = writable(0);
 
 export const drawnInfectionCards = writable<string[]>([]);
+
+export const currentTurnActions = writable<Action[]>([]);
+
+export function addActionToCurrentTurn(action: Action) {
+  currentTurnActions.update(actions => [...actions, action]);
+}
+
+export function finalizeTurn(activePlayerIndex: number) {
+  const currentPlayerActions = get(currentTurnActions);
+
+  players.update(currentPlayers => {
+    let updatedPlayers = [...currentPlayers];
+    let currentPlayer = updatedPlayers[activePlayerIndex];
+    // Füge die aktuellen Aktionen zur Aktionshistorie hinzu
+    currentPlayer.actionsHistory.push([...currentPlayerActions]);
+
+    // Aktualisiere den Spieler im Array
+    updatedPlayers[activePlayerIndex] = currentPlayer;
+
+    return updatedPlayers;
+  });
+
+  // Setze currentTurnActions für den nächsten Spieler zurück
+  currentTurnActions.set([]);
+}

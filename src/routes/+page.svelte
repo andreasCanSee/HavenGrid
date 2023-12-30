@@ -1,40 +1,72 @@
 <script lang="ts">
     import Board from '../lib/Board.svelte';
-    import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards } from '../lib/store';
+    import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
+    import type { Action } from '../lib/player'; 
 
-    $: activePlayer = $players[$activePlayerIndex];
-    $: actionsMade = activePlayer.actionsMade;
+
+    $: currentActions = $currentTurnActions.length;
 
     function endActionPhase() {
-        players.update(currentPlayers => {
-            currentPlayers[$activePlayerIndex].actionsMade = 0;
-            return currentPlayers;
-        });
+        finalizeTurn($activePlayerIndex);
         activePlayerIndex.update(index => (index + 1) % $players.length);
     }
-    
+
     function undoLastMove() {
-        
-        players.update(currentPlayers => {
-            let currentPlayer = currentPlayers[$activePlayerIndex];
+        let lastActionRemoved: Action | undefined;
+        let newLocation = '';
 
-            // Sicherstellen, dass Aktionen zum Rückgängigmachen vorhanden sind
-            if (currentPlayer.actionsHistory.length > 1 && currentPlayer.actionsMade > 0) {
-                let lastAction = currentPlayer.actionsHistory.pop();
-
-                // Aktualisiere currentLocation nur, wenn die letzte Aktion eine moveTo-Aktion war
+        // Erster Schritt: Aktualisiere currentTurnActions und speichere die letzte Aktion, falls entfernt
+        currentTurnActions.update(actions => {
+            if (actions.length > 0) {
+                const lastAction = actions.pop();
                 if (lastAction && lastAction.type === 'moveTo') {
-                    // Eine Aktion von actionsMade abziehen
-                    currentPlayer.actionsMade = Math.max(0, currentPlayer.actionsMade - 1);
+                    lastActionRemoved = lastAction;
                 }
             }
-            return currentPlayers;
+            return actions;
         });
+
+        // Zweiter Schritt: Aktualisiere die Spielerdaten basierend auf der entfernten Aktion
+        if (lastActionRemoved && lastActionRemoved.type === 'moveTo') {
+            players.update(currentPlayers => {
+                const currentPlayer = currentPlayers[$activePlayerIndex];
+                
+                // Suche zuerst in currentTurnActions
+                for (let i = $currentTurnActions.length - 1; i >= 0; i--) {
+                    if ($currentTurnActions[i].type === 'moveTo') {
+                        newLocation = $currentTurnActions[i].location;
+                        break;
+                    }
+                }
+
+                // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
+                if (!newLocation) {
+                    for (let i = currentPlayer.actionsHistory.length - 1; i >= 0; i--) {
+                        for (let j = currentPlayer.actionsHistory[i].length - 1; j >= 0; j--) {
+                            if (currentPlayer.actionsHistory[i][j].type === 'moveTo') {
+                                newLocation = currentPlayer.actionsHistory[i][j].location;
+                                break;
+                            }
+                        }
+                        if (newLocation) break;
+                    }
+                }
+
+                // Wenn keine moveTo-Aktion gefunden wurde, nimm die Location des ersten Elements
+                newLocation = newLocation || currentPlayer.actionsHistory[0][0]?.location;
+
+                // Aktualisiere die Position des Spielers
+                currentPlayer.currentLocation = newLocation;
+                return currentPlayers;
+            });
+        }
     }
 
     function restartGame(){
         players.set(getInitialPlayers());
         activePlayerIndex.set(0);
+
+        currentTurnActions.set([]);
         
         // Setze das Spielbrett zurück
         let newDrawnInfectionCards: string[] = [];
@@ -80,7 +112,7 @@
   <main>
     <Board />
     <div>
-        <p>Verbleibende Aktionen: {4 - actionsMade}</p>
+        <p>Verbleibende Aktionen: {4 - currentActions}</p>
         <button on:click={undoLastMove}>Umkehren</button>
         <button on:click={endActionPhase}>Aktionsphase abschließen</button>
         <button on:click={restartGame}>Neustart</button>
