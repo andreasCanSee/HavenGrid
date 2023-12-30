@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
+import { createPlayer } from './player';
 
-export const initialBoardConfig = [
+export const initialBoardConfig =[
     { name: 'Sao Paulo', x: 2, y: 5, connections: ['Lagos', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3 },
     { name: 'Lagos', x: 5, y: 4, connections: ['Sao Paulo', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3 },
     { name: 'Jacksonville', x: 2, y: 3, connections: ['Asgard', 'Washington', 'New York'], color: 'yellow', capacity: 3, supplies: 3 },
@@ -17,5 +18,13 @@ export const initialBoardConfig = [
 
 export const boardConfig = writable([...initialBoardConfig]);
 
-export const moveHistory = writable(["Atlantis"]);
-export const drawnInfectionCards = writable([]);
+export const initialPlayers = [
+    createPlayer("Spieler 1", "Atlantis", "purple"),
+    createPlayer("Spieler 2", "Avalon", "orange")
+  ];
+  
+export const players = writable(JSON.parse(JSON.stringify(initialPlayers)));
+
+export const activePlayerIndex = writable(0);
+
+export const drawnInfectionCards = writable<string[]>([]);

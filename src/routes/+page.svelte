@@ -1,22 +1,39 @@
-<script>
-    import Board from '$lib/Board.svelte';
-    import { moveHistory, initialBoardConfig, boardConfig, drawnInfectionCards } from '$lib/store';
+<script lang="ts">
+    import Board from '../lib/Board.svelte';
+    import { createPlayer } from '../lib/player';
+    import { players, initialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards } from '../lib/store';
 
-    let showInfectionCards = false;
+    $: activePlayer = $players[$activePlayerIndex];
+    $: actionsMade = activePlayer.actionsMade;
+
+    function endActionPhase() {
+        players.update(currentPlayers => {
+            currentPlayers[$activePlayerIndex].actionsMade = 0;
+            return currentPlayers;
+        });
+        activePlayerIndex.update(index => (index + 1) % $players.length);
+    }
     
     function undoLastMove() {
-        moveHistory.update(history => {
-        if (history.length > 1) {
-            // Setze die currentLocation auf den vorletzten Standort
-            return history.slice(0, -1);
+        if (actionsMade > 0) {
+            players.update(currentPlayers => {
+                const updatedHistory = currentPlayers[$activePlayerIndex].actionsHistory.slice(0, -1);
+                currentPlayers[$activePlayerIndex].actionsHistory = updatedHistory;
+                currentPlayers[$activePlayerIndex].currentLocation = updatedHistory[updatedHistory.length - 1];
+                currentPlayers[$activePlayerIndex].actionsMade -= 1;
+                return currentPlayers;
+            });
         }
-        return history;
-        });
     }
 
     function restartGame(){
-        moveHistory.set(["Atlantis"])
-        let newDrawnInfectionCards = [];
+        players.set(initialPlayers.map(player => {
+            return { ...player };
+        }));
+        activePlayerIndex.set(0);
+        
+        // Setze das Spielbrett zurück
+        let newDrawnInfectionCards: string[] = [];
 
         // Setze boardConfig auf die ursprüngliche Konfiguration zurück
         boardConfig.set(initialBoardConfig.map(place => ({ ...place })));
@@ -48,8 +65,6 @@
             return config;
         });
         drawnInfectionCards.set(newDrawnInfectionCards);
-        console.log($boardConfig);
-
     }
 
 </script>
@@ -61,21 +76,19 @@
   <main>
     <Board />
     <div>
-        <p>Verbleibende Züge: {5 - $moveHistory.length}</p>
+        <p>Verbleibende Aktionen: {4 - actionsMade}</p>
         <button on:click={undoLastMove}>Umkehren</button>
+        <button on:click={endActionPhase}>Aktionsphase abschließen</button>
         <button on:click={restartGame}>Neustart</button>
     </div>
-    <div>
-        <button on:click={() => showInfectionCards = !showInfectionCards}>Infektionsablagestapel</button>
-        {#if showInfectionCards}
-          <ul>
+    <details>
+        <summary>Infektionsablagestapel</summary>
+        <ul>
             {#each $drawnInfectionCards as card}
               <li>{card}</li>
             {/each}
-          </ul>
-        {/if}
-    </div>
-    
+        </ul>
+    </details>
   </main>
 
   

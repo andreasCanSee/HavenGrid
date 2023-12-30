@@ -1,6 +1,6 @@
 <script lang="ts">
     import Field from './Field.svelte';
-    import { boardConfig } from './store';
+    import { boardConfig } from '../lib/store';
   
     type Field = {
         name: string;
@@ -20,7 +20,7 @@
     };
   
     let fields: Field[] = [];
-    boardConfig.subscribe(value => {
+    boardConfig.subscribe((value: Field[]) => {
         fields = value;
     });
   
@@ -33,10 +33,9 @@
     function calculateSvgDimensions() {
         const maxX = Math.max(...fields.map(field => field.x));
         const maxY = Math.max(...fields.map(field => field.y));
-        console.log(maxX);
         return {
-        width: (maxX)* gridSize,
-        height: (maxY) * gridSize
+          width: (maxX)* gridSize,
+          height: (maxY) * gridSize
         };
     }
   

@@ -1,11 +1,20 @@
 <script lang="ts">
-  import { boardConfig, moveHistory } from './store';
+  import { players, activePlayerIndex, boardConfig } from '../lib/store';
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
+  //$: console.log('Feldname:', name);
   export let color: string;
 
-  let capacity;
-  let supplies;
+  let capacity: number;
+  let supplies: number;
+
+  ////////////
+  //$: console.log('Spieler 0 Standort:', $players[0].currentLocation, 'Farbe:', $players[0].color);
+
+  ///////////
+
+  $: activePlayer = $players[$activePlayerIndex];
+  $: actionsHistory = activePlayer.actionsHistory;
 
   $: {
     const place = $boardConfig.find(p => p.name === name);
@@ -30,13 +39,20 @@
   const diceXStart = size / 2 - (1.5 * diceSize + diceMargin); // X-Startposition für die Würfel
 
 
-  function findPath(target) {
-    let currentLocation = $moveHistory[$moveHistory.length - 1];
-    let queue = [{ name: currentLocation, path: [] }];
+  /*
+  function findPath(target: string) {
+    let currentLocation = actionsHistory[actionsHistory.length - 1];
+
+    interface QueueItem {
+      name: string;
+      path: string[];
+    }
+
+    let queue: QueueItem[] = [{ name: currentLocation, path: [] }];
     let visited = new Set();
 
     while (queue.length > 0) {
-      let { name, path } = queue.shift();
+      let { name, path } = queue.shift() as QueueItem;
 
       if (name === target) {
         return path.concat(name); // Pfad gefunden
@@ -58,33 +74,62 @@
 
   function handleClick() {
     let path = findPath(name);
-    if (path && path.length > 1 && (5 - $moveHistory.length - path.length + 1) >= 0) {
-      moveHistory.update(history => {
-        const updatedHistory = history.slice(0, -1);
-        return [...updatedHistory, ...path];
+    if (path && path.length > 1 && (5 - actionsHistory.length - path.length + 1) >= 0) {
+      players.update(currentPlayers => {
+        currentPlayers[$activePlayerIndex].actionsHistory = [...actionsHistory, ...path];
+        return currentPlayers;
       });
-      console.log($moveHistory)
     } else {
       console.log("Ungültiger Zug!");
     }
+  }*/
+
+  function moveToLocation(targetLocation: string) {
+  let isNeighbor = $boardConfig.find(place => place.name === activePlayer.currentLocation)?.connections.includes(targetLocation);
+
+  if (isNeighbor && activePlayer.actionsMade < 4) {
+    players.update(currentPlayers => {
+      let updatedPlayer = {...activePlayer, actionsMade: activePlayer.actionsMade + 1};
+      updatedPlayer.actionsHistory.push(targetLocation);
+      updatedPlayer.currentLocation = targetLocation;
+      currentPlayers[$activePlayerIndex] = updatedPlayer;
+      return currentPlayers;
+    });
+  } else {
+    console.log("Zug nicht möglich oder maximale Aktionen erreicht!");
   }
+}
 
 </script>
 
 <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg">
   <!-- Erstellung des 3x3-Rasters -->
   {#each Array(9) as _, index}
-    <rect x={index % 3 * gridSize} y={Math.floor(index / 3) * gridSize} width={gridSize} height={gridSize} fill="transparent"  />
+    <rect x={index % 3 * gridSize} y={Math.floor(index / 3) * gridSize} width={gridSize} height={gridSize} stroke="black" fill="transparent"  />
   {/each}
 
   <!-- Kreis im mittleren Quadrat -->
-  <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={handleClick}/>
+  <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={() => moveToLocation(name)}/>
 
-  <!-- Ring um den Kreis, wenn es der aktuelle Standort ist -->
-  {#if $moveHistory[$moveHistory.length - 1] === name}
-    <circle cx={size / 2} cy={size / 2} r="15" stroke="red" stroke-width="3" fill="none"/>
-  {/if}
-  
+  <defs>
+    <filter id="strongGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  {#each $players as player, index}
+    {#if player.currentLocation === name}
+    <circle cx={size / 2} cy={size / 2} r={$activePlayerIndex === index ? "17" : "15"}
+    stroke={player.color} stroke-width={$activePlayerIndex === index ? "6" : "3"} fill="none"
+    style:filter={$activePlayerIndex === index ? 'url(#strongGlow)' : ''} />
+    {/if}
+  {/each}
+
+
   <!-- Hintergrund für den Namen des Feldes -->
   <rect x={textBackgroundX} y={textBackgroundY} width={textBackgroundWidth} height={textBackgroundHeight} fill="white" fill-opacity="0.7"/>
 
@@ -92,10 +137,10 @@
   <text x={size / 2} y={size / 2.2 + 40} text-anchor="middle" fill="navy">{name}</text>
 
   <!-- Würfel entsprechend der Kapazität und tatsächlichen Supplies -->
-{#each Array(capacity) as _, index}
-<rect x={diceXStart + index * (diceSize + diceMargin)} y={diceY} width={diceSize} height={diceSize}
-      fill={index < supplies ? "#412B15" : "transparent"}
-      stroke={index >= supplies ? "black" : "none"} />
-{/each}
+  {#each Array(capacity) as _, index}
+    <rect x={diceXStart + index * (diceSize + diceMargin)} y={diceY} width={diceSize} height={diceSize}
+          fill={index < supplies ? "#412B15" : "transparent"}
+          stroke={index >= supplies ? "black" : "none"} />
+  {/each}
 
 </svg>
