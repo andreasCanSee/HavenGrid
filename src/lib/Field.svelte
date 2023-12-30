@@ -34,7 +34,17 @@
   const diceY = size / 2 - 40; // Y-Position der Würfel
   const diceXStart = size / 2 - (1.5 * diceSize + diceMargin); // X-Startposition für die Würfel
 
-  
+
+  function calculateXPosition(index: number, totalPlayersAtLocation: number, size: number, activePlayerIndex: number) {
+        const baseX = size / 2;
+        if (totalPlayersAtLocation === 1) {
+            return baseX;
+        }
+        const offset = (index === activePlayerIndex ? -1 : 1) * 20; // Verändert den Offset-Wert
+        return baseX + offset;
+    }
+
+    $: totalPlayersAtLocation = $players.filter(p => p.currentLocation === name).length;
 
   function moveToLocation(targetLocation: string) {
     let path = findPath(activePlayer.currentLocation, targetLocation, $boardConfig);
@@ -77,7 +87,7 @@
 
   {#each $players as player, index}
     {#if player.currentLocation === name}
-    <circle cx={size / 2} cy={size / 2} r={$activePlayerIndex === index ? "17" : "15"}
+    <circle cx={calculateXPosition(index, totalPlayersAtLocation, size, $activePlayerIndex)} cy={size / 2} r={$activePlayerIndex === index ? "17" : "15"}
     stroke={player.color} stroke-width={$activePlayerIndex === index ? "6" : "3"} fill="none"
     style:filter={$activePlayerIndex === index ? 'url(#strongGlow)' : ''} />
     {/if}
