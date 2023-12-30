@@ -1,6 +1,5 @@
 <script lang="ts">
     import Board from '../lib/Board.svelte';
-    import { createPlayer } from '../lib/player';
     import { players, initialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards } from '../lib/store';
 
     $: activePlayer = $players[$activePlayerIndex];

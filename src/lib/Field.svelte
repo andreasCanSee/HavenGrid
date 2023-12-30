@@ -39,7 +39,7 @@
   const diceXStart = size / 2 - (1.5 * diceSize + diceMargin); // X-Startposition für die Würfel
 
 
-  /*
+
   function findPath(target: string) {
     let currentLocation = actionsHistory[actionsHistory.length - 1];
 
@@ -55,7 +55,7 @@
       let { name, path } = queue.shift() as QueueItem;
 
       if (name === target) {
-        return path.concat(name); // Pfad gefunden
+        return path.concat(name).slice(1); // Pfad gefunden
       }
 
       if (!visited.has(name)) {
@@ -72,32 +72,20 @@
     return []; // Kein Pfad gefunden
   }
 
-  function handleClick() {
-    let path = findPath(name);
-    if (path && path.length > 1 && (5 - actionsHistory.length - path.length + 1) >= 0) {
+  function moveToLocation(targetLocation: string) {
+    let path = findPath(targetLocation);
+    if (path.length > 0 && activePlayer.actionsMade + path.length <= 4){
       players.update(currentPlayers => {
-        currentPlayers[$activePlayerIndex].actionsHistory = [...actionsHistory, ...path];
+        let updatedPlayer = {...activePlayer};
+        updatedPlayer.actionsHistory = [...updatedPlayer.actionsHistory, ...path];
+        updatedPlayer.currentLocation = targetLocation;
+        updatedPlayer.actionsMade += path.length;
+        currentPlayers[$activePlayerIndex] = updatedPlayer;
         return currentPlayers;
       });
     } else {
-      console.log("Ungültiger Zug!");
+      console.log("Zug nicht möglich oder maximale Aktionen erreicht!");
     }
-  }*/
-
-  function moveToLocation(targetLocation: string) {
-  let isNeighbor = $boardConfig.find(place => place.name === activePlayer.currentLocation)?.connections.includes(targetLocation);
-
-  if (isNeighbor && activePlayer.actionsMade < 4) {
-    players.update(currentPlayers => {
-      let updatedPlayer = {...activePlayer, actionsMade: activePlayer.actionsMade + 1};
-      updatedPlayer.actionsHistory.push(targetLocation);
-      updatedPlayer.currentLocation = targetLocation;
-      currentPlayers[$activePlayerIndex] = updatedPlayer;
-      return currentPlayers;
-    });
-  } else {
-    console.log("Zug nicht möglich oder maximale Aktionen erreicht!");
-  }
 }
 
 </script>
