@@ -8,6 +8,8 @@
         y: number;
         connections: string[];
         color: string;
+        capacity: number;
+        supplies: number;
     };
   
     type Line = {

@@ -1,8 +1,19 @@
 <script lang="ts">
-  import { boardConfig, currentLocation, moveHistory } from './store';
+  import { boardConfig, moveHistory } from './store';
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
   export let color: string;
+
+  let capacity;
+  let supplies;
+
+  $: {
+    const place = $boardConfig.find(p => p.name === name);
+    if (place) {
+      capacity = place.capacity;
+      supplies = place.supplies;
+    }
+  }
 
   let gridSize = size / 3; // Größe eines einzelnen Quadrats im Raster
 
@@ -20,7 +31,8 @@
 
 
   function findPath(target) {
-    let queue = [{ name: $currentLocation, path: [] }];
+    let currentLocation = $moveHistory[$moveHistory.length - 1];
+    let queue = [{ name: currentLocation, path: [] }];
     let visited = new Set();
 
     while (queue.length > 0) {
@@ -57,13 +69,6 @@
     }
   }
 
-  $: {
-    if ($moveHistory.length > 0) {
-      currentLocation.set($moveHistory[$moveHistory.length - 1]);
-    }
-  }
-
-
 </script>
 
 <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg">
@@ -76,7 +81,7 @@
   <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={handleClick}/>
 
   <!-- Ring um den Kreis, wenn es der aktuelle Standort ist -->
-  {#if $currentLocation === name}
+  {#if $moveHistory[$moveHistory.length - 1] === name}
     <circle cx={size / 2} cy={size / 2} r="15" stroke="red" stroke-width="3" fill="none"/>
   {/if}
   
@@ -86,8 +91,11 @@
   <!-- Name des Feldes oberhalb des Kreises -->
   <text x={size / 2} y={size / 2.2 + 40} text-anchor="middle" fill="navy">{name}</text>
 
-  <!-- Drei braune Würfel unter dem Kreis -->
-  {#each Array(3) as _, index}
-  <rect x={diceXStart + index * (diceSize + diceMargin)} y={diceY} width={diceSize} height={diceSize} fill="#412B15" />
+  <!-- Würfel entsprechend der Kapazität und tatsächlichen Supplies -->
+{#each Array(capacity) as _, index}
+<rect x={diceXStart + index * (diceSize + diceMargin)} y={diceY} width={diceSize} height={diceSize}
+      fill={index < supplies ? "#412B15" : "transparent"}
+      stroke={index >= supplies ? "black" : "none"} />
 {/each}
+
 </svg>
