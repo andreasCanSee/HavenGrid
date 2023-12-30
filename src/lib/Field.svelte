@@ -1,17 +1,12 @@
 <script lang="ts">
   import { players, activePlayerIndex, boardConfig } from '../lib/store';
+  import { getCurrentLocationFromHistory } from '../lib/utils';
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
-  //$: console.log('Feldname:', name);
   export let color: string;
 
   let capacity: number;
   let supplies: number;
-
-  ////////////
-  //$: console.log('Spieler 0 Standort:', $players[0].currentLocation, 'Farbe:', $players[0].color);
-
-  ///////////
 
   $: activePlayer = $players[$activePlayerIndex];
   $: actionsHistory = activePlayer.actionsHistory;
@@ -38,10 +33,8 @@
   const diceY = size / 2 - 40; // Y-Position der Würfel
   const diceXStart = size / 2 - (1.5 * diceSize + diceMargin); // X-Startposition für die Würfel
 
-
-
   function findPath(target: string) {
-    let currentLocation = actionsHistory[actionsHistory.length - 1];
+    let currentLocation = getCurrentLocationFromHistory(actionsHistory);
 
     interface QueueItem {
       name: string;
@@ -77,12 +70,15 @@
     if (path.length > 0 && activePlayer.actionsMade + path.length <= 4){
       players.update(currentPlayers => {
         let updatedPlayer = {...activePlayer};
-        updatedPlayer.actionsHistory = [...updatedPlayer.actionsHistory, ...path];
-        updatedPlayer.currentLocation = targetLocation;
-        updatedPlayer.actionsMade += path.length;
+        // Füge jede Zwischenstation als Aktion hinzu
+        path.forEach(location => {
+          updatedPlayer.actionsHistory.push({ type: 'moveTo', location });
+          updatedPlayer.actionsMade++;
+        });
         currentPlayers[$activePlayerIndex] = updatedPlayer;
         return currentPlayers;
       });
+ 
     } else {
       console.log("Zug nicht möglich oder maximale Aktionen erreicht!");
     }
@@ -110,7 +106,7 @@
   </defs>
 
   {#each $players as player, index}
-    {#if player.currentLocation === name}
+    {#if getCurrentLocationFromHistory(player.actionsHistory) === name}
     <circle cx={size / 2} cy={size / 2} r={$activePlayerIndex === index ? "17" : "15"}
     stroke={player.color} stroke-width={$activePlayerIndex === index ? "6" : "3"} fill="none"
     style:filter={$activePlayerIndex === index ? 'url(#strongGlow)' : ''} />

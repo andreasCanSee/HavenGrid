@@ -1,6 +1,6 @@
 <script lang="ts">
     import Board from '../lib/Board.svelte';
-    import { players, initialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards } from '../lib/store';
+    import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards } from '../lib/store';
 
     $: activePlayer = $players[$activePlayerIndex];
     $: actionsMade = activePlayer.actionsMade;
@@ -14,21 +14,26 @@
     }
     
     function undoLastMove() {
-        if (actionsMade > 0) {
-            players.update(currentPlayers => {
-                const updatedHistory = currentPlayers[$activePlayerIndex].actionsHistory.slice(0, -1);
-                currentPlayers[$activePlayerIndex].actionsHistory = updatedHistory;
-                currentPlayers[$activePlayerIndex].currentLocation = updatedHistory[updatedHistory.length - 1];
-                currentPlayers[$activePlayerIndex].actionsMade -= 1;
-                return currentPlayers;
-            });
-        }
+        
+        players.update(currentPlayers => {
+            let currentPlayer = currentPlayers[$activePlayerIndex];
+
+            // Sicherstellen, dass Aktionen zum Rückgängigmachen vorhanden sind
+            if (currentPlayer.actionsHistory.length > 1 && currentPlayer.actionsMade > 0) {
+                let lastAction = currentPlayer.actionsHistory.pop();
+
+                // Aktualisiere currentLocation nur, wenn die letzte Aktion eine moveTo-Aktion war
+                if (lastAction && lastAction.type === 'moveTo') {
+                    // Eine Aktion von actionsMade abziehen
+                    currentPlayer.actionsMade = Math.max(0, currentPlayer.actionsMade - 1);
+                }
+            }
+            return currentPlayers;
+        });
     }
 
     function restartGame(){
-        players.set(initialPlayers.map(player => {
-            return { ...player };
-        }));
+        players.set(getInitialPlayers());
         activePlayerIndex.set(0);
         
         // Setze das Spielbrett zurück

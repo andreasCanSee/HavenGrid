@@ -1,20 +1,25 @@
 export interface Player {
     name: string;
-    currentLocation: string;
+    startingLocation: string
     supplies: number;
     actionsMade: number;
-    actionsHistory: string[];
+    actionsHistory: Action[];
     color: string;
   }
 
+export interface Action {
+  type: 'moveTo' | 'startAt';
+  location: string;
+}
+
 export function createPlayer(name: string, startingLocation: string, color: string): Player {
     return {
-      name: name,
-      currentLocation: startingLocation,
+      name,
+      startingLocation,
       supplies: 0, // Startwert für Supplies
       actionsMade: 0,
-      actionsHistory: [startingLocation],
-      color: color // Setzen der Farbeigenschaft
+      actionsHistory: [{ type: 'startAt', location: startingLocation }],
+      color
     }
 }
   

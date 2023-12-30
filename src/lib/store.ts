@@ -18,12 +18,14 @@ export const initialBoardConfig =[
 
 export const boardConfig = writable([...initialBoardConfig]);
 
-export const initialPlayers = [
+export function getInitialPlayers() {
+  return [
     createPlayer("Spieler 1", "Atlantis", "purple"),
     createPlayer("Spieler 2", "Avalon", "orange")
   ];
-  
-export const players = writable(JSON.parse(JSON.stringify(initialPlayers)));
+}
+
+export const players = writable(getInitialPlayers());
 
 export const activePlayerIndex = writable(0);
 
