@@ -66,3 +66,20 @@ export function finalizeTurn(activePlayerIndex: number) {
   // Setze currentTurnActions für den nächsten Spieler zurück
   currentTurnActions.set([]);
 }
+
+export const increaseSupplies = (playerName: string) => {
+  const makeSupplyAction: Action = { type: 'makeSupply' };  
+
+  // Aktualisiere currentTurnActions
+  currentTurnActions.update(actions => [...actions, makeSupplyAction]);
+
+  // Erhöhe die supplies des angegebenen Spielers
+  players.update(allPlayers => {
+      return allPlayers.map(p => {
+          if (p.name === playerName) {
+              return { ...p, supplies: p.supplies + 1 };
+          }
+          return p;
+      });
+  });
+};

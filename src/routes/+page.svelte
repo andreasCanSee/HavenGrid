@@ -2,6 +2,8 @@
     import Board from '../lib/Board.svelte';
     import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
     import type { Action } from '../lib/player'; 
+    import PlayerTableau from '../lib/PlayerTableau.svelte';
+    import {get } from 'svelte/store';
 
 
     $: currentActions = $currentTurnActions.length;
@@ -13,53 +15,60 @@
 
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
-        let newLocation = '';
+        //let newLocation = '';
 
         // Erster Schritt: Aktualisiere currentTurnActions und speichere die letzte Aktion, falls entfernt
         currentTurnActions.update(actions => {
             if (actions.length > 0) {
-                const lastAction = actions.pop();
-                if (lastAction && lastAction.type === 'moveTo') {
-                    lastActionRemoved = lastAction;
-                }
+                lastActionRemoved = actions.pop();
             }
             return actions;
         });
 
         // Zweiter Schritt: Aktualisiere die Spielerdaten basierend auf der entfernten Aktion
-        if (lastActionRemoved && lastActionRemoved.type === 'moveTo') {
+        if (lastActionRemoved) {
             players.update(currentPlayers => {
                 const currentPlayer = currentPlayers[$activePlayerIndex];
                 
                 // Suche zuerst in currentTurnActions
-                for (let i = $currentTurnActions.length - 1; i >= 0; i--) {
-                    if ($currentTurnActions[i].type === 'moveTo') {
-                        newLocation = $currentTurnActions[i].location;
-                        break;
-                    }
-                }
-
-                // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
-                if (!newLocation) {
-                    for (let i = currentPlayer.actionsHistory.length - 1; i >= 0; i--) {
-                        for (let j = currentPlayer.actionsHistory[i].length - 1; j >= 0; j--) {
-                            if (currentPlayer.actionsHistory[i][j].type === 'moveTo') {
-                                newLocation = currentPlayer.actionsHistory[i][j].location;
-                                break;
-                            }
+                if (lastActionRemoved && lastActionRemoved.type === 'moveTo') {
+                    // Rückgängigmachen einer moveTo-Aktion
+                    let newLocation = '';
+                    for (let i = $currentTurnActions.length - 1; i >= 0; i--) {
+                        if ($currentTurnActions[i].type === 'moveTo') {
+                            newLocation = $currentTurnActions[i].location || '';
+                            break;
                         }
-                        if (newLocation) break;
                     }
+
+                    // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
+                    if (!newLocation) {
+                        for (let i = currentPlayer.actionsHistory.length - 1; i >= 0; i--) {
+                            for (let j = currentPlayer.actionsHistory[i].length - 1; j >= 0; j--) {
+                                if (currentPlayer.actionsHistory[i][j].type === 'moveTo') {
+                                    newLocation = currentPlayer.actionsHistory[i][j].location || '';
+                                    break;
+                                }
+                            }
+                            if (newLocation) break;
+                        }
+                    }
+
+                    // Wenn keine moveTo-Aktion gefunden wurde, nimm die Location des ersten Elements
+                    newLocation = newLocation || currentPlayer.actionsHistory[0][0]?.location || '';
+                    currentPlayer.currentLocation = newLocation;
+
+                } else if (lastActionRemoved && lastActionRemoved.type === 'makeSupply'){
+                    if (currentPlayer.supplies > 0) {
+                        currentPlayer.supplies--;
+                    }
+
                 }
-
-                // Wenn keine moveTo-Aktion gefunden wurde, nimm die Location des ersten Elements
-                newLocation = newLocation || currentPlayer.actionsHistory[0][0]?.location;
-
-                // Aktualisiere die Position des Spielers
-                currentPlayer.currentLocation = newLocation;
                 return currentPlayers;
             });
+            console.log(get(players));
         }
+       
     }
 
     function restartGame(){
@@ -125,6 +134,10 @@
             {/each}
         </ul>
     </details>
+
+    {#each $players as player}
+        <PlayerTableau {player} />
+    {/each}
   </main>
 
   

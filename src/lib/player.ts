@@ -7,8 +7,8 @@ export interface Player {
   }
 
 export interface Action {
-  type: 'moveTo' | 'startAt';
-  location: string;
+  type: 'moveTo' | 'startAt' | 'makeSupply';
+  location?: string;
 }
 
 export function createPlayer(name: string, startingLocation: string, color: string): Player {
