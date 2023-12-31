@@ -4,7 +4,7 @@
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
   export let color: string;
-  import { findPath } from '../lib/utils';
+  import { findPath, animateFerry } from '../lib/utils';
 
   let capacity: number;
   let supplies: number;
@@ -50,8 +50,11 @@
     let path = findPath(activePlayer.currentLocation, targetLocation, $boardConfig);
     if (path.length > 0 && currentActions + path.length <= 4){
         path.forEach(location => {
+          animateFerry( 'Asgard', 'Avalon', size);
           const action: Action = { type: 'moveTo', location };
           addActionToCurrentTurn(action);
+          // Animation
+         
         });
         players.update(currentPlayers => {
           let updatedPlayers = [...currentPlayers];
@@ -61,17 +64,16 @@
     } else {
       console.log("Zug nicht möglich oder maximale Aktionen erreicht!");
     }
-    console.log($currentTurnActions)
 }
 
 </script>
 
 <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg">
-  <!-- Erstellung des 3x3-Rasters
+  <!-- Erstellung des 3x3-Rasters  -->
   {#each Array(9) as _, index}
     <rect x={index % 3 * gridSize} y={Math.floor(index / 3) * gridSize} width={gridSize} height={gridSize} stroke="black" fill="transparent"  />
   {/each}
-   -->
+ 
 
   <!-- Kreis im mittleren Quadrat -->
   <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={() => moveToLocation(name)}/>
@@ -109,3 +111,5 @@
   {/each}
 
 </svg>
+
+

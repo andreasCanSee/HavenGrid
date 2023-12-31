@@ -83,3 +83,5 @@ export const increaseSupplies = (playerName: string) => {
       });
   });
 };
+
+export const showBoat = writable(false);

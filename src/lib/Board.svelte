@@ -1,6 +1,10 @@
 <script lang="ts">
     import Field from './Field.svelte';
-    import { boardConfig } from '../lib/store';
+    import { initialBoardConfig, boardConfig, showBoat } from '../lib/store';
+    import { onMount } from 'svelte';
+    import { fade } from 'svelte/transition';
+    import { animateFerry } from './utils';
+    import { animatedPlayerPosition, getCoordinates } from './utils';
   
     type Field = {
         name: string;
@@ -82,7 +86,7 @@ function createCurvePath(line: Line): string {
 
     return `M ${line.x1} ${line.y1} Q ${curveX} ${curveY}, ${line.x2} ${line.y2}`;
     }
-
+    
   </script>
   
   <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
@@ -96,6 +100,21 @@ function createCurvePath(line: Line): string {
                 <Field size={gridSize} name={field.name} color={field.color} />
             </g>
         {/each}
-     
+
+        {#if $showBoat}
+        <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
+          <image 
+            href="/boat.png" 
+            width="30" 
+            height="30" 
+            preserveAspectRatio="xMidYMid meet"
+            in:fade={{ duration: 100 }}
+            out:fade={{ duration: 300 }}
+        />
+        
+        </g>
+        
+      {/if}
+       
   </svg>
   
