@@ -5,6 +5,8 @@
   export let name: string;
   export let color: string;
   import { findPath, animateFerry } from '../lib/utils';
+  import SupplyCube from './SupplyCube.svelte';
+  import EmptySupplyCube from './EmptySupplyCube.svelte';
 
   let capacity: number;
   let supplies: number;
@@ -29,10 +31,10 @@
   const textBackgroundY = size / 2.2 + 35 - textBackgroundHeight / 2;
 
   // Berechnungen für die Würfel
-  const diceSize = 15; // Größe eines Würfels
-  const diceMargin = 5; // Abstand zwischen den Würfeln
-  const diceY = size / 2 - 40; // Y-Position der Würfel
-  const diceXStart = size / 2 - (1.5 * diceSize + diceMargin); // X-Startposition für die Würfel
+  const cubeSize = 15; // Größe eines Würfels
+  const cubeMargin = 5; // Abstand zwischen den Würfeln
+  const cubeY = size / 2 - 40; // Y-Position der Würfel
+  const cubeXStart = size / 2 - (1.5 * cubeSize + cubeMargin); // X-Startposition für die Würfel
 
 
   function calculateXPosition(index: number, totalPlayersAtLocation: number, size: number, activePlayerIndex: number) {
@@ -118,9 +120,11 @@
 
   <!-- Würfel entsprechend der Kapazität und tatsächlichen Supplies -->
   {#each Array(capacity) as _, index}
-    <rect x={diceXStart + index * (diceSize + diceMargin)} y={diceY} width={diceSize} height={diceSize}
-          fill={index < supplies ? "firebrick" : "transparent"}
-          stroke={index >= supplies ? "firebrick" : "none"} />
+      {#if index < supplies}
+        <SupplyCube x={cubeXStart + index * (cubeSize + cubeMargin)} y={cubeY} size={cubeSize} name={name}/>
+      {:else}
+        <EmptySupplyCube x={cubeXStart + index * (cubeSize + cubeMargin)} y={cubeY} size={cubeSize} />
+      {/if}
   {/each}
 
 </svg>

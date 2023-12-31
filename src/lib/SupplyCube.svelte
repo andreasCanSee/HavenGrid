@@ -1,0 +1,47 @@
+<script lang="ts">
+
+    import { players, activePlayerIndex, addActionToCurrentTurn, currentTurnActions, boardConfig } from '../lib/store';
+    import type { Action } from '../lib/player';
+
+    export let x;
+    export let y;
+    export let size;
+    export let name;
+  
+    function pickUpSupplies() {
+        if ($players[$activePlayerIndex].currentLocation === name) {
+        // Aktion hinzufügen
+        const action: Action = {
+            type: 'pickUpSupplies',
+            location: name,
+            freeAction: true
+        };
+        addActionToCurrentTurn(action);
+        console.log($currentTurnActions);
+
+        players.update(currentPlayers => {
+            let updatedPlayers = [...currentPlayers];
+            updatedPlayers[$activePlayerIndex].supplies += 1;
+            return updatedPlayers;
+        });
+
+        boardConfig.update(fields => {
+            let updatedFields = [...fields];
+            let fieldToUpdate = updatedFields.find(f => f.name === name);
+
+            if (fieldToUpdate) {
+                fieldToUpdate.supplies -= 1; 
+            }
+
+            return updatedFields;
+            });
+        }
+    }
+
+  </script>
+  
+  <rect x={x} y={y} width={size} height={size}
+        fill="firebrick"
+        stroke="firebrick"
+        on:click={pickUpSupplies}
+ />
