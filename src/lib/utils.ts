@@ -48,33 +48,50 @@ export function findPath(currentLocation: string, target: string, boardConfig: F
     }
 }
 
+
+// Annahme: Diese Konstante repräsentiert die Dauer der Animation in Millisekunden
+const ANIMATION_DURATION = 2000;
+
 export function animateFerry(
   startLocation: string, 
   endLocation: string, 
   gridSize: number
-  ) {
-    const startCoordinates = getCoordinates(startLocation, gridSize);
-    const endCoordinates = getCoordinates(endLocation, gridSize);
+): Promise<void> {
+    return new Promise((resolve) => {
+        const startCoordinates = getCoordinates(startLocation, gridSize);
+        const endCoordinates = getCoordinates(endLocation, gridSize);
 
-    if (startCoordinates && endCoordinates) {
-      showBoat.set(true); // Boot anzeigen
+        if (startCoordinates && endCoordinates) {
+            showBoat.set(true); // Boot anzeigen
 
-      const scaleX = startCoordinates.x > endCoordinates.x ? 1 : -1;
+            const scaleX = startCoordinates.x > endCoordinates.x ? 1 : -1;
 
-
-      startCoordinates.x -= scaleX * 15;
-      startCoordinates.y -= 15;
-      endCoordinates.x -= 15 * scaleX;
-      endCoordinates.y -= 15;
+            // Anpassung der Startkoordinaten für die Animation
+            startCoordinates.x -= scaleX * 15;
+            startCoordinates.y -= 15;
+            endCoordinates.x -= 15 * scaleX;
+            endCoordinates.y -= 15;
   
-      animatedPlayerPosition.set(
-        { x: startCoordinates.x, y: startCoordinates.y, scaleX }, // Hier wird scaleX gesetzt
-        { duration: 0 }
-      );
-        animatedPlayerPosition.set({ x: endCoordinates.x, y: endCoordinates.y, scaleX }).then(() => {
-            showBoat.set(false); // Boot ausblenden
-        });
-    }
+            // Startposition setzen und Animation sofort starten
+            animatedPlayerPosition.set(
+                { x: startCoordinates.x, y: startCoordinates.y, scaleX }, 
+                { duration: 0 }
+            );
+
+            // Animiere zur Endposition
+            animatedPlayerPosition.set(
+                { x: endCoordinates.x, y: endCoordinates.y, scaleX }
+            );
+
+            // Setzen Sie die Dauer entsprechend der Animationsdauer
+            setTimeout(() => {
+                showBoat.set(false); // Boot ausblenden
+                resolve(); // Promise auflösen, wenn die Animation endet
+            }, ANIMATION_DURATION);
+        } else {
+            resolve(); // Sofort auflösen, wenn keine Animation erforderlich ist
+        }
+    });
 }
 
 export const animatedPlayerPosition = tweened({ x: 0, y: 0,  scaleX: -1 }, { duration: 2000, easing: quadInOut });

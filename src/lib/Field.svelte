@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { players, activePlayerIndex, boardConfig, currentTurnActions, addActionToCurrentTurn } from '../lib/store';
+  import { players, activePlayerIndex, boardConfig, currentTurnActions, addActionToCurrentTurn, showBoat } from '../lib/store';
   import type { Action } from '../lib/player';
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
@@ -46,25 +46,33 @@
 
     $: totalPlayersAtLocation = $players.filter(p => p.currentLocation === name).length;
 
-  function moveToLocation(targetLocation: string) {
-    let path = findPath(activePlayer.currentLocation, targetLocation, $boardConfig);
-    if (path.length > 0 && currentActions + path.length <= 4){
-        path.forEach(location => {
-          animateFerry( 'Asgard', 'Avalon', size);
-          const action: Action = { type: 'moveTo', location };
-          addActionToCurrentTurn(action);
-          // Animation
-         
-        });
+  async function moveToLocation(targetLocation: string) {
+    let currentLocation = activePlayer.currentLocation;
+    let path = findPath(currentLocation, targetLocation, $boardConfig);
+
+     // Überprüfen, ob der Zielort direkt mit dem aktuellen Ort verbunden ist
+     if (path.length > 0 && currentActions + path.length <= 4) {
+      for (const location of path) {
+            await animateFerry(currentLocation, location, size);
+            // Aktion zur Bewegung hinzufügen
+            const action: Action = { type: 'moveTo', location };
+            addActionToCurrentTurn(action);
+
+            // Aktualisierung der Spielerposition für den nächsten Schritt
+            currentLocation = location;
+      }
+
+        // Spielerposition im Store aktualisieren
         players.update(currentPlayers => {
-          let updatedPlayers = [...currentPlayers];
-          updatedPlayers[$activePlayerIndex].currentLocation = targetLocation;
-          return updatedPlayers;
+            let updatedPlayers = [...currentPlayers];
+            updatedPlayers[$activePlayerIndex].currentLocation = targetLocation;
+            return updatedPlayers;
         });
     } else {
-      console.log("Zug nicht möglich oder maximale Aktionen erreicht!");
+        console.log("Zug nicht möglich: Zielort ist nicht direkt verbunden!");
     }
 }
+    
 
 </script>
 
@@ -89,10 +97,15 @@
   </defs>
 
   {#each $players as player, index}
-    {#if player.currentLocation === name}
-    <circle cx={calculateXPosition(index, totalPlayersAtLocation, size, $activePlayerIndex)} cy={size / 2} r={$activePlayerIndex === index ? "17" : "15"}
-    stroke={player.color} stroke-width={$activePlayerIndex === index ? "6" : "3"} fill="none"
-    style:filter={$activePlayerIndex === index ? 'url(#strongGlow)' : ''} />
+    {#if player.currentLocation === name }
+      {#if $activePlayerIndex !== index || !$showBoat}
+        <circle cx={calculateXPosition(index, totalPlayersAtLocation, size, $activePlayerIndex)} 
+                cy={size / 2} r={$activePlayerIndex === index ? "17" : "15"}
+                stroke={player.color} 
+                stroke-width={$activePlayerIndex === index ? "6" : "3"} 
+                fill="none"
+                style:filter={$activePlayerIndex === index ? 'url(#strongGlow)' : ''} />
+      {/if}
     {/if}
   {/each}
 
