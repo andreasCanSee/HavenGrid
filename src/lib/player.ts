@@ -8,8 +8,9 @@ export interface Player {
   }
 
 export interface Action {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies';
   location?: string;
+  supplies?: number;
   freeAction: boolean;
 }
 

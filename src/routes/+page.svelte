@@ -4,7 +4,6 @@
     import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
     import type { Action, Player } from '../lib/player'; 
     import PlayerTableau from '../lib/PlayerTableau.svelte';
-    import {get } from 'svelte/store';
 
     onMount(() => {
         restartGame();
@@ -77,6 +76,24 @@
 
     }
 
+    function undoDeliverSuppliesAction(action: Action) {
+
+            players.update(currentPlayers => {
+                let currentPlayer = currentPlayers[$activePlayerIndex];
+                currentPlayer.supplies += action.supplies ?? 0; // Vorräte des Spielers erhöhen
+                return currentPlayers;
+            });
+
+    boardConfig.update(fields => {
+        let fieldToUpdate = fields.find(f => f.name === action.location);
+        if (fieldToUpdate && typeof action.supplies === 'number') {
+            fieldToUpdate.supplies -= action.supplies; // Vorräte des Feldes reduzieren
+            fieldToUpdate.supplies = Math.max(0, fieldToUpdate.supplies); // Verhindere negative Vorräte
+        }
+        return fields;
+    });
+}
+
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
         currentTurnActions.update(actions => {
@@ -97,7 +114,10 @@
                     break;
                 case 'makeSupply':
                     undoMakeSupplyAction();
-                    break
+                    break;
+                case 'deliverSupplies':
+                    undoDeliverSuppliesAction(lastActionRemoved);
+                    break;
             }
         }
        
