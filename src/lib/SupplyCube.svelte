@@ -1,12 +1,12 @@
 <script lang="ts">
 
-    import { players, activePlayerIndex, addActionToCurrentTurn, currentTurnActions, boardConfig, showBoat } from '../lib/store';
+    import { players, activePlayerIndex, addActionToCurrentTurn, boardConfig, showBoat } from '../lib/store';
     import type { Action } from '../lib/player';
 
-    export let x;
-    export let y;
-    export let size;
-    export let name;
+    export let x: number;
+    export let y: number;
+    export let size: number;
+    export let name: string;
   
     function pickUpSupplies() {
         if ($players[$activePlayerIndex].currentLocation === name && !$showBoat) {

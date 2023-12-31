@@ -5,9 +5,8 @@
   export let name: string;
   export let color: string;
   import { findPath, animateFerry } from '../lib/utils';
-  import SupplyCube from './SupplyCube.svelte';
-  import EmptySupplyCube from './EmptySupplyCube.svelte';
-
+  import SupplyArea from './SupplyArea.svelte';
+ 
   let capacity: number;
   let supplies: number;
 
@@ -29,13 +28,6 @@
   const textBackgroundHeight = 15;
   const textBackgroundX = (size - textBackgroundWidth) / 2;
   const textBackgroundY = size / 2.2 + 35 - textBackgroundHeight / 2;
-
-  // Berechnungen für die Würfel
-  const cubeSize = 15; // Größe eines Würfels
-  const cubeMargin = 5; // Abstand zwischen den Würfeln
-  const cubeY = size / 2 - 40; // Y-Position der Würfel
-  const cubeXStart = size / 2 - (1.5 * cubeSize + cubeMargin); // X-Startposition für die Würfel
-
 
   function calculateXPosition(index: number, totalPlayersAtLocation: number, size: number, activePlayerIndex: number) {
         const baseX = size / 2;
@@ -79,12 +71,12 @@
 </script>
 
 <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg">
-  <!-- Erstellung des 3x3-Rasters  -->
+  <!-- Erstellung des 3x3-Rasters  
   {#each Array(9) as _, index}
     <rect x={index % 3 * gridSize} y={Math.floor(index / 3) * gridSize} width={gridSize} height={gridSize} stroke="black" fill="transparent"  />
   {/each}
+  -->
  
-
   <!-- Kreis im mittleren Quadrat -->
   <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={() => !$showBoat &&  moveToLocation(name)}/>
 
@@ -98,6 +90,7 @@
     </filter>
   </defs>
 
+  <!-- Ringe in Spielerfarben -->
   {#each $players as player, index}
     {#if player.currentLocation === name }
       {#if $activePlayerIndex !== index || !$showBoat}
@@ -111,20 +104,12 @@
     {/if}
   {/each}
 
-
   <!-- Hintergrund für den Namen des Feldes -->
   <rect x={textBackgroundX} y={textBackgroundY} width={textBackgroundWidth} height={textBackgroundHeight} fill="white" fill-opacity="0.7"/>
 
   <!-- Name des Feldes oberhalb des Kreises -->
   <text x={size / 2} y={size / 2.2 + 40} text-anchor="middle" fill="navy">{name}</text>
 
-  <!-- Würfel entsprechend der Kapazität und tatsächlichen Supplies -->
-  {#each Array(capacity) as _, index}
-      {#if index < supplies}
-        <SupplyCube x={cubeXStart + index * (cubeSize + cubeMargin)} y={cubeY} size={cubeSize} name={name}/>
-      {:else}
-        <EmptySupplyCube x={cubeXStart + index * (cubeSize + cubeMargin)} y={cubeY} size={cubeSize} />
-      {/if}
-  {/each}
+  <SupplyArea {name} {supplies} {capacity} {size}/>
 
 </svg>
