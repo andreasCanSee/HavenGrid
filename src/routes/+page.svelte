@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import Board from '../lib/Board.svelte';
     import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
-    import type { Action } from '../lib/player'; 
+    import type { Action, Player } from '../lib/player'; 
     import PlayerTableau from '../lib/PlayerTableau.svelte';
     import {get } from 'svelte/store';
 
@@ -117,13 +117,22 @@
         drawnInfectionCards.set(newDrawnInfectionCards);
     }
 
+    // Funktion zum Rotieren der Spielerliste
+    function rotatePlayers(players: Player[], activeIndex: number) {
+        return [...players.slice(activeIndex), ...players.slice(0, activeIndex)];
+    }
+
+    $: rotatedPlayers = rotatePlayers($players, $activePlayerIndex);
+
 </script>
   
   <header>
     <h1>Pandemic Legacy Season 2 Prolog</h1>
   </header>
  
+  
   <main>
+    
     <Board />
     <div>
         <p>Verbleibende Aktionen: {4 - currentActions}</p>
@@ -139,8 +148,8 @@
             {/each}
         </ul>
     </details>
-
-    {#each $players as player}
+ 
+    {#each rotatedPlayers as player}
         <PlayerTableau {player} isActive={$players[$activePlayerIndex].name === player.name} />
     {/each}
   </main>
