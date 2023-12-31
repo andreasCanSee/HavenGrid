@@ -18,11 +18,67 @@
         activePlayerIndex.update(index => (index + 1) % $players.length);
     }
 
+    function undoMoveToAction(action: Action) {
+        players.update(currentPlayers => {
+            const currentPlayer = currentPlayers[$activePlayerIndex];
+            
+            let newLocation = '';
+            for (let i = $currentTurnActions.length - 1; i >= 0; i--) {
+                if ($currentTurnActions[i].type === 'moveTo') {
+                    newLocation = $currentTurnActions[i].location || '';
+                    break;
+                }
+            }
+
+            // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
+            if (!newLocation) {
+                for (let i = currentPlayer.actionsHistory.length - 1; i >= 0; i--) {
+                    for (let j = currentPlayer.actionsHistory[i].length - 1; j >= 0; j--) {
+                        if (currentPlayer.actionsHistory[i][j].type === 'moveTo') {
+                            newLocation = currentPlayer.actionsHistory[i][j].location || '';
+                            break;
+                        }
+                    }
+                    if (newLocation) break;
+                }
+            }
+            newLocation = newLocation || currentPlayer.actionsHistory[0][0]?.location || '';
+            currentPlayer.currentLocation = newLocation;
+
+            return currentPlayers;
+        });         
+    }
+
+    function undoPickUpSuppliesAction(action: Action) {
+
+        players.update(currentPlayers => {
+            if (currentPlayers[$activePlayerIndex].supplies > 0) {
+                currentPlayers[$activePlayerIndex].supplies--;
+            }
+            return currentPlayers;
+        });
+
+        boardConfig.update(fields => {
+            let fieldToUpdate = fields.find(f => f.name === action.location);
+            if (fieldToUpdate) {
+                fieldToUpdate.supplies += 1;
+            }
+            return fields;
+        });
+    }
+
+    function undoMakeSupplyAction(){
+        players.update(currentPlayers => {
+            if (currentPlayers[$activePlayerIndex].supplies > 0) {
+                currentPlayers[$activePlayerIndex].supplies--;
+            }
+            return currentPlayers;
+        });
+
+    }
+
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
-        //let newLocation = '';
-
-        // Erster Schritt: Aktualisiere currentTurnActions und speichere die letzte Aktion, falls entfernt
         currentTurnActions.update(actions => {
             if (actions.length > 0) {
                 lastActionRemoved = actions.pop();
@@ -30,48 +86,19 @@
             return actions;
         });
 
-        // Zweiter Schritt: Aktualisiere die Spielerdaten basierend auf der entfernten Aktion
+        
         if (lastActionRemoved) {
-            players.update(currentPlayers => {
-                const currentPlayer = currentPlayers[$activePlayerIndex];
-                
-                // Suche zuerst in currentTurnActions
-                if (lastActionRemoved && lastActionRemoved.type === 'moveTo') {
-                    // Rückgängigmachen einer moveTo-Aktion
-                    let newLocation = '';
-                    for (let i = $currentTurnActions.length - 1; i >= 0; i--) {
-                        if ($currentTurnActions[i].type === 'moveTo') {
-                            newLocation = $currentTurnActions[i].location || '';
-                            break;
-                        }
-                    }
-
-                    // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
-                    if (!newLocation) {
-                        for (let i = currentPlayer.actionsHistory.length - 1; i >= 0; i--) {
-                            for (let j = currentPlayer.actionsHistory[i].length - 1; j >= 0; j--) {
-                                if (currentPlayer.actionsHistory[i][j].type === 'moveTo') {
-                                    newLocation = currentPlayer.actionsHistory[i][j].location || '';
-                                    break;
-                                }
-                            }
-                            if (newLocation) break;
-                        }
-                    }
-
-                    // Wenn keine moveTo-Aktion gefunden wurde, nimm die Location des ersten Elements
-                    newLocation = newLocation || currentPlayer.actionsHistory[0][0]?.location || '';
-                    currentPlayer.currentLocation = newLocation;
-
-                } else if (lastActionRemoved && lastActionRemoved.type === 'makeSupply'){
-                    if (currentPlayer.supplies > 0) {
-                        currentPlayer.supplies--;
-                    }
-
-                }
-                return currentPlayers;
-            });
-            console.log(get(players));
+            switch (lastActionRemoved.type) {
+                case 'moveTo':
+                    undoMoveToAction(lastActionRemoved);
+                    break;
+                case 'pickUpSupplies':
+                    undoPickUpSuppliesAction(lastActionRemoved);
+                    break;
+                case 'makeSupply':
+                    undoMakeSupplyAction();
+                    break
+            }
         }
        
     }

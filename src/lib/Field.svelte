@@ -86,7 +86,7 @@
  
 
   <!-- Kreis im mittleren Quadrat -->
-  <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={() => moveToLocation(name)}/>
+  <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={() => !$showBoat &&  moveToLocation(name)}/>
 
   <defs>
     <filter id="strongGlow" x="-100%" y="-100%" width="300%" height="300%">

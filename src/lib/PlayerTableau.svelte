@@ -1,5 +1,5 @@
 <script>
-    import { increaseSupplies, currentTurnActions } from '../lib/store';
+    import { increaseSupplies, currentTurnActions, showBoat } from '../lib/store';
 
     export let player;
     export let isActive;
@@ -7,7 +7,7 @@
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
 function handleIncreaseClick() {
-    if(isActive && currentActions < 4){
+    if(isActive && currentActions < 4 && !$showBoat){
         increaseSupplies(player.name);
     }
 }

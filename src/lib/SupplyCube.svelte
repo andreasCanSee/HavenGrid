@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import { players, activePlayerIndex, addActionToCurrentTurn, currentTurnActions, boardConfig } from '../lib/store';
+    import { players, activePlayerIndex, addActionToCurrentTurn, currentTurnActions, boardConfig, showBoat } from '../lib/store';
     import type { Action } from '../lib/player';
 
     export let x;
@@ -9,7 +9,7 @@
     export let name;
   
     function pickUpSupplies() {
-        if ($players[$activePlayerIndex].currentLocation === name) {
+        if ($players[$activePlayerIndex].currentLocation === name && !$showBoat) {
         // Aktion hinzufügen
         const action: Action = {
             type: 'pickUpSupplies',
@@ -17,7 +17,6 @@
             freeAction: true
         };
         addActionToCurrentTurn(action);
-        console.log($currentTurnActions);
 
         players.update(currentPlayers => {
             let updatedPlayers = [...currentPlayers];
