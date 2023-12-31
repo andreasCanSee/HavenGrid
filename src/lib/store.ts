@@ -68,7 +68,7 @@ export function finalizeTurn(activePlayerIndex: number) {
 }
 
 export const increaseSupplies = (playerName: string) => {
-  const makeSupplyAction: Action = { type: 'makeSupply' };  
+  const makeSupplyAction: Action = { type: 'makeSupply', freeAction: false };  
 
   // Aktualisiere currentTurnActions
   currentTurnActions.update(actions => [...actions, makeSupplyAction]);

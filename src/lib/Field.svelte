@@ -10,7 +10,7 @@
   let supplies: number;
 
   $: activePlayer = $players[$activePlayerIndex];
-  $: currentActions = $currentTurnActions.length;
+  $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
   $: {
     const place = $boardConfig.find(p => p.name === name);
@@ -55,7 +55,7 @@
       for (const location of path) {
             await animateFerry(currentLocation, location, size);
             // Aktion zur Bewegung hinzufügen
-            const action: Action = { type: 'moveTo', location };
+            const action: Action = { type: 'moveTo', location, freeAction: false };
             addActionToCurrentTurn(action);
 
             // Aktualisierung der Spielerposition für den nächsten Schritt
@@ -124,5 +124,3 @@
   {/each}
 
 </svg>
-
-

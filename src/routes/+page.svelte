@@ -11,7 +11,7 @@
     })
 
 
-    $: currentActions = $currentTurnActions.length;
+    $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
     function endActionPhase() {
         finalizeTurn($activePlayerIndex);

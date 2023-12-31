@@ -1,10 +1,8 @@
 <script lang="ts">
     import Field from './Field.svelte';
-    import { initialBoardConfig, boardConfig, showBoat } from '../lib/store';
-    import { onMount } from 'svelte';
+    import { boardConfig, showBoat } from '../lib/store';
     import { fade } from 'svelte/transition';
-    import { animateFerry } from './utils';
-    import { animatedPlayerPosition, getCoordinates } from './utils';
+    import { animatedPlayerPosition } from './utils';
   
     type Field = {
         name: string;

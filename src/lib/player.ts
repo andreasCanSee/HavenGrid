@@ -10,6 +10,7 @@ export interface Player {
 export interface Action {
   type: 'moveTo' | 'startAt' | 'makeSupply';
   location?: string;
+  freeAction: boolean;
 }
 
 export function createPlayer(name: string, startingLocation: string, color: string, image: string): Player {
@@ -17,7 +18,7 @@ export function createPlayer(name: string, startingLocation: string, color: stri
       name,
       currentLocation: startingLocation,
       supplies: 0,
-      actionsHistory: [[{ type: 'startAt', location: startingLocation }]],
+      actionsHistory: [[{ type: 'startAt', location: startingLocation, freeAction: true }]],
       color,
       image
     }
