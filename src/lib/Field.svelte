@@ -67,10 +67,11 @@
 </script>
 
 <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg">
-  <!-- Erstellung des 3x3-Rasters -->
+  <!-- Erstellung des 3x3-Rasters
   {#each Array(9) as _, index}
     <rect x={index % 3 * gridSize} y={Math.floor(index / 3) * gridSize} width={gridSize} height={gridSize} stroke="black" fill="transparent"  />
   {/each}
+   -->
 
   <!-- Kreis im mittleren Quadrat -->
   <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={() => moveToLocation(name)}/>
@@ -103,8 +104,8 @@
   <!-- Würfel entsprechend der Kapazität und tatsächlichen Supplies -->
   {#each Array(capacity) as _, index}
     <rect x={diceXStart + index * (diceSize + diceMargin)} y={diceY} width={diceSize} height={diceSize}
-          fill={index < supplies ? "#412B15" : "transparent"}
-          stroke={index >= supplies ? "black" : "none"} />
+          fill={index < supplies ? "firebrick" : "transparent"}
+          stroke={index >= supplies ? "firebrick" : "none"} />
   {/each}
 
 </svg>

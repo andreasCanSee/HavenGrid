@@ -1,9 +1,14 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import Board from '../lib/Board.svelte';
     import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
     import type { Action } from '../lib/player'; 
     import PlayerTableau from '../lib/PlayerTableau.svelte';
     import {get } from 'svelte/store';
+
+    onMount(() => {
+        restartGame();
+    })
 
 
     $: currentActions = $currentTurnActions.length;
@@ -136,7 +141,7 @@
     </details>
 
     {#each $players as player}
-        <PlayerTableau {player} />
+        <PlayerTableau {player} isActive={$players[$activePlayerIndex].name === player.name} />
     {/each}
   </main>
 

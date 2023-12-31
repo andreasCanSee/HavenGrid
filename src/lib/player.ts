@@ -4,6 +4,7 @@ export interface Player {
     supplies: number;
     actionsHistory: Action[][];
     color: string;
+    image: string;
   }
 
 export interface Action {
@@ -11,13 +12,14 @@ export interface Action {
   location?: string;
 }
 
-export function createPlayer(name: string, startingLocation: string, color: string): Player {
+export function createPlayer(name: string, startingLocation: string, color: string, image: string): Player {
     return {
       name,
       currentLocation: startingLocation,
       supplies: 0,
       actionsHistory: [[{ type: 'startAt', location: startingLocation }]],
-      color
+      color,
+      image
     }
 }
   

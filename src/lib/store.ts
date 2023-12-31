@@ -31,8 +31,8 @@ export const boardConfig = writable([...initialBoardConfig]);
 
 export function getInitialPlayers() {
   return [
-    createPlayer("Spieler 1", "Atlantis", "purple"),
-    createPlayer("Spieler 2", "Avalon", "orange")
+    createPlayer("Spieler 1", "Atlantis", "purple", '/survivor-male.png'),
+    createPlayer("Spieler 2", "Avalon", "	orange", '/survivor-female.png')
   ];
 }
 
