@@ -50,7 +50,7 @@
      // Überprüfen, ob der Zielort direkt mit dem aktuellen Ort verbunden ist
      if (path.length > 0 && currentActions + path.length <= 4) {
       for (const location of path) {
-            await animateFerry(currentLocation, location, size);
+            await animateFerry(currentLocation, location, size, 'moveTo');
             // Aktion zur Bewegung hinzufügen
             const action: Action = { type: 'moveTo', location, freeAction: false };
             addActionToCurrentTurn(action);

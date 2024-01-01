@@ -3,6 +3,7 @@
     import { addToDiscardPile, cardsStore } from "./cardsStore";
     import { addActionToCurrentTurn } from "./store";
     import type { Action } from "./player";
+    import { animateFerry } from "./utils";
 
     export let name: string;
     export let color: string;
@@ -10,14 +11,15 @@
     $: activePlayer = $players[$activePlayerIndex];
     $: isCurrentLocation = activePlayer.currentLocation === name;
 
-    function sailToLocation() {
+    async function sailToLocation() {
         if (!isCurrentLocation) {
             const cardToDiscard = {
             cardType: 'city', // oder ein anderer passender Wert für cardType
             data: { name, color }
         };
             addToDiscardPile(cardToDiscard);
-            console.log(`Segeln nach ${name}`);
+            await animateFerry(activePlayer.currentLocation, name, 120, 'sailTo');
+            
             players.update(allPlayers => {
                 const updatedPlayers = [...allPlayers];
                 const player = updatedPlayers[$activePlayerIndex];
@@ -32,6 +34,8 @@
                 console.log($cardsStore.discardPile)
                 return updatedPlayers;
             });
+
+            
 
             const sailToLocation: Action = {
                 type: 'sailTo',

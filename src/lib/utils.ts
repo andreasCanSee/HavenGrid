@@ -56,11 +56,14 @@ const ANIMATION_DURATION = 2000;
 export function animateFerry(
   startLocation: string, 
   endLocation: string, 
-  gridSize: number
+  gridSize: number,
+  actionType: 'moveTo' | 'sailTo' // Neuer Parameter
 ): Promise<void> {
     return new Promise((resolve) => {
         const startCoordinates = getCoordinates(startLocation, gridSize);
         const endCoordinates = getCoordinates(endLocation, gridSize);
+
+        const imageFile = actionType === 'sailTo' ? '/ship.png' : '/boat.png';
 
         if (startCoordinates && endCoordinates) {
             showBoat.set(true); // Boot anzeigen
@@ -75,13 +78,13 @@ export function animateFerry(
   
             // Startposition setzen und Animation sofort starten
             animatedPlayerPosition.set(
-                { x: startCoordinates.x, y: startCoordinates.y, scaleX }, 
+                { x: startCoordinates.x, y: startCoordinates.y, scaleX, imageFile }, 
                 { duration: 0 }
             );
 
             // Animiere zur Endposition
             animatedPlayerPosition.set(
-                { x: endCoordinates.x, y: endCoordinates.y, scaleX }
+                { x: endCoordinates.x, y: endCoordinates.y, scaleX, imageFile }
             );
 
             // Setzen Sie die Dauer entsprechend der Animationsdauer
@@ -95,4 +98,4 @@ export function animateFerry(
     });
 }
 
-export const animatedPlayerPosition = tweened({ x: 0, y: 0,  scaleX: -1 }, { duration: 2000, easing: quadInOut });
+export const animatedPlayerPosition = tweened({ x: 0, y: 0,  scaleX: -1, imageFile: '/boat.png' }, { duration: 2000, easing: quadInOut });
