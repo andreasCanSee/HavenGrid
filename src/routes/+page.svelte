@@ -9,15 +9,11 @@
     import PlayerInteractionArea from '../lib/PlayerInteractionArea.svelte';
     import { resetCardsStore, cardsStore } from '../lib/cardsStore';
 
-    onMount(() => {
+    /*onMount(() => {
         restartGame();
-    })
+    })*/
 
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
-
-    $: {
-    console.log('Aktuelle Zugaktionen:', $currentTurnActions);
-  }
 
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
@@ -45,20 +41,22 @@
                 case 'transferSupplies':
                     undoFunctions.undoTransferSuppliesAction(lastActionRemoved);
                     break;
+                case 'sailTo':
+                    undoFunctions.undoSailToAction(lastActionRemoved);
+                    break;
             }
         }
        
     }
 
     function restartGame(){
+        resetCardsStore();
+
         players.set(getInitialPlayers());
         activePlayerIndex.set(0);
 
         currentTurnActions.set([]);
 
-        resetCardsStore();
-        // console.log($cardsStore)
-        
         // Setze das Spielbrett zurück
         let newDrawnInfectionCards: string[] = [];
 

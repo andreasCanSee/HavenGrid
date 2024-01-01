@@ -1,3 +1,6 @@
+import type { Card } from './cardsStore' 
+import { distributeStartCards } from './cardsStore';
+
 export interface Player {
     name: string;
     currentLocation: string
@@ -5,10 +8,11 @@ export interface Player {
     actionsHistory: Action[][];
     color: string;
     image: string;
+    handCards: Card[]
   }
 
 export interface Action {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo';
   location?: string;
   supplies?: number;
   freeAction: boolean;
@@ -22,6 +26,7 @@ export function createPlayer(name: string, startingLocation: string, color: stri
       supplies: 0,
       actionsHistory: [[{ type: 'startAt', location: startingLocation, freeAction: true }]],
       color,
-      image
+      image,
+      handCards: distributeStartCards(4)
     }
 }

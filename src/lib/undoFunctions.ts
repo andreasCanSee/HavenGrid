@@ -1,36 +1,15 @@
 import { get } from 'svelte/store';
 import { currentTurnActions } from './store';
 import { boardConfig } from './boardStore';
+import { cardsStore } from './cardsStore';
 import { players, activePlayerIndex } from '../lib/playerStore'
-import type { Action } from '../lib/playerStore';
+import type { Action } from '../lib/player';
+import type { Card } from './cardsStore';
 
 export function undoMoveToAction() {
     players.update(currentPlayers => {
         const currentPlayer = currentPlayers[get(activePlayerIndex)];
-        
-        let newLocation = '';
-        for (let i = get(currentTurnActions).length - 1; i >= 0; i--) {
-            if (get(currentTurnActions)[i].type === 'moveTo') {
-                newLocation = get(currentTurnActions)[i].location || '';
-                break;
-            }
-        }
-
-        // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
-        if (!newLocation) {
-            for (let i = currentPlayer.actionsHistory.length - 1; i >= 0; i--) {
-                for (let j = currentPlayer.actionsHistory[i].length - 1; j >= 0; j--) {
-                    if (currentPlayer.actionsHistory[i][j].type === 'moveTo') {
-                        newLocation = currentPlayer.actionsHistory[i][j].location || '';
-                        break;
-                    }
-                }
-                if (newLocation) break;
-            }
-        }
-        newLocation = newLocation || currentPlayer.actionsHistory[0][0]?.location || '';
-        currentPlayer.currentLocation = newLocation;
-
+        currentPlayer.currentLocation = findLastLocation(currentPlayer.actionsHistory);
         return currentPlayers;
     });         
 }
@@ -100,4 +79,56 @@ export function undoTransferSuppliesAction(action: Action){
 
         return allPlayers;
     });
+}
+
+export function undoSailToAction(action: Action){
+
+    const locationName = action.location;
+
+    let cardToReturn: Card | null = null;
+
+    cardsStore.update(store => {
+        const cardIndex = store.discardPile.findIndex(card => card.data.name === locationName && card.cardType === 'city');
+        if (cardIndex !== -1) {
+            [cardToReturn] = store.discardPile.splice(cardIndex, 1);
+        }
+        return store;
+    });
+
+    players.update(allPlayers => {
+        if(cardToReturn){
+            const currentPlayer = allPlayers[get(activePlayerIndex)];
+            currentPlayer.handCards.push(cardToReturn);
+            currentPlayer.currentLocation = findLastLocation(currentPlayer.actionsHistory);
+        }
+        
+        return allPlayers;
+    });
+}
+
+function findLastLocation(actionsHistory: Action[][]): string {
+    let lastLocation = '';
+    
+    for (let i = get(currentTurnActions).length - 1; i >= 0; i--) {
+        const action = get(currentTurnActions)[i];
+        if (action.type === 'moveTo' || action.type === 'sailTo') {
+            lastLocation = action.location || '';
+            break;
+        }
+    }
+
+        // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
+        if (!lastLocation) {
+            for (let i = actionsHistory.length - 1; i >= 0; i--) {
+                for (let j = actionsHistory[i].length - 1; j >= 0; j--) {
+                    const historyAction = actionsHistory[i][j]
+                    if (historyAction.type === 'moveTo' || historyAction.type === 'sailTo') {
+                        lastLocation = historyAction.location || '';
+                        break;
+                    }
+                }
+                if (lastLocation) break;
+            }
+        }
+        return lastLocation || actionsHistory[0][0]?.location || '';
 }

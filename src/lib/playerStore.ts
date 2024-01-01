@@ -6,7 +6,7 @@ import type { Player, Action } from "./player";
 export function getInitialPlayers() {
     return [
       createPlayer("Spieler 1", "Atlantis", "purple", '/survivor-male.png'),
-      createPlayer("Spieler 2", "Avalon", "	orange", '/survivor-female.png')
+      createPlayer("Spieler 2", "Avalon", "orange", '/survivor-female.png')
     ];
   }
   

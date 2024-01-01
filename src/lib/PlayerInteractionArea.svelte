@@ -2,16 +2,26 @@
     import PlayerTableau from "./PlayerTableau.svelte";
     import { players,  activePlayerIndex } from '../lib/playerStore';
     import type { Player } from "./player";
+    import { cardsStore } from "./cardsStore";
+    import type { Card } from "./cardsStore";
 
      // Funktion zum Rotieren der Spielerliste
      function rotatePlayers(players: Player[], activeIndex: number) {
         return [...players.slice(activeIndex), ...players.slice(0, activeIndex)];
     }
 
-    $: rotatedPlayers = rotatePlayers($players, $activePlayerIndex);
+    let rotatedPlayers: Player[] = [];
+
+    $: if ($players && $players.length > 0 && typeof $activePlayerIndex === 'number') {
+        rotatedPlayers = rotatePlayers($players, $activePlayerIndex);
+    } 
 
 </script>
 
-{#each rotatedPlayers as player}
-    <PlayerTableau {player} isActive={$players[$activePlayerIndex].name === player.name} />
-{/each}
+<main>
+    {#each rotatedPlayers as player}
+        <PlayerTableau {player} isActive={$players[$activePlayerIndex].name === player.name} />
+    {/each}
+
+</main>
+
