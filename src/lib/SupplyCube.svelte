@@ -1,8 +1,9 @@
 <script lang="ts"> 
-    import { addActionToCurrentTurn, showBoat } from '../lib/store';
+    import { addActionToCurrentTurn } from '../lib/store';
+    import { showBoat } from "./boardStore";
     import { boardConfig } from './boardStore';
     import { players, activePlayerIndex } from '../lib/playerStore'
-    import type { Action } from '../lib/playerStore';
+    import type { Action } from '../lib/player';
 
     export let x: number;
     export let y: number;

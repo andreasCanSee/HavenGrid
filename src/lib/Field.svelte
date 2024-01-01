@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { currentTurnActions, addActionToCurrentTurn, showBoat } from '../lib/store';
+  import { currentTurnActions, addActionToCurrentTurn } from '../lib/store';
+  import { showBoat } from "./boardStore";
   import { boardConfig } from './boardStore';
   import { players, activePlayerIndex } from '../lib/playerStore'
-  import type { Action } from '../lib/playerStore';
+  import type { Action } from '../lib/player';
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
   export let color: string;
@@ -52,7 +53,7 @@
             await animateFerry(currentLocation, location, size);
             // Aktion zur Bewegung hinzufügen
             const action: Action = { type: 'moveTo', location, freeAction: false };
-            addActionToCurrentTurn(action);
+            
 
             // Aktualisierung der Spielerposition für den nächsten Schritt
             currentLocation = location;

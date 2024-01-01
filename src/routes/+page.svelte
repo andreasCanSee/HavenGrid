@@ -4,7 +4,7 @@
     import { drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
     import { initialBoardConfig, boardConfig } from '../lib/boardStore';
     import { players, getInitialPlayers, activePlayerIndex } from '../lib/playerStore'
-    import type { Action } from '../lib/playerStore'; 
+    import type { Action } from '../lib/player'; 
     import * as undoFunctions from '../lib/undoFunctions';
     import PlayerInteractionArea from '../lib/PlayerInteractionArea.svelte';
     import { resetCardsStore, cardsStore } from '../lib/cardsStore';

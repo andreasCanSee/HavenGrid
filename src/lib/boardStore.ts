@@ -26,3 +26,5 @@ export interface FieldConfig {
   ];
   
   export const boardConfig = writable([...initialBoardConfig]);
+
+export const showBoat = writable(false);

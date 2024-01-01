@@ -1,8 +1,10 @@
-<script>
-    import { currentTurnActions, showBoat } from '../lib/store';
+<script lang="ts">
+    import { currentTurnActions, addActionToCurrentTurn } from '../lib/store';
+    import { showBoat } from './boardStore';
     import { players, activePlayerIndex, increaseSupplies } from './playerStore'
-    export let player;
-    export let isActive;
+    import type { Action, Player } from './player';
+    export let player: Player;
+    export let isActive: boolean;
 
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
@@ -12,15 +14,16 @@
         }
     }
 
-    function handleDragStart(event, playerName) {
-        const fromPlayer = $players.find(p => p.name === playerName).name;
-        if (fromPlayer) {
-            event.dataTransfer.setData("text/plain", playerName);
+    function handleDragStart(event: DragEvent, playerName: string) {
+        const fromPlayer = $players.find(p => p.name === playerName);
+        if (fromPlayer && event.dataTransfer) {
+            event.dataTransfer.setData("text/plain", fromPlayer.name);
         }
     }
 
-    function handleDrop(event, targetPlayerName) {
+    function handleDrop(event: DragEvent, targetPlayerName: string) {
         event.preventDefault();
+        if (!event.dataTransfer) return; 
         const draggedPlayerName = event.dataTransfer.getData("text/plain");
 
         if(targetPlayerName !== draggedPlayerName){
@@ -33,15 +36,14 @@
                     toPlayer.supplies++;
 
                     const activePlayer = allPlayers[$activePlayerIndex];
-                    
-                    currentTurnActions.update(actions => {
-                        return [...actions, {
+
+                    const action: Action = {
                             type: 'transferSupplies',
                             supplies: activePlayer.name === fromPlayer.name ? -1 : 1, 
                             freeAction: true,
                             transactionPartner: activePlayer.name === fromPlayer.name ? toPlayer.name : fromPlayer.name
-                        }];
-                    });               
+                        };
+                    addActionToCurrentTurn(action);              
                 }
                 return allPlayers;
             });

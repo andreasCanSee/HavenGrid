@@ -1,6 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { players } from './playerStore'; 
-import type { Action } from './playerStore';
+import type { Action } from './player';
 
 export const drawnInfectionCards = writable<string[]>([]);
 
@@ -28,5 +28,3 @@ export function finalizeTurn(activePlayerIndex: number) {
   // Setze currentTurnActions für den nächsten Spieler zurück
   currentTurnActions.set([]);
 }
-
-export const showBoat = writable(false);
