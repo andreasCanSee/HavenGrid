@@ -62,9 +62,9 @@
             updatedPlayers[$activePlayerIndex].currentLocation = targetLocation;
             return updatedPlayers;
         });
-    } else {
+    } /*else {
         console.log("Zug nicht möglich: Zielort ist nicht direkt verbunden!");
-    }
+    }*/
 }
     
 

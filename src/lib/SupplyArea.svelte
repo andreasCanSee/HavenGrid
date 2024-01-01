@@ -22,10 +22,10 @@
                 let currentPlayer = currentPlayers[$activePlayerIndex];
                 if (currentPlayer.supplies >= deliveryQuantity) {
                     currentPlayer.supplies -= deliveryQuantity;
-                } else {
+                } /*else {
                     // Optional: Benachrichtigung an den Benutzer, dass nicht genügend Vorräte vorhanden sind
                     console.log("Nicht genügend Vorräte für die Lieferung.");
-                }
+                }*/
                 return currentPlayers;
             });
 
@@ -46,9 +46,9 @@
             addActionToCurrentTurn(action);
             // console.log(get(currentTurnActions))
         }
-        else{
+        /*else{
             console.log("Du hast NICHT genug Supplies, um diese Aktion ausführen zu können");
-        }
+        }*/
     }
 
 </script>
