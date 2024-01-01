@@ -12,39 +12,40 @@
         }
     }
 
-    let currentDrag = {
-        fromPlayer: null,
-        toPlayer: null
-    }
 
     function handleDragStart(event, playerName) {
-        const fromPlayer = $players.find(p => p.name === playerName);
+        const fromPlayer = $players.find(p => p.name === playerName).name;
         if (fromPlayer) {
-            currentDrag = {
-                fromPlayer: playerName,
-                fromLocation: fromPlayer.currentLocation
-            };
-            event.dataTransfer.setData("text", JSON.stringify(currentDrag));
+            event.dataTransfer.setData("text/plain", playerName);
         }
     }
 
     function handleDrop(event, targetPlayerName) {
         event.preventDefault();
-        const draggedPlayerName = JSON.parse(event.dataTransfer.getData("text")).fromPlayer;
+        const draggedPlayerName = event.dataTransfer.getData("text/plain");
 
-        players.update(allPlayers => {
-            const fromPlayer = allPlayers.find(p => p.name === draggedPlayerName);
-            const toPlayer = allPlayers.find(p => p.name === targetPlayerName);
+        if(targetPlayerName !== draggedPlayerName){
+            players.update(allPlayers => {
+                const fromPlayer = allPlayers.find(p => p.name === draggedPlayerName);
+                const toPlayer = allPlayers.find(p => p.name === targetPlayerName);
 
-            if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {
-                fromPlayer.supplies--;
-                toPlayer.supplies++;
-            }
-            return allPlayers;
-        });
+                if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation && fromPlayer.supplies > 0) {
+                    fromPlayer.supplies--;
+                    toPlayer.supplies++;
 
-        // Reset currentDrag object
-        currentDrag = { fromPlayer: null, toPlayer: null };
+                    const activePlayer = allPlayers[$activePlayerIndex];
+                    
+                    currentTurnActions.update(actions => {
+                        return [... actions, {
+                            type: 'transferSupplies',
+                            supplies: activePlayer.name === fromPlayer.name ? -1 : 1, 
+                            freeAction: true
+                        }];
+                    });               
+                }
+                return allPlayers;
+            });
+        }
     }
 
     $: isDropzone = isActive || player.currentLocation === $players[$activePlayerIndex].currentLocation;

@@ -13,8 +13,6 @@
 
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
-  
-
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
         currentTurnActions.update(actions => {
@@ -23,7 +21,6 @@
             }
             return actions;
         });
-
         
         if (lastActionRemoved) {
             switch (lastActionRemoved.type) {
@@ -38,6 +35,9 @@
                     break;
                 case 'deliverSupplies':
                     undoFunctions.undoDeliverSuppliesAction(lastActionRemoved);
+                    break;
+                case 'transferSupplies':
+                    undoFunctions.undoTransferSuppliesAction(lastActionRemoved);
                     break;
             }
         }
@@ -84,6 +84,11 @@
         });
         drawnInfectionCards.set(newDrawnInfectionCards);
     }
+
+    export function endActionPhase() {
+        finalizeTurn($activePlayerIndex);
+        activePlayerIndex.update(index => (index + 1) % $players.length);
+}
 
 </script>
   

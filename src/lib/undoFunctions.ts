@@ -1,11 +1,7 @@
 import { get } from 'svelte/store';
-import { players, activePlayerIndex, boardConfig, finalizeTurn, currentTurnActions } from './store';
+import { players, activePlayerIndex, boardConfig, currentTurnActions } from './store';
 import type { Action } from './player';  
 
-export function endActionPhase() {
-    finalizeTurn(get(activePlayerIndex));
-    activePlayerIndex.update(index => (index + 1) % get(players).length);
-}
 
 export function undoMoveToAction(action: Action) {
     players.update(currentPlayers => {
@@ -82,4 +78,26 @@ export function undoDeliverSuppliesAction(action: Action) {
             }
             return fields;
         });
+}
+
+export function undoTransferSuppliesAction(action: Action){
+    players.update(allPlayers => {
+        const activePlayer = allPlayers[get(activePlayerIndex)];
+        const otherPlayer = allPlayers.find(p => p.name !== activePlayer.name && p.currentLocation === activePlayer.currentLocation);
+
+        if (otherPlayer) {
+            if (action.supplies === -1) {
+                // Der aktive Spieler hatte Vorräte abgegeben und erhält sie zurück
+                activePlayer.supplies++;
+                otherPlayer.supplies--;
+            } else if (action.supplies === 1) {
+                // Der aktive Spieler hatte Vorräte erhalten und gibt sie zurück
+                activePlayer.supplies--;
+                otherPlayer.supplies++;
+            }
+        }
+
+        return allPlayers;
+    });
+
 }
