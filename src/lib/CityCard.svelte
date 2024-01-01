@@ -4,6 +4,7 @@
     import { addActionToCurrentTurn } from "./store";
     import type { Action } from "./player";
     import { animateFerry } from "./utils";
+    import { charterBoatMode } from '../lib/store';
 
     export let name: string;
     export let color: string;
@@ -31,11 +32,8 @@
                 }
 
                 player.currentLocation = name;
-                console.log($cardsStore.discardPile)
                 return updatedPlayers;
             });
-
-            
 
             const sailToLocation: Action = {
                 type: 'sailTo',
@@ -47,12 +45,16 @@
     }
 
     function charterToLocation() {
-        if (isCurrentLocation) {
-            console.log(`Charterflug nach ${name}`);
-        } else {
-            console.log("Nicht am Ausgangsort für Charterflug");
-        }
-    }
+    // Aktiviere den Charter Boat Mode
+    charterBoatMode.set(true);
+
+    // Setze einen einmaligen Event Listener, der auf den nächsten Klick wartet
+    setTimeout(() => {
+        window.addEventListener('click', () => {
+            charterBoatMode.set(false);
+        }, { once: true });
+    }, 0);
+}
 
     function handleCardClick() {
         if (!isCurrentLocation) {
@@ -62,6 +64,8 @@
         }
     }
 
+    $: showBorder = $charterBoatMode && isCurrentLocation;
+    $: borderStyle = showBorder ? `5px solid ${activePlayer.color}` : 'none';
 </script>
 
 <button class="player-card" 
@@ -72,11 +76,10 @@
                padding: 5px; 
                color: {color === 'yellow' ? 'black' : 'white'}; 
                margin-bottom: 5px; 
-               border: none; 
+               border: {borderStyle}; 
                cursor: pointer; 
                text-align: center;"
         on:click={handleCardClick}>
     {name} 
-    <br> 
     {isCurrentLocation ? '🚢': '🛥️'}
 </button>

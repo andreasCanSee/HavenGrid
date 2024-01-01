@@ -9,7 +9,8 @@
   export let color: string;
   import { findPath, animateFerry } from '../lib/utils';
   import SupplyArea from './SupplyArea.svelte';
- 
+  import { charterBoatMode } from '../lib/store';
+
   let capacity: number;
   let supplies: number;
 
@@ -44,7 +45,12 @@
     $: totalPlayersAtLocation = $players.filter(p => p.currentLocation === name).length;
 
   async function moveToLocation(targetLocation: string) {
+
     let currentLocation = activePlayer.currentLocation;
+    if($charterBoatMode){
+      console.log(`Charterflug wurde gebucht von ${currentLocation} nach ${targetLocation}`)
+    }
+    else{ 
     let path = findPath(currentLocation, targetLocation, $boardConfig);
 
      // Überprüfen, ob der Zielort direkt mit dem aktuellen Ort verbunden ist
@@ -68,9 +74,10 @@
     } /*else {
         console.log("Zug nicht möglich: Zielort ist nicht direkt verbunden!");
     }*/
+  
+  }
 }
     
-
 </script>
 
 <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg">
@@ -81,7 +88,7 @@
   -->
  
   <!-- Kreis im mittleren Quadrat -->
-  <circle cx={size / 2} cy={size / 2} r="10" fill={color} on:click={() => !$showBoat &&  moveToLocation(name)}/>
+  <circle cx={size / 2} cy={size / 2} class="location-circle" r="10" fill={color} on:click={() => !$showBoat &&  moveToLocation(name)}/>
 
   <defs>
     <filter id="strongGlow" x="-100%" y="-100%" width="300%" height="300%">

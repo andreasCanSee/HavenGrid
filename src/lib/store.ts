@@ -28,3 +28,5 @@ export function finalizeTurn(activePlayerIndex: number) {
   // Setze currentTurnActions für den nächsten Spieler zurück
   currentTurnActions.set([]);
 }
+
+export const charterBoatMode = writable(false);
