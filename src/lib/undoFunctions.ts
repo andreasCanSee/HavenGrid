@@ -1,9 +1,10 @@
 import { get } from 'svelte/store';
-import { players, activePlayerIndex, boardConfig, currentTurnActions } from './store';
-import type { Action } from './player';  
+import { currentTurnActions } from './store';
+import { boardConfig } from './boardStore';
+import { players, activePlayerIndex } from '../lib/playerStore'
+import type { Action } from '../lib/playerStore';
 
-
-export function undoMoveToAction(action: Action) {
+export function undoMoveToAction() {
     players.update(currentPlayers => {
         const currentPlayer = currentPlayers[get(activePlayerIndex)];
         
@@ -99,5 +100,4 @@ export function undoTransferSuppliesAction(action: Action){
 
         return allPlayers;
     });
-
 }

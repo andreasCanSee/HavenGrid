@@ -1,6 +1,7 @@
 <script lang="ts">
     import Field from './Field.svelte';
-    import { boardConfig, showBoat } from '../lib/store';
+    import { showBoat } from '../lib/store';
+    import { boardConfig } from '../lib/boardStore';
     import { fade } from 'svelte/transition';
     import { animatedPlayerPosition } from './utils';
   

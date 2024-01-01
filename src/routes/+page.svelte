@@ -1,15 +1,17 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import Board from '../lib/Board.svelte';
-    import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
+    import { drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
+    import { initialBoardConfig, boardConfig } from '../lib/boardStore';
+    import { players, getInitialPlayers, activePlayerIndex } from '../lib/playerStore'
+    import type { Action } from '../lib/playerStore'; 
     import * as undoFunctions from '../lib/undoFunctions';
-    import type { Action } from '../lib/player'; 
     import PlayerInteractionArea from '../lib/PlayerInteractionArea.svelte';
+    import { resetCardsStore, cardsStore } from '../lib/cardsStore';
 
     onMount(() => {
         restartGame();
     })
-
 
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
@@ -25,7 +27,7 @@
         if (lastActionRemoved) {
             switch (lastActionRemoved.type) {
                 case 'moveTo':
-                    undoFunctions.undoMoveToAction(lastActionRemoved);
+                    undoFunctions.undoMoveToAction();
                     break;
                 case 'pickUpSupplies':
                     undoFunctions.undoPickUpSuppliesAction(lastActionRemoved);
@@ -49,6 +51,9 @@
         activePlayerIndex.set(0);
 
         currentTurnActions.set([]);
+
+        resetCardsStore();
+        // console.log($cardsStore)
         
         // Setze das Spielbrett zurück
         let newDrawnInfectionCards: string[] = [];
@@ -59,8 +64,8 @@
         boardConfig.update(config => {
             // Erstelle eine Liste von Orten für die Reduktionen
             let placesForReduction = config
-            .filter(place => place.color !== 'white')
-            .flatMap(place => Array(3).fill(place.name)); // Jeder Ort erscheint dreimal in der Liste
+                                        .filter(place => place.color !== 'white')
+                                        .flatMap(place => Array(3).fill(place.name)); // Jeder Ort erscheint dreimal in der Liste
 
             // Führe neun Reduktionen durch
             for (let i = 0; i < 9; i++) {

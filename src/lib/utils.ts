@@ -1,5 +1,6 @@
-import type { FieldConfig } from "./store";
-import { showBoat, initialBoardConfig } from "./store";
+import type { FieldConfig } from "../lib/boardStore";
+import { showBoat } from "./store";
+import { initialBoardConfig } from '../lib/boardStore';
 import { tweened } from 'svelte/motion';
 import { cubicOut, quadInOut } from 'svelte/easing';
 

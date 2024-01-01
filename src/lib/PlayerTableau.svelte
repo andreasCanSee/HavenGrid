@@ -1,6 +1,6 @@
 <script>
-    import { increaseSupplies, currentTurnActions, showBoat, players, activePlayerIndex } from '../lib/store';
-
+    import { currentTurnActions, showBoat } from '../lib/store';
+    import { players, activePlayerIndex, increaseSupplies } from './playerStore'
     export let player;
     export let isActive;
 
@@ -11,7 +11,6 @@
             increaseSupplies(player.name);
         }
     }
-
 
     function handleDragStart(event, playerName) {
         const fromPlayer = $players.find(p => p.name === playerName).name;

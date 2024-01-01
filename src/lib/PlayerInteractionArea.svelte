@@ -1,7 +1,7 @@
 <script lang="ts">
     import PlayerTableau from "./PlayerTableau.svelte";
-    import { players,  activePlayerIndex } from '../lib/store';
-    import type { Player } from "./player";
+    import { players,  activePlayerIndex } from '../lib/playerStore';
+    import type { Player } from "./playerStore";
 
      // Funktion zum Rotieren der Spielerliste
      function rotatePlayers(players: Player[], activeIndex: number) {

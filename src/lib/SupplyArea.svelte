@@ -1,7 +1,9 @@
 <script lang="ts">
     import SupplyCube from "./SupplyCube.svelte";
-    import { players, activePlayerIndex, addActionToCurrentTurn, boardConfig, showBoat } from '../lib/store';
-    import type { Action } from '../lib/player';
+    import { addActionToCurrentTurn, showBoat } from '../lib/store';
+    import { boardConfig } from './boardStore';
+    import { players, activePlayerIndex } from '../lib/playerStore'
+    import type { Action } from '../lib/playerStore';
 
     export let capacity: number;
     export let supplies: number;

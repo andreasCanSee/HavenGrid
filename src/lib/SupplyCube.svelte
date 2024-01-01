@@ -1,7 +1,8 @@
-<script lang="ts">
-
-    import { players, activePlayerIndex, addActionToCurrentTurn, boardConfig, showBoat } from '../lib/store';
-    import type { Action } from '../lib/player';
+<script lang="ts"> 
+    import { addActionToCurrentTurn, showBoat } from '../lib/store';
+    import { boardConfig } from './boardStore';
+    import { players, activePlayerIndex } from '../lib/playerStore'
+    import type { Action } from '../lib/playerStore';
 
     export let x: number;
     export let y: number;

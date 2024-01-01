@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { players, activePlayerIndex, boardConfig, currentTurnActions, addActionToCurrentTurn, showBoat } from '../lib/store';
-  import type { Action } from '../lib/player';
+  import { currentTurnActions, addActionToCurrentTurn, showBoat } from '../lib/store';
+  import { boardConfig } from './boardStore';
+  import { players, activePlayerIndex } from '../lib/playerStore'
+  import type { Action } from '../lib/playerStore';
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
   export let color: string;
