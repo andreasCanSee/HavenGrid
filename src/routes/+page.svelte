@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import Board from '../lib/Board.svelte';
     import { players, getInitialPlayers, activePlayerIndex, initialBoardConfig, boardConfig, drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
+    import * as undoFunctions from '../lib/undoFunctions';
     import type { Action } from '../lib/player'; 
     import PlayerInteractionArea from '../lib/PlayerInteractionArea.svelte';
 
@@ -12,87 +13,7 @@
 
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
-    function endActionPhase() {
-        finalizeTurn($activePlayerIndex);
-        activePlayerIndex.update(index => (index + 1) % $players.length);
-    }
-
-    function undoMoveToAction(action: Action) {
-        players.update(currentPlayers => {
-            const currentPlayer = currentPlayers[$activePlayerIndex];
-            
-            let newLocation = '';
-            for (let i = $currentTurnActions.length - 1; i >= 0; i--) {
-                if ($currentTurnActions[i].type === 'moveTo') {
-                    newLocation = $currentTurnActions[i].location || '';
-                    break;
-                }
-            }
-
-            // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
-            if (!newLocation) {
-                for (let i = currentPlayer.actionsHistory.length - 1; i >= 0; i--) {
-                    for (let j = currentPlayer.actionsHistory[i].length - 1; j >= 0; j--) {
-                        if (currentPlayer.actionsHistory[i][j].type === 'moveTo') {
-                            newLocation = currentPlayer.actionsHistory[i][j].location || '';
-                            break;
-                        }
-                    }
-                    if (newLocation) break;
-                }
-            }
-            newLocation = newLocation || currentPlayer.actionsHistory[0][0]?.location || '';
-            currentPlayer.currentLocation = newLocation;
-
-            return currentPlayers;
-        });         
-    }
-
-    function undoPickUpSuppliesAction(action: Action) {
-
-        players.update(currentPlayers => {
-            if (currentPlayers[$activePlayerIndex].supplies > 0) {
-                currentPlayers[$activePlayerIndex].supplies--;
-            }
-            return currentPlayers;
-        });
-
-        boardConfig.update(fields => {
-            let fieldToUpdate = fields.find(f => f.name === action.location);
-            if (fieldToUpdate) {
-                fieldToUpdate.supplies += 1;
-            }
-            return fields;
-        });
-    }
-
-    function undoMakeSupplyAction(){
-        players.update(currentPlayers => {
-            if (currentPlayers[$activePlayerIndex].supplies > 0) {
-                currentPlayers[$activePlayerIndex].supplies--;
-            }
-            return currentPlayers;
-        });
-
-    }
-
-    function undoDeliverSuppliesAction(action: Action) {
-
-            players.update(currentPlayers => {
-                let currentPlayer = currentPlayers[$activePlayerIndex];
-                currentPlayer.supplies += action.supplies ?? 0; // Vorräte des Spielers erhöhen
-                return currentPlayers;
-            });
-
-    boardConfig.update(fields => {
-        let fieldToUpdate = fields.find(f => f.name === action.location);
-        if (fieldToUpdate && typeof action.supplies === 'number') {
-            fieldToUpdate.supplies -= action.supplies; // Vorräte des Feldes reduzieren
-            fieldToUpdate.supplies = Math.max(0, fieldToUpdate.supplies); // Verhindere negative Vorräte
-        }
-        return fields;
-    });
-}
+  
 
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
@@ -107,16 +28,16 @@
         if (lastActionRemoved) {
             switch (lastActionRemoved.type) {
                 case 'moveTo':
-                    undoMoveToAction(lastActionRemoved);
+                    undoFunctions.undoMoveToAction(lastActionRemoved);
                     break;
                 case 'pickUpSupplies':
-                    undoPickUpSuppliesAction(lastActionRemoved);
+                    undoFunctions.undoPickUpSuppliesAction(lastActionRemoved);
                     break;
                 case 'makeSupply':
-                    undoMakeSupplyAction();
+                    undoFunctions.undoMakeSupplyAction();
                     break;
                 case 'deliverSupplies':
-                    undoDeliverSuppliesAction(lastActionRemoved);
+                    undoFunctions.undoDeliverSuppliesAction(lastActionRemoved);
                     break;
             }
         }
@@ -176,9 +97,9 @@
     <Board />
     <div>
         <p>Verbleibende Aktionen: {4 - currentActions}</p>
-        <button on:click={undoLastMove}>Umkehren</button>
-        <button on:click={endActionPhase}>Aktionsphase abschließen</button>
-        <button on:click={restartGame}>Neustart</button>
+        <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
+        <button on:click={endActionPhase}>Aktionsphase abschließen ☑️</button>
+        <button on:click={restartGame}>Neustart 🔄</button>
     </div>
     <details>
         <summary>Infektionsablagestapel</summary>
