@@ -15,6 +15,10 @@
 
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
+    $: {
+    console.log('Aktuelle Zugaktionen:', $currentTurnActions);
+  }
+
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
         currentTurnActions.update(actions => {

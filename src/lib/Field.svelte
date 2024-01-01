@@ -53,7 +53,7 @@
             await animateFerry(currentLocation, location, size);
             // Aktion zur Bewegung hinzufügen
             const action: Action = { type: 'moveTo', location, freeAction: false };
-            
+            addActionToCurrentTurn(action);
 
             // Aktualisierung der Spielerposition für den nächsten Schritt
             currentLocation = location;

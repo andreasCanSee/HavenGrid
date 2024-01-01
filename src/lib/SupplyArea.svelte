@@ -19,7 +19,9 @@
 
     function deliverSupplies(index: number){
         let deliveryQuantity = index - supplies + 1;
-        if ( deliveryQuantity <= $players[$activePlayerIndex].supplies && !$showBoat){
+
+        const currentPlayer = $players[$activePlayerIndex];
+        if ( deliveryQuantity <= $players[$activePlayerIndex].supplies && currentPlayer.currentLocation === name && !$showBoat){
 
             players.update(currentPlayers => {
                 let currentPlayer = currentPlayers[$activePlayerIndex];
