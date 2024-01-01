@@ -12,6 +12,7 @@ export interface Action {
   location?: string;
   supplies?: number;
   freeAction: boolean;
+  transactionPartner?: string;
 }
 
 export function createPlayer(name: string, startingLocation: string, color: string, image: string): Player {

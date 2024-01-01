@@ -36,10 +36,11 @@
                     const activePlayer = allPlayers[$activePlayerIndex];
                     
                     currentTurnActions.update(actions => {
-                        return [... actions, {
+                        return [...actions, {
                             type: 'transferSupplies',
                             supplies: activePlayer.name === fromPlayer.name ? -1 : 1, 
-                            freeAction: true
+                            freeAction: true,
+                            transactionPartner: activePlayer.name === fromPlayer.name ? toPlayer.name : fromPlayer.name
                         }];
                     });               
                 }

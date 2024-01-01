@@ -83,7 +83,7 @@ export function undoDeliverSuppliesAction(action: Action) {
 export function undoTransferSuppliesAction(action: Action){
     players.update(allPlayers => {
         const activePlayer = allPlayers[get(activePlayerIndex)];
-        const otherPlayer = allPlayers.find(p => p.name !== activePlayer.name && p.currentLocation === activePlayer.currentLocation);
+        const otherPlayer = allPlayers.find(p => p.name === action.transactionPartner && p.currentLocation === activePlayer.currentLocation);
 
         if (otherPlayer) {
             if (action.supplies === -1) {
