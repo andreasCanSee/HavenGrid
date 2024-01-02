@@ -44,6 +44,9 @@
                 case 'sailTo':
                     undoFunctions.undoSailToAction(lastActionRemoved);
                     break;
+                case 'charterBoatTo':
+                    undoFunctions.undoCharterBoatToAction(lastActionRemoved);
+                    break;
             }
         }
        

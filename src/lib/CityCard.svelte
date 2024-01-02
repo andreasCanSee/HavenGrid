@@ -15,9 +15,9 @@
     async function sailToLocation() {
         if (!isCurrentLocation) {
             const cardToDiscard = {
-            cardType: 'city', // oder ein anderer passender Wert für cardType
-            data: { name, color }
-        };
+                cardType: 'city', // oder ein anderer passender Wert für cardType
+                data: { name, color }
+            };
             addToDiscardPile(cardToDiscard);
             await animateFerry(activePlayer.currentLocation, name, 120, 'sailTo');
             

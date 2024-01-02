@@ -6,6 +6,12 @@ import { players, activePlayerIndex } from '../lib/playerStore'
 import type { Action } from '../lib/player';
 import type { Card } from './cardsStore';
 
+const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo'];
+
+function isMovementAction(actionType: string) {
+    return movementActionTypes.includes(actionType);
+}
+
 export function undoMoveToAction() {
     players.update(currentPlayers => {
         const currentPlayer = currentPlayers[get(activePlayerIndex)];
@@ -111,7 +117,7 @@ function findLastLocation(actionsHistory: Action[][]): string {
     
     for (let i = get(currentTurnActions).length - 1; i >= 0; i--) {
         const action = get(currentTurnActions)[i];
-        if (action.type === 'moveTo' || action.type === 'sailTo') {
+        if (isMovementAction(action.type )) {
             lastLocation = action.location || '';
             break;
         }
@@ -122,7 +128,7 @@ function findLastLocation(actionsHistory: Action[][]): string {
             for (let i = actionsHistory.length - 1; i >= 0; i--) {
                 for (let j = actionsHistory[i].length - 1; j >= 0; j--) {
                     const historyAction = actionsHistory[i][j]
-                    if (historyAction.type === 'moveTo' || historyAction.type === 'sailTo') {
+                    if (isMovementAction(historyAction.type )) {
                         lastLocation = historyAction.location || '';
                         break;
                     }
@@ -131,4 +137,32 @@ function findLastLocation(actionsHistory: Action[][]): string {
             }
         }
         return lastLocation || actionsHistory[0][0]?.location || '';
+}
+
+export function undoCharterBoatToAction(action: Action) {
+    let cardToReturn: Card | null = null;
+
+    // Karte vom discardPile zurückholen
+    cardsStore.update(store => {
+        const cardIndex = store.discardPile.findIndex(card => card.data.name === action.startLocation && card.cardType === 'city');
+        if (cardIndex !== -1) {
+            [cardToReturn] = store.discardPile.splice(cardIndex, 1);
+        }
+        return store;
+    });
+
+    // Spielerposition und Handkarten in einem Schritt aktualisieren
+    players.update(allPlayers => {
+        const currentPlayer = allPlayers[get(activePlayerIndex)];
+
+        // Füge die Karte zurück zu den Handkarten hinzu, wenn sie gefunden wurde
+        if (cardToReturn) {
+            currentPlayer.handCards.push(cardToReturn);
+        }
+
+        // Aktualisiere die aktuelle Position des Spielers
+        currentPlayer.currentLocation = findLastLocation(currentPlayer.actionsHistory);
+
+        return allPlayers;
+    });
 }

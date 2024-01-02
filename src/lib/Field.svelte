@@ -1,15 +1,16 @@
 <script lang="ts">
   import { currentTurnActions, addActionToCurrentTurn } from '../lib/store';
-  import { showBoat } from "./boardStore";
-  import { boardConfig } from './boardStore';
+  import { showBoat, boardConfig } from "./boardStore";
   import { players, activePlayerIndex } from '../lib/playerStore'
   import type { Action } from '../lib/player';
-  export let size: number; // Standardgröße, kann überschrieben werden
-  export let name: string;
-  export let color: string;
   import { findPath, animateFerry } from '../lib/utils';
   import SupplyArea from './SupplyArea.svelte';
   import { charterBoatMode } from '../lib/store';
+  import { addToDiscardPile, cardsStore } from './cardsStore';
+
+  export let size: number; // Standardgröße, kann überschrieben werden
+  export let name: string;
+  export let color: string;
 
   let capacity: number;
   let supplies: number;
@@ -47,8 +48,47 @@
   async function moveToLocation(targetLocation: string) {
 
     let currentLocation = activePlayer.currentLocation;
-    if($charterBoatMode){
-      console.log(`Charterflug wurde gebucht von ${currentLocation} nach ${targetLocation}`)
+
+    if($charterBoatMode && targetLocation !== currentLocation){
+      await animateFerry(currentLocation, targetLocation, size, 'sailTo');
+
+      players.update(allPlayers => {
+        const updatedPlayers = [...allPlayers];
+        const player = updatedPlayers[$activePlayerIndex];
+        const cardIndex = player.handCards.findIndex(card => card.data.name === currentLocation);
+
+        if (cardIndex !== -1) {
+            // Entferne die gefundene Karte aus den Handkarten
+            player.handCards.splice(cardIndex, 1);
+        }
+
+        player.currentLocation = targetLocation;
+        return updatedPlayers;
+      });
+
+      let locationColor = '';
+        $boardConfig.forEach(place => {
+        if (place.name === currentLocation) {
+          locationColor = place.color;
+        }
+      });
+
+      const cardToDiscard = {
+        cardType: 'city', // oder ein anderer passender Wert für cardType
+        data: { name: currentLocation, color: locationColor }
+      };
+      addToDiscardPile(cardToDiscard);
+      console.log($cardsStore);
+    
+
+      const charterBoatToLocation: Action = {
+        type: 'charterBoatTo',
+        startLocation: currentLocation,
+        location: targetLocation,
+        freeAction: false
+      };
+      addActionToCurrentTurn(charterBoatToLocation);
+
     }
     else{ 
     let path = findPath(currentLocation, targetLocation, $boardConfig);
@@ -71,10 +111,7 @@
             updatedPlayers[$activePlayerIndex].currentLocation = targetLocation;
             return updatedPlayers;
         });
-    } /*else {
-        console.log("Zug nicht möglich: Zielort ist nicht direkt verbunden!");
-    }*/
-  
+    } 
   }
 }
     

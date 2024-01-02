@@ -12,8 +12,9 @@ export interface Player {
   }
 
 export interface Action {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo';
   location?: string;
+  startLocation?: string;
   supplies?: number;
   freeAction: boolean;
   transactionPartner?: string;
