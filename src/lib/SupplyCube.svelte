@@ -1,7 +1,7 @@
 <script lang="ts"> 
     import { addActionToCurrentTurn } from '../lib/store';
-    import { showBoat } from "./boardStore";
-    import { boardConfig } from './boardStore';
+    import { showBoat } from "./Stores/boardStore";
+    import { boardConfig } from './Stores/boardStore';
     import { players, activePlayerIndex } from '../lib/playerStore'
     import type { Action } from '../lib/player';
 

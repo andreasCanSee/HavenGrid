@@ -1,9 +1,10 @@
 <script lang="ts">
   import { currentTurnActions, addActionToCurrentTurn } from '../lib/store';
-  import { showBoat, boardConfig } from "./boardStore";
+  import { showBoat, boardConfig } from "./Stores/boardStore";
   import { players, activePlayerIndex } from '../lib/playerStore'
   import type { Action } from '../lib/player';
-  import { findPath, animateFerry } from '../lib/utils';
+  import { findPath } from '../lib/utils';
+  import { animateFerry } from './Components/Board/boardUtils';
   import SupplyArea from './SupplyArea.svelte';
   import { charterBoatMode } from '../lib/store';
   import { addToDiscardPile, cardsStore } from './cardsStore';

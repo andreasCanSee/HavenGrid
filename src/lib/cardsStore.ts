@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { initialBoardConfig } from '../lib/boardStore';
+import { initialBoardConfig } from './Stores/boardStore';
 
 export interface Card {
     cardType: string;

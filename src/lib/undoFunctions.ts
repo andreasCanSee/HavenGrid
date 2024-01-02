@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { currentTurnActions } from './store';
-import { boardConfig } from './boardStore';
+import { boardConfig } from './Stores/boardStore';
 import { cardsStore } from './cardsStore';
 import { players, activePlayerIndex } from '../lib/playerStore'
 import type { Action } from '../lib/player';

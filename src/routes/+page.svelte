@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import Board from '../lib/Board.svelte';
+    import Board from '../lib/Components/Board/Board.svelte';
     import { drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
-    import { initialBoardConfig, boardConfig } from '../lib/boardStore';
+    import { initialBoardConfig, boardConfig } from '../lib/Stores/boardStore';
     import { players, getInitialPlayers, activePlayerIndex } from '../lib/playerStore'
     import type { Action } from '../lib/player'; 
     import * as undoFunctions from '../lib/undoFunctions';

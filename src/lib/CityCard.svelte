@@ -3,7 +3,7 @@
     import { addToDiscardPile, cardsStore } from "./cardsStore";
     import { addActionToCurrentTurn } from "./store";
     import type { Action } from "./player";
-    import { animateFerry } from "./utils";
+    import { animateFerry } from "./Components/Board/boardUtils";
     import { charterBoatMode } from '../lib/store';
 
     export let name: string;

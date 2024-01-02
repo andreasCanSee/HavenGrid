@@ -1,7 +1,7 @@
 <script>
     import CityCard from "./CityCard.svelte";
     import { players, activePlayerIndex } from "./playerStore";
-    import { boardConfig } from "./boardStore";
+    import { boardConfig } from "./Stores/boardStore";
     export let playerIndex;
     import { addToDiscardPile } from "./cardsStore";
 

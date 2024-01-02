@@ -1,16 +1,5 @@
 import { writable } from "svelte/store";
 
-export interface FieldConfig {
-    name: string;
-    x: number;
-    y: number;
-    connections: string[];
-    color: string;
-    capacity: number;
-    supplies: number;
-    hasSupplyCenter: boolean;
-  }
-  
   export const initialBoardConfig =[
       { name: 'Sao Paulo', x: 2, y: 5, connections: ['Lagos', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false },
       { name: 'Lagos', x: 5, y: 4, connections: ['Sao Paulo', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false},
@@ -26,6 +15,13 @@ export interface FieldConfig {
       { name: 'Istanbul', x: 8, y: 2, connections: ['Cairo', 'Avalon'], color: 'black', capacity: 3, supplies: 3, hasSupplyCenter: false }
   ];
   
-  export const boardConfig = writable([...initialBoardConfig]);
+export const boardConfig = writable([...initialBoardConfig]);
 
-export const showBoat = writable(false);
+export const showBoat = writable(false); 
+/* 
+  Falls showBoat jedoch nur in wenigen spezifischen Komponenten relevant ist 
+  oder wenn es sich um eine UI-spezifische Zustandsinformation handelt, 
+  die nicht eng mit der Spiellogik verknüpft ist, könntest du erwägen, 
+  sie in einen lokaleren Kontext zu verschieben, um die Trennung zwischen UI-Status 
+  und Geschäftslogik deutlicher zu machen.
+*/

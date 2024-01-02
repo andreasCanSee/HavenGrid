@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentTurnActions, addActionToCurrentTurn } from '../lib/store';
-    import { showBoat } from './boardStore';
+    import { showBoat } from './Stores/boardStore';
     import { players, activePlayerIndex, increaseSupplies } from './playerStore'
     import type { Action, Player } from './player';
     import PlayerCardsArea from './PlayerCardsArea.svelte';
