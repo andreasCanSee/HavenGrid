@@ -57,13 +57,24 @@ export function animateFerry(
   startLocation: string, 
   endLocation: string, 
   gridSize: number,
-  actionType: 'moveTo' | 'sailTo' // Neuer Parameter
+  actionType: 'moveTo' | 'sailTo' | 'charterBoatTo' // Neuer Parameter
 ): Promise<void> {
     return new Promise((resolve) => {
         const startCoordinates = getCoordinates(startLocation, gridSize);
         const endCoordinates = getCoordinates(endLocation, gridSize);
 
-        const imageFile = actionType === 'sailTo' ? '/ship.png' : '/boat.png';
+        let imageFile: string;
+
+        switch (actionType){
+          case 'sailTo':
+            imageFile = '/ship.png';
+            break;
+          case 'charterBoatTo':
+            imageFile = '/cruiser.png';
+            break;
+          default:
+            imageFile = '/boat.png'
+        }
 
         if (startCoordinates && endCoordinates) {
             showBoat.set(true); // Boot anzeigen

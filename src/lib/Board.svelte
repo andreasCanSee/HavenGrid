@@ -104,8 +104,8 @@ function createCurvePath(line: Line): string {
         <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
           <image 
             href={$animatedPlayerPosition.imageFile} 
-            width={($animatedPlayerPosition.imageFile === '/ship.png') ? 45 : 30}
-            height={($animatedPlayerPosition.imageFile === '/ship.png') ? 45 : 30}
+            width=30
+            height=30
             preserveAspectRatio="xMidYMid meet"
             in:fade={{ duration: 100 }}
             out:fade={{ duration: 300 }}

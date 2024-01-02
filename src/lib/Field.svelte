@@ -50,7 +50,7 @@
     let currentLocation = activePlayer.currentLocation;
 
     if($charterBoatMode && targetLocation !== currentLocation){
-      await animateFerry(currentLocation, targetLocation, size, 'sailTo');
+      await animateFerry(currentLocation, targetLocation, size, 'charterBoatTo');
 
       players.update(allPlayers => {
         const updatedPlayers = [...allPlayers];
