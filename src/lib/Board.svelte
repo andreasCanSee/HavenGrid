@@ -4,6 +4,9 @@
     import { boardConfig } from '../lib/boardStore';
     import { fade } from 'svelte/transition';
     import { animatedPlayerPosition } from './utils';
+    import { currentTurnActions } from './store';
+
+    $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
   
     type Field = {
         name: string;
@@ -114,6 +117,11 @@ function createCurvePath(line: Line): string {
         </g>
         
       {/if}
-       
+      <!-- Info-Box am Rand des Spielfelds -->
+      <rect x={svgWidth - 280} y={svgHeight - 150} width={250} height={120} fill="transparent" stroke="white" stroke-width="5"/>
+        <text x={svgWidth - 270} y={svgHeight - 120} fill="white" font-size="18px" font-family="Arial, sans-serif">
+          Verbleibende Aktionen: {4 - remainingActions}
+        </text>
+
   </svg>
   

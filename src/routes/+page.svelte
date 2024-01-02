@@ -13,7 +13,7 @@
         restartGame();
     })*/
 
-    $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
+  
 
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
@@ -109,9 +109,8 @@
   
   <main>
     
-    <Board />
+    <Board/>
     <div>
-        <p>Verbleibende Aktionen: {4 - currentActions}</p>
         <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
         <button on:click={endActionPhase}>Aktionsphase abschließen ☑️</button>
         <button on:click={restartGame}>Neustart 🔄</button>
