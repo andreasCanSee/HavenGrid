@@ -9,13 +9,8 @@
     export let capacity: number;
     export let supplies: number;
     export let name: string;
-    export let size: number;
-
-      // Berechnungen für die Würfel
-    const cubeSize = 15; // Größe eines Würfels
-    const cubeMargin = 5; // Abstand zwischen den Würfeln
-    const cubeY = size / 2 - 40; // Y-Position der Würfel
-    const cubeXStart = size / 2 - (1.5 * cubeSize + cubeMargin); // X-Startposition für die Würfel
+    export let cubeSize: number;
+    export let cubeMargin: number;
 
     function deliverSupplies(index: number){
         let deliveryQuantity = index - supplies + 1;
@@ -62,14 +57,14 @@
 {#each Array(capacity) as _, index}
   {#if index < supplies}
     <SupplyCube 
-      x={cubeXStart + index * (cubeSize + cubeMargin)} 
-      y={cubeY} 
+      x={index * (cubeSize + cubeMargin)} 
+      y={0} 
       size={cubeSize} 
       name={name} />
   {:else}
     <rect 
-      x={cubeXStart + index * (cubeSize + cubeMargin)} 
-      y={cubeY} 
+      x={index * (cubeSize + cubeMargin)} 
+      y={0} 
       width={cubeSize} 
       height={cubeSize}
       fill="transparent"
