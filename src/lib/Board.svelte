@@ -91,6 +91,8 @@ function createCurvePath(line: Line): string {
     
   </script>
   
+
+  <div style="position: relative;">
   <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
     <rect width={svgWidth} height={svgHeight} />
     <image href="/waterworld.webp" width={svgWidth} height={svgHeight} x="0" y="0" preserveAspectRatio="xMidYMid slice"/>
@@ -104,24 +106,24 @@ function createCurvePath(line: Line): string {
         {/each}
 
         {#if $showBoat}
-        <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
-          <image 
-            href={$animatedPlayerPosition.imageFile} 
-            width=30
-            height=30
-            preserveAspectRatio="xMidYMid meet"
-            in:fade={{ duration: 100 }}
-            out:fade={{ duration: 300 }}
-        />
-        
-        </g>
-        
-      {/if}
+          <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
+            <image 
+              href={$animatedPlayerPosition.imageFile} 
+              width=30
+              height=30
+              preserveAspectRatio="xMidYMid meet"
+              in:fade={{ duration: 100 }}
+              out:fade={{ duration: 300 }}
+            />
+          </g>
+        {/if}
+
       <!-- Info-Box am Rand des Spielfelds -->
       <rect x={svgWidth - 280} y={svgHeight - 150} width={250} height={120} fill="transparent" stroke="white" stroke-width="5"/>
         <text x={svgWidth - 270} y={svgHeight - 120} fill="white" font-size="18px" font-family="Arial, sans-serif">
           Verbleibende Aktionen: {4 - remainingActions}
         </text>
-
   </svg>
+ 
+</div>
   

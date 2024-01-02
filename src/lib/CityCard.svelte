@@ -8,6 +8,7 @@
 
     export let name: string;
     export let color: string;
+    export let buildAreaColor: string | null;
 
     $: activePlayer = $players[$activePlayerIndex];
     $: isCurrentLocation = activePlayer.currentLocation === name;
@@ -16,7 +17,8 @@
         if (!isCurrentLocation) {
             const cardToDiscard = {
                 cardType: 'city', // oder ein anderer passender Wert für cardType
-                data: { name, color }
+                data: { name, color },
+                inBuildArea: false
             };
             addToDiscardPile(cardToDiscard);
             await animateFerry(activePlayer.currentLocation, name, 120, 'sailTo');
@@ -66,9 +68,25 @@
 
     $: showBorder = $charterBoatMode && isCurrentLocation;
     $: borderStyle = showBorder ? `5px solid ${activePlayer.color}` : 'none';
+
+    function handleDragStart(event: DragEvent) {
+        if (event.dataTransfer) {
+            event.dataTransfer.setData('text/plain', JSON.stringify({ name, color }));
+        }
+    }
+
+    
+    function handleDragEnd(event: DragEvent) {
+        // Logik für Drag-Ende
+    }
+    
+    
 </script>
 
 <button class="player-card" 
+        draggable={buildAreaColor === color}
+        on:dragstart={handleDragStart}
+        on:dragend={handleDragEnd}
         style="display: block; 
                width: 150px; /* Feste Breite */
                height: 40px; /* Feste Höhe */

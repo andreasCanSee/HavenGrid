@@ -51,6 +51,7 @@
         }
     }
 
+    $: playerIndex = $players.findIndex(p => p.name === player.name);
     $: isDropzone = isActive || player.currentLocation === $players[$activePlayerIndex].currentLocation;
 </script>
 
@@ -73,6 +74,6 @@
         </div>  
     </div> 
     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
-        <PlayerCardsArea playerCards={player.handCards} />
+        <PlayerCardsArea playerIndex={playerIndex}/>
     </div>
 </div>

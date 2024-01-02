@@ -82,7 +82,8 @@
 
       const cardToDiscard = {
         cardType: 'city', // oder ein anderer passender Wert für cardType
-        data: { name: currentLocation, color: locationColor }
+        data: { name: currentLocation, color: locationColor },
+        inBuildArea: false
       };
       addToDiscardPile(cardToDiscard);
       console.log($cardsStore);

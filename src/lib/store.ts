@@ -30,3 +30,4 @@ export function finalizeTurn(activePlayerIndex: number) {
 }
 
 export const charterBoatMode = writable(false);
+

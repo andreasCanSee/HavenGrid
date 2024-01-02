@@ -7,6 +7,7 @@ export interface Card {
       name: string;
       color: string;
     };
+    inBuildArea: boolean;
   }
 
   interface CardsStoreState {
@@ -32,7 +33,8 @@ const createInitialPlayerDeck = (): Card[] => {
           data: { 
             name: place.name, 
             color: place.color
-          } 
+          },
+          inBuildArea: false
         }))
       ); 
   };
