@@ -2,13 +2,14 @@ import { findPath } from "../../Utilities/utils";
 import { boardConfig } from "../../Stores/boardStore";
 import { get } from "svelte/store";
 import { animateFerry } from "../Board/boardUtils";
-import type { Action } from "../../Models/types";
+import type { Action, Player } from "../../Models/types";
 import { addActionToCurrentTurn } from "../../store";
 import { players, activePlayerIndex } from "../../playerStore";
 import { charterBoatMode } from "../../store";
 import { cardsStore } from "../../cardsStore";
 import { addToDiscardPile } from "../../cardsStore";
 import { currentTurnActions } from "../../store";
+import { showBoat } from "../../Stores/boardStore";
 
 export function moveToLocation(currentLocation: string, targetLocation: string) {
     let actionsTaken = get(currentTurnActions).filter(action => !action.freeAction).length;
@@ -85,4 +86,37 @@ async function charterToLocation(currentLocation: string, targetLocation: string
         };
         addActionToCurrentTurn(charterBoatToLocation);
     }
+}
+
+export function deliverSupplies(index: number, activePlayerIndex: number, supplies: number, capacity: number, name: string){
+  let deliveryQuantity = index - supplies + 1;
+
+  let currentPlayer = get(players)[activePlayerIndex];
+  if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat)){
+
+      players.update(currentPlayers => {
+          let currentPlayer = currentPlayers[activePlayerIndex];
+          if (currentPlayer.supplies >= deliveryQuantity) {
+              currentPlayer.supplies -= deliveryQuantity;
+          } 
+          return currentPlayers;
+      });
+
+      boardConfig.update(fields => {
+          let currentField = fields.find(f => f.name === name);
+          if(currentField){
+              currentField.supplies = Math.min(currentField.supplies +deliveryQuantity ,capacity)
+          }
+          return fields;
+      })
+
+      const action: Action = {
+          type: 'deliverSupplies',
+          location: name,
+          supplies: deliveryQuantity,
+          freeAction: false // nur zum testen
+      }
+      addActionToCurrentTurn(action);
+  }
+  
 }

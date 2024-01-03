@@ -17,16 +17,26 @@ export function calculateSvgDimensions() {
 // Funktion zur Berechnung der Linienpositionen
 export function calculateLines(): Line[] {
     let lines: Line[] = [];
+    let processedConnections = new Set();
+    let fieldsMap = new Map(initialBoardConfig.map(field => [field.name, field]));
+
     initialBoardConfig.forEach(field => {
       field.connections.forEach(connection => {
-        const target = initialBoardConfig.find(f => f.name === connection);
-        if (target) {
-          lines.push({
-            x1: field.coordinates.x * gridSize - gridSize / 2,
-            y1: field.coordinates.y * gridSize - gridSize / 2,
-            x2: target.coordinates.x * gridSize - gridSize / 2,
-            y2: target.coordinates.y * gridSize - gridSize / 2
-          });
+        const connectionKey = `${field.name}-${connection}`;
+        const reverseConnectionKey = `${connection}-${field.name}`;
+        if (!processedConnections.has(connectionKey) && !processedConnections.has(reverseConnectionKey)) {
+            const target = fieldsMap.get(connection);
+            if (target) {
+              lines.push({
+                x1: field.coordinates.x * gridSize - gridSize / 2,
+                y1: field.coordinates.y * gridSize - gridSize / 2,
+                x2: target.coordinates.x * gridSize - gridSize / 2,
+                y2: target.coordinates.y * gridSize - gridSize / 2
+              });
+
+              processedConnections.add(connectionKey);
+              processedConnections.add(reverseConnectionKey);
+            }
         }
       });
     });

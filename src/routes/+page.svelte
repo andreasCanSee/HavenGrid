@@ -114,7 +114,7 @@
         <button on:click={endActionPhase}>Aktionsphase abschließen ☑️</button>
         <button on:click={restartGame}>Neustart 🔄</button>
     </div>
-    <!--  
+    
     <details>
         <summary>Infektionsablagestapel</summary>
         <ul>
@@ -124,7 +124,7 @@
         </ul>
     </details>
  
-    <PlayerInteractionArea />-->
+    <PlayerInteractionArea />
   </main>
 
   
