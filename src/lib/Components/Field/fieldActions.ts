@@ -2,12 +2,12 @@ import { findPath } from "../../Utilities/utils";
 import { boardConfig } from "../../Stores/boardStore";
 import { get } from "svelte/store";
 import { animateFerry } from "../Board/boardUtils";
-import type { Action, Player } from "../../Models/types";
+import type { Action } from "../../Models/types";
 import { addActionToCurrentTurn } from "../../store";
-import { players, activePlayerIndex } from "../../playerStore";
+import { players, activePlayerIndex } from "../../Stores/playerStore";
 import { charterBoatMode } from "../../store";
-import { cardsStore } from "../../cardsStore";
-import { addToDiscardPile } from "../../cardsStore";
+import { cardsStore } from "../../Stores/cardsStore";
+import { addToDiscardPile } from "../../Stores/cardsStore";
 import { currentTurnActions } from "../../store";
 import { showBoat } from "../../Stores/boardStore";
 

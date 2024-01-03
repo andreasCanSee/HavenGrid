@@ -1,9 +1,9 @@
 <script>
     import CityCard from "./CityCard.svelte";
-    import { players, activePlayerIndex } from "./playerStore";
+    import { players, activePlayerIndex } from "./Stores/playerStore";
     import { boardConfig } from "./Stores/boardStore";
     export let playerIndex;
-    import { addToDiscardPile } from "./cardsStore";
+    import { addToDiscardPile } from "./Stores/cardsStore";
 
     $: player = $players[playerIndex];
     $: playerCards = player.handCards;

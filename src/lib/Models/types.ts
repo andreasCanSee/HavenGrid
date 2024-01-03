@@ -50,6 +50,26 @@ export type Player = {
     handCards: Card[]
 }
 
+export type GameHistoryEntry = {
+  actionType: 'PlayerAction' | 'DrawCard' | 'Infect';
+  timestamp: Date;
+  details: PlayerActionDetails | DrawCardDetails | InfectDetails;
+};
+
+export type PlayerActionDetails = {
+  player: Player; 
+  action: Action;
+};
+
+export type DrawCardDetails = {
+  player: Player; 
+  cards: Card[];
+};
+
+export type InfectDetails = {
+  cards: Card[];
+};
+
 /* 
     Interfaces sind in der Regel die beste Wahl, wenn du Objektstrukturen für Klassen 
     oder Objektliteralen definierst, die eine Implementierung haben könnten. 

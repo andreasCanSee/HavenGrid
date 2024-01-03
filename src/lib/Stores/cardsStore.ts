@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
-import { initialBoardConfig } from './Stores/boardStore';
-import type { Card } from "./Models/types";
+import { initialBoardConfig } from './boardStore';
+import type { Card } from "../Models/types";
 
   interface CardsStoreState {
     playerDeck: Card[];

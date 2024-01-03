@@ -1,6 +1,6 @@
 <script lang="ts">
     import { gridSize } from "../Board/config";
-    import { activePlayerIndex, players } from "../../playerStore";
+    import { activePlayerIndex, players } from "../../Stores/playerStore";
     import { showBoat } from "../../Stores/boardStore";
 
     export let name: string; // Füge dies hinzu, um den Standortnamen zu erhalten

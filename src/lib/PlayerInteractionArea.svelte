@@ -1,6 +1,6 @@
 <script lang="ts">
     import PlayerTableau from "./PlayerTableau.svelte";
-    import { players,  activePlayerIndex } from '../lib/playerStore';
+    import { players,  activePlayerIndex } from './Stores/playerStore';
     import type { Player } from "./Models/types";
 
 

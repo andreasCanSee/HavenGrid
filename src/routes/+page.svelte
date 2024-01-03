@@ -2,17 +2,15 @@
     import Board from '../lib/Components/Board/Board.svelte';
     import { drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
     import { initialBoardConfig, boardConfig } from '../lib/Stores/boardStore';
-    import { players, getInitialPlayers, activePlayerIndex } from '../lib/playerStore'
+    import { players, getInitialPlayers, activePlayerIndex } from '../lib/Stores/playerStore'
     import type { Action } from '../lib/Models/types';
     import * as undoFunctions from '../lib/Utilities/undoFunctions';
     import PlayerInteractionArea from '../lib/PlayerInteractionArea.svelte';
-    import { resetCardsStore } from '../lib/cardsStore';
+    import { resetCardsStore } from '../lib/Stores/cardsStore';
 
     /*onMount(() => {
         restartGame();
     })*/
-
-  
 
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;

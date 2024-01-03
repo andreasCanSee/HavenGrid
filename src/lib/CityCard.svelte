@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { players, activePlayerIndex } from "./playerStore";
-    import { addToDiscardPile, cardsStore } from "./cardsStore";
+    import { players, activePlayerIndex } from "./Stores/playerStore";
+    import { addToDiscardPile, cardsStore } from "./Stores/cardsStore";
     import { addActionToCurrentTurn } from "./store";
     import type { Action } from "./Models/types";
     import { animateFerry } from "./Components/Board/boardUtils";

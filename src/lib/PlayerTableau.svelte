@@ -1,7 +1,7 @@
 <script lang="ts">
     import { currentTurnActions, addActionToCurrentTurn } from '../lib/store';
     import { showBoat } from './Stores/boardStore';
-    import { players, activePlayerIndex, increaseSupplies } from './playerStore'
+    import { players, activePlayerIndex, increaseSupplies } from './Stores/playerStore'
     import type { Action, Player } from "./Models/types";
     import PlayerCardsArea from './PlayerCardsArea.svelte';
     export let player: Player;

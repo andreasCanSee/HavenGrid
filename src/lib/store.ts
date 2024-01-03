@@ -1,5 +1,5 @@
 import { writable, get } from 'svelte/store';
-import { players } from './playerStore'; 
+import { players } from './Stores/playerStore'; 
 import type { Action } from './Models/types';
 
 export const drawnInfectionCards = writable<string[]>([]);
@@ -8,6 +8,10 @@ export const currentTurnActions = writable<Action[]>([]);
 
 export function addActionToCurrentTurn(action: Action) {
   currentTurnActions.update(actions => [...actions, action]);
+}
+
+export const resetCurrentTurnActions = () => {
+  currentTurnActions.set([]);
 }
 
 export function finalizeTurn(activePlayerIndex: number) {
@@ -26,7 +30,7 @@ export function finalizeTurn(activePlayerIndex: number) {
   });
 
   // Setze currentTurnActions für den nächsten Spieler zurück
-  currentTurnActions.set([]);
+  resetCurrentTurnActions();
 }
 
 export const charterBoatMode = writable(false);

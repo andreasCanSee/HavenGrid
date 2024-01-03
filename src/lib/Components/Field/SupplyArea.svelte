@@ -6,12 +6,24 @@ import { boardConfig } from "../../Stores/boardStore";
 import { pickUpSupplies } from "./fieldActions";
 import { deliverSupplies } from "./fieldActions";
 import { handleKeyPress } from "./uiHandlers";
+import { activePlayerIndex, players } from "../../Stores/playerStore";
 
 export let name: string;
 export let capacity: number;
 
+let hoveredIndex = -1;
+
 const supplySize = gridSize / 6; // Größe eines Würfels
 const supplyMargin = supplySize / 3; // Abstand zwischen den Würfeln
+
+$: playerSupplies = $players[$activePlayerIndex].supplies;
+
+function shouldHighlight(index: number){
+  if(supplies===0){
+    return true
+  }
+  return false
+}
 
 let supplies: number;
 
@@ -44,13 +56,23 @@ $: supplies = $boardConfig.find(field => field.name === name)?.supplies || 0;
           width={supplySize} 
           height={supplySize}
           fill="transparent"
-          stroke="grey"
+          stroke="firebrick"
           role="button"
           tabindex="0"
           on:click={() => deliverSupplies(index, supplies, capacity, name)}
           on:focus={handleFocus}
           on:keydown={event => handleKeyPress(event, () => deliverSupplies(index, supplies, capacity, name))}
+          class:hover-effect={index >= supplies && index < supplies + playerSupplies && index <= hoveredIndex}
+          on:mouseenter={() => hoveredIndex = index}
+          on:mouseleave={() => hoveredIndex = -1}
         />
       {/if}
     {/each}
   </g>
+
+  <style>
+    .hover-effect {
+      fill: rgb(177, 92, 92); /* Mattes Rot für Hover-Effekt */
+    }
+  </style>
+  
