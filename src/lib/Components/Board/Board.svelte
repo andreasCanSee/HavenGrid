@@ -7,6 +7,7 @@
     import { animatedPlayerPosition } from './boardUtils';
     import { currentTurnActions } from '../../store';
     import { calculateSvgDimensions, calculateLines } from './boardUtils';
+    import { gridSize } from './config';
 
     $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
@@ -15,8 +16,6 @@
     boardConfig.subscribe((value: FieldType[]) => {
         fields = value;
     });
-  
-    const gridSize = 120; // Größe eines Feldes in Pixeln
 
     const dimensions = calculateSvgDimensions(fields, gridSize);
     const svgWidth = dimensions.width;
@@ -27,7 +26,7 @@
 </script>
   
 <div style="position: relative;">
-  <BoardLayout {svgWidth} {svgHeight} {lines} {fields} {gridSize}>
+  <BoardLayout {svgWidth} {svgHeight} {lines} {fields}>
     {#if $showBoat}
       <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
         <image 

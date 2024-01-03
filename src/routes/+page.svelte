@@ -3,10 +3,10 @@
     import { drawnInfectionCards, finalizeTurn, currentTurnActions } from '../lib/store';
     import { initialBoardConfig, boardConfig } from '../lib/Stores/boardStore';
     import { players, getInitialPlayers, activePlayerIndex } from '../lib/playerStore'
-    import type { Action } from '../lib/player'; 
+    import type { Action } from '../lib/Models/types';
     import * as undoFunctions from '../lib/undoFunctions';
     import PlayerInteractionArea from '../lib/PlayerInteractionArea.svelte';
-    import { resetCardsStore, cardsStore } from '../lib/cardsStore';
+    import { resetCardsStore } from '../lib/cardsStore';
 
     /*onMount(() => {
         restartGame();

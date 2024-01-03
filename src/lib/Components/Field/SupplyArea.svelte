@@ -1,10 +1,10 @@
 <script lang="ts">
-    import SupplyCube from "./SupplyCube.svelte";
-    import { addActionToCurrentTurn } from '../lib/store';
-    import { showBoat } from "./Stores/boardStore";
-    import { boardConfig } from './Stores/boardStore';
-    import { players, activePlayerIndex } from '../lib/playerStore'
-    import type { Action } from '../lib/player';
+    import SupplyCube from "../../SupplyCube.svelte";
+    import { addActionToCurrentTurn } from '../../store';
+    import { showBoat } from "../../Stores/boardStore";
+    import { boardConfig } from '../../Stores/boardStore';
+    import { players, activePlayerIndex } from '../../playerStore'
+    import type { Action } from "../../Models/types";
 
     export let capacity: number;
     export let supplies: number;

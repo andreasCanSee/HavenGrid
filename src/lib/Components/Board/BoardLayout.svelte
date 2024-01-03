@@ -1,12 +1,12 @@
 <script lang="ts">
-    import Field from "../../Field.svelte";
+    import Field from "../Field/Field.svelte";
+    import { gridSize } from "./config";
     import type { Line, Field as FieldType } from "../../Models/types";
     import { createCurvePath } from "./boardUtils";
     export let svgWidth: number;
     export let svgHeight: number;
     export let lines: Line[];
     export let fields: FieldType[];
-    export let gridSize:number;
 
 </script>
 

@@ -3,7 +3,7 @@
     import { showBoat } from "./Stores/boardStore";
     import { boardConfig } from './Stores/boardStore';
     import { players, activePlayerIndex } from '../lib/playerStore'
-    import type { Action } from '../lib/player';
+    import type { Action } from "./Models/types";
 
     export let x: number;
     export let y: number;

@@ -1,13 +1,7 @@
-import type { Field } from './Models/types';
-import { showBoat } from "./Stores/boardStore";
-import { initialBoardConfig } from './Stores/boardStore';
-import { tweened } from 'svelte/motion';
-import { cubicOut, quadInOut } from 'svelte/easing';
-
+import type { Field } from '../Models/types';
 
 export function findPath(currentLocation: string, target: string, boardConfig: Field[]): string[] {
 
-   
     interface QueueItem {
       name: string;
       path: string[];
@@ -36,15 +30,3 @@ export function findPath(currentLocation: string, target: string, boardConfig: F
 
     return []; // Kein Pfad gefunden
   }
-
-  export function getCoordinates(locationName: string, gridSize: number): { x: number; y: number } | null {
-    const location = initialBoardConfig.find(f => f.name === locationName);
-    if (location) {
-        return { 
-            x: location.x * gridSize - gridSize / 2, 
-            y: location.y * gridSize - gridSize / 2 
-        };
-    } else {
-        return null;
-    }
-}

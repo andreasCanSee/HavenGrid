@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { currentTurnActions } from "./store";
 import { createPlayer } from "./player";
-import type { Player, Action } from "./player";
+import type { Player, Action } from "./Models/types";
 
 export function getInitialPlayers() {
     return [

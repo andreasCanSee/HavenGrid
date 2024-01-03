@@ -3,6 +3,7 @@ import { initialBoardConfig } from "../../Stores/boardStore";
 import { showBoat } from "../../Stores/boardStore";
 import { tweened } from 'svelte/motion';
 import { cubicOut, quadInOut } from 'svelte/easing';
+import { gridSize } from "./config";
 
 export function calculateSvgDimensions(fields: Field[], gridSize: number) {
     const maxX = Math.max(...fields.map(field => field.x));
@@ -55,8 +56,8 @@ export function calculateLines(fields: Field[], gridSize: number): Line[] {
     return `M ${line.x1} ${line.y1} Q ${curveX} ${curveY}, ${line.x2} ${line.y2}`;
     }
 
-    export function getCoordinates(locationName: string, gridSize: number): { x: number; y: number } | null {
-        const location = initialBoardConfig.find(f => f.name === locationName);
+    export function getCoordinates(locationName: string): { x: number; y: number } | null {
+      const location = initialBoardConfig.find(f => f.name === locationName);
         if (location) {
             return { 
                 x: location.x * gridSize - gridSize / 2, 
@@ -73,12 +74,11 @@ export function calculateLines(fields: Field[], gridSize: number): Line[] {
     export function animateFerry(
       startLocation: string, 
       endLocation: string, 
-      gridSize: number,
       actionType: 'moveTo' | 'sailTo' | 'charterBoatTo' // Neuer Parameter
     ): Promise<void> {
         return new Promise((resolve) => {
-            const startCoordinates = getCoordinates(startLocation, gridSize);
-            const endCoordinates = getCoordinates(endLocation, gridSize);
+            const startCoordinates = getCoordinates(startLocation);
+            const endCoordinates = getCoordinates(endLocation);
     
             let imageFile: string;
     

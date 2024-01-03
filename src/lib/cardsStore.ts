@@ -1,20 +1,11 @@
 import { writable } from "svelte/store";
 import { initialBoardConfig } from './Stores/boardStore';
-
-export interface Card {
-    cardType: string;
-    data: {
-      name: string;
-      color: string;
-    };
-    inBuildArea: boolean;
-  }
+import type { Card } from "./Models/types";
 
   interface CardsStoreState {
     playerDeck: Card[];
     discardPile: Card[];
 }
-
 
 function shuffleArray<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {

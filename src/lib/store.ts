@@ -1,6 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { players } from './playerStore'; 
-import type { Action } from './player';
+import type { Action } from './Models/types';
 
 export const drawnInfectionCards = writable<string[]>([]);
 

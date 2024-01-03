@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { currentTurnActions, addActionToCurrentTurn } from '../lib/store';
-  import { showBoat, boardConfig } from "./Stores/boardStore";
-  import { players, activePlayerIndex } from '../lib/playerStore'
-  import type { Action } from '../lib/player';
-  import { findPath } from '../lib/utils';
-  import { animateFerry } from './Components/Board/boardUtils';
+  import { showBoat, boardConfig } from "../../Stores/boardStore";
+  import { players, activePlayerIndex } from '../../playerStore'
   import SupplyArea from './SupplyArea.svelte';
-  import { charterBoatMode } from '../lib/store';
-  import { addToDiscardPile, cardsStore } from './cardsStore';
+  import { moveToLocation } from './fieldMovements';
+
 
   export let size: number; // Standardgröße, kann überschrieben werden
   export let name: string;
@@ -18,8 +14,8 @@
   let hasSupplyCenter: boolean;
 
   $: activePlayer = $players[$activePlayerIndex];
-  $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
+  // vielleicht besser vom Board als Prop durchreichen? (vgl Field Type)
   $: {
     const place = $boardConfig.find(p => p.name === name);
     if (place) {
@@ -49,80 +45,12 @@
         }
         const offset = (index === activePlayerIndex ? -1 : 1) * 20; // Verändert den Offset-Wert
         return baseX + offset;
-    }
+  }
 
     $: totalPlayersAtLocation = $players.filter(p => p.currentLocation === name).length;
 
-  async function moveToLocation(targetLocation: string) {
-
-    let currentLocation = activePlayer.currentLocation;
-
-    if($charterBoatMode && targetLocation !== currentLocation){
-      await animateFerry(currentLocation, targetLocation, size, 'charterBoatTo');
-
-      players.update(allPlayers => {
-        const updatedPlayers = [...allPlayers];
-        const player = updatedPlayers[$activePlayerIndex];
-        const cardIndex = player.handCards.findIndex(card => card.data.name === currentLocation);
-
-        if (cardIndex !== -1) {
-            // Entferne die gefundene Karte aus den Handkarten
-            player.handCards.splice(cardIndex, 1);
-        }
-
-        player.currentLocation = targetLocation;
-        return updatedPlayers;
-      });
-
-      let locationColor = '';
-        $boardConfig.forEach(place => {
-        if (place.name === currentLocation) {
-          locationColor = place.color;
-        }
-      });
-
-      const cardToDiscard = {
-        cardType: 'city', // oder ein anderer passender Wert für cardType
-        data: { name: currentLocation, color: locationColor },
-        inBuildArea: false
-      };
-      addToDiscardPile(cardToDiscard);
-      console.log($cardsStore);
-    
-
-      const charterBoatToLocation: Action = {
-        type: 'charterBoatTo',
-        startLocation: currentLocation,
-        location: targetLocation,
-        freeAction: false
-      };
-      addActionToCurrentTurn(charterBoatToLocation);
-
-    }
-    else{ 
-    let path = findPath(currentLocation, targetLocation, $boardConfig);
-
-     // Überprüfen, ob der Zielort direkt mit dem aktuellen Ort verbunden ist
-     if (path.length > 0 && currentActions + path.length <= 4) {
-      for (const location of path) {
-            await animateFerry(currentLocation, location, size, 'moveTo');
-            // Aktion zur Bewegung hinzufügen
-            const action: Action = { type: 'moveTo', location, freeAction: false };
-            addActionToCurrentTurn(action);
-
-            // Aktualisierung der Spielerposition für den nächsten Schritt
-            currentLocation = location;
-      }
-
-        // Spielerposition im Store aktualisieren
-        players.update(currentPlayers => {
-            let updatedPlayers = [...currentPlayers];
-            updatedPlayers[$activePlayerIndex].currentLocation = targetLocation;
-            return updatedPlayers;
-        });
-    } 
-  }
-}
+ //    let currentLocation = activePlayer.currentLocation;
+ // charterToLocation(activePlayer.currentLocation, name, currentActions)
 </script>
 
 <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg">
@@ -132,9 +60,8 @@
   {/each}
   -->
   
- 
   <!-- Kreis im mittleren Quadrat -->
-  <circle cx={size / 2} cy={size / 2} class="location-circle" r="10" fill={color} on:click={() => !$showBoat &&  moveToLocation(name)}/>
+  <circle cx={size / 2} cy={size / 2} class="location-circle" r="10" fill={color} on:click={() => !$showBoat &&   moveToLocation(activePlayer.currentLocation, name)}/>
 
   <defs>
     <filter id="strongGlow" x="-100%" y="-100%" width="300%" height="300%">
@@ -161,12 +88,12 @@
   {/each}
 
   {#if hasSupplyCenter}
-  <image href="/supplyCenter.png" 
-  x={size / 2 - imageWidth / 2} 
-  y={size / 2 - imageHeight / 2 - offset} 
-  width={imageWidth} 
-  height={imageHeight} 
-  preserveAspectRatio="xMidYMid meet"/>
+    <image href="/supplyCenter.png" 
+    x={size / 2 - imageWidth / 2} 
+    y={size / 2 - imageHeight / 2 - offset} 
+    width={imageWidth} 
+    height={imageHeight} 
+    preserveAspectRatio="xMidYMid meet"/>
 {/if}
 
   <!-- Hintergrund für den Namen des Feldes -->

@@ -2,7 +2,7 @@
     import { players, activePlayerIndex } from "./playerStore";
     import { addToDiscardPile, cardsStore } from "./cardsStore";
     import { addActionToCurrentTurn } from "./store";
-    import type { Action } from "./player";
+    import type { Action } from "./Models/types";
     import { animateFerry } from "./Components/Board/boardUtils";
     import { charterBoatMode } from '../lib/store';
 
@@ -21,7 +21,7 @@
                 inBuildArea: false
             };
             addToDiscardPile(cardToDiscard);
-            await animateFerry(activePlayer.currentLocation, name, 120, 'sailTo');
+            await animateFerry(activePlayer.currentLocation, name, 'sailTo');
             
             players.update(allPlayers => {
                 const updatedPlayers = [...allPlayers];

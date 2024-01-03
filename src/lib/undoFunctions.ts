@@ -2,9 +2,9 @@ import { get } from 'svelte/store';
 import { currentTurnActions } from './store';
 import { boardConfig } from './Stores/boardStore';
 import { cardsStore } from './cardsStore';
-import { players, activePlayerIndex } from '../lib/playerStore'
-import type { Action } from '../lib/player';
-import type { Card } from './cardsStore';
+import { players, activePlayerIndex } from './playerStore'
+import type { Action } from './Models/types';
+import type { Card } from './Models/types';
 
 const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo'];
 
