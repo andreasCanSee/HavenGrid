@@ -2,8 +2,10 @@
 
 export type Field = {
     name: string;
-    x: number;
-    y: number;
+    coordinates: {
+      x: number;
+      y: number;
+    };
     connections: string[];
     color: string;
     capacity: number;

@@ -4,12 +4,22 @@
   import { gridSize } from "../Board/config";
   import SupplyArea from './SupplyArea.svelte';
   import { moveToLocation } from './fieldMovements';
+  import { boardConfig } from "../../Stores/boardStore";
 
   export let name: string;
   export let color: string;
   export let capacity: number;
-  export let supplies: number;
-  export let hasSupplyCenter: boolean;
+
+  let supplies: number;
+  let hasSupplyCenter: boolean;
+  // Reaktive Zuweisung für die dynamischen Eigenschaften
+  $: {
+        const fieldData = $boardConfig.find(field => field.name === name);
+        if (fieldData) {
+            supplies = fieldData.supplies;
+            hasSupplyCenter = fieldData.hasSupplyCenter;
+        }
+    };
 
   $: activePlayer = $players[$activePlayerIndex];
 

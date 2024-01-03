@@ -1,33 +1,21 @@
 <script lang="ts">
     import BoardLayout from './BoardLayout.svelte';
-    import type { Line, Field as FieldType } from '../../Models/types';
     import { showBoat } from "../../Stores/boardStore";
-    import { boardConfig } from '../../Stores/boardStore';
     import { fade } from 'svelte/transition';
     import { animatedPlayerPosition } from './boardUtils';
     import { currentTurnActions } from '../../store';
-    import { calculateSvgDimensions, calculateLines } from './boardUtils';
-    import { gridSize } from './config';
+    import { calculateSvgDimensions } from './boardUtils';
 
     $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
-    // geht das noch besser? (reaktives Statement?) -> ins Board Layout packen?!
-    let fields: FieldType[] = [];
-    boardConfig.subscribe((value: FieldType[]) => {
-        fields = value;
-    });
-
-    const dimensions = calculateSvgDimensions(fields, gridSize);
+    const dimensions = calculateSvgDimensions();
     const svgWidth = dimensions.width;
     const svgHeight = dimensions.height;
-
-    // kann auch ne Ebene runter?!
-    let lines: Line[] = calculateLines(fields, gridSize); // Berechnen der Linien
 
 </script>
   
 <div style="position: relative;">
-  <BoardLayout {svgWidth} {svgHeight} {lines} {fields}>
+  <BoardLayout {svgWidth} {svgHeight}>
     {#if $showBoat}
       <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
         <image 
@@ -47,4 +35,3 @@
     </text>
   </BoardLayout>
 </div>
-  

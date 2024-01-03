@@ -1,13 +1,13 @@
-import type { Field, Line } from "../../Models/types";
+import type { Line } from "../../Models/types";
 import { initialBoardConfig } from "../../Stores/boardStore";
 import { showBoat } from "../../Stores/boardStore";
 import { tweened } from 'svelte/motion';
 import { cubicOut, quadInOut } from 'svelte/easing';
 import { gridSize } from "./config";
 
-export function calculateSvgDimensions(fields: Field[], gridSize: number) {
-    const maxX = Math.max(...fields.map(field => field.x));
-    const maxY = Math.max(...fields.map(field => field.y));
+export function calculateSvgDimensions() {
+    const maxX = Math.max(...initialBoardConfig.map(field => field.coordinates.x));
+    const maxY = Math.max(...initialBoardConfig.map(field => field.coordinates.y));
     return {
       width: (maxX)* gridSize,
       height: (maxY) * gridSize
@@ -15,17 +15,17 @@ export function calculateSvgDimensions(fields: Field[], gridSize: number) {
 }
 
 // Funktion zur Berechnung der Linienpositionen
-export function calculateLines(fields: Field[], gridSize: number): Line[] {
+export function calculateLines(): Line[] {
     let lines: Line[] = [];
-    fields.forEach(field => {
+    initialBoardConfig.forEach(field => {
       field.connections.forEach(connection => {
-        const target = fields.find(f => f.name === connection);
+        const target = initialBoardConfig.find(f => f.name === connection);
         if (target) {
           lines.push({
-            x1: field.x * gridSize - gridSize / 2,
-            y1: field.y * gridSize - gridSize / 2,
-            x2: target.x * gridSize - gridSize / 2,
-            y2: target.y * gridSize - gridSize / 2
+            x1: field.coordinates.x * gridSize - gridSize / 2,
+            y1: field.coordinates.y * gridSize - gridSize / 2,
+            x2: target.coordinates.x * gridSize - gridSize / 2,
+            y2: target.coordinates.y * gridSize - gridSize / 2
           });
         }
       });
@@ -60,8 +60,8 @@ export function calculateLines(fields: Field[], gridSize: number): Line[] {
       const location = initialBoardConfig.find(f => f.name === locationName);
         if (location) {
             return { 
-                x: location.x * gridSize - gridSize / 2, 
-                y: location.y * gridSize - gridSize / 2 
+                x: location.coordinates.x * gridSize - gridSize / 2, 
+                y: location.coordinates.y * gridSize - gridSize / 2 
             };
         } else {
             return null;
