@@ -11,7 +11,7 @@
 
     $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
-    // geht das noch besser? (reaktives Statement?)
+    // geht das noch besser? (reaktives Statement?) -> ins Board Layout packen?!
     let fields: FieldType[] = [];
     boardConfig.subscribe((value: FieldType[]) => {
         fields = value;
@@ -20,7 +20,8 @@
     const dimensions = calculateSvgDimensions(fields, gridSize);
     const svgWidth = dimensions.width;
     const svgHeight = dimensions.height;
-  
+
+    // kann auch ne Ebene runter?!
     let lines: Line[] = calculateLines(fields, gridSize); // Berechnen der Linien
 
 </script>

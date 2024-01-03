@@ -1,13 +1,12 @@
 <script lang="ts">
     import Field from "../Field/Field.svelte";
-    import { gridSize } from "./config";
     import type { Line, Field as FieldType } from "../../Models/types";
     import { createCurvePath } from "./boardUtils";
+    import { gridSize } from "./config";
     export let svgWidth: number;
     export let svgHeight: number;
     export let lines: Line[];
     export let fields: FieldType[];
-
 </script>
 
 <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
@@ -18,7 +17,7 @@
         {/each}
         {#each fields as field (field.name)}
             <g transform={`translate(${(field.x - 1) * gridSize}, ${(field.y - 1) * gridSize})`}>
-                <Field size={gridSize} name={field.name} color={field.color} />
+                <Field name={field.name} color={field.color} capacity={field.capacity} supplies={field.supplies} hasSupplyCenter={field.hasSupplyCenter}/>
             </g>
         {/each}
         <slot></slot>
