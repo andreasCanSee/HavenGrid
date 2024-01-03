@@ -11,12 +11,13 @@ import { addToDiscardPile } from "../../cardsStore";
 import { currentTurnActions } from "../../store";
 import { showBoat } from "../../Stores/boardStore";
 
-export function moveToLocation(currentLocation: string, targetLocation: string) {
+export function moveToLocation(targetLocation: string) {
+    const activeLocation = get(players)[get(activePlayerIndex)].currentLocation;
     let actionsTaken = get(currentTurnActions).filter(action => !action.freeAction).length;
-    if(get(charterBoatMode) && targetLocation !== currentLocation && actionsTaken < 4){
-      charterToLocation(currentLocation, targetLocation)
+    if(get(charterBoatMode) && targetLocation !== activeLocation && actionsTaken < 4){
+      charterToLocation(activeLocation, targetLocation)
     }else{
-      ferryToLocation(currentLocation, targetLocation, actionsTaken );
+      ferryToLocation(activeLocation, targetLocation, actionsTaken );
     }
 }
 
@@ -88,14 +89,14 @@ async function charterToLocation(currentLocation: string, targetLocation: string
     }
 }
 
-export function deliverSupplies(index: number, activePlayerIndex: number, supplies: number, capacity: number, name: string){
+export function deliverSupplies(index: number, supplies: number, capacity: number, name: string){
   let deliveryQuantity = index - supplies + 1;
 
-  let currentPlayer = get(players)[activePlayerIndex];
+  let currentPlayer = get(players)[get(activePlayerIndex)];
   if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat)){
 
       players.update(currentPlayers => {
-          let currentPlayer = currentPlayers[activePlayerIndex];
+          let currentPlayer = currentPlayers[get(activePlayerIndex)];
           if (currentPlayer.supplies >= deliveryQuantity) {
               currentPlayer.supplies -= deliveryQuantity;
           } 
@@ -119,4 +120,33 @@ export function deliverSupplies(index: number, activePlayerIndex: number, suppli
       addActionToCurrentTurn(action);
   }
   
+}
+
+export function pickUpSupplies(name: string) {
+  if (get(players)[get(activePlayerIndex)].currentLocation === name) {
+  // Aktion hinzufügen
+  const action: Action = {
+      type: 'pickUpSupplies',
+      location: name,
+      freeAction: true
+  };
+  addActionToCurrentTurn(action);
+
+  players.update(currentPlayers => {
+      let updatedPlayers = [...currentPlayers];
+      updatedPlayers[get(activePlayerIndex)].supplies += 1;
+      return updatedPlayers;
+  });
+
+  boardConfig.update(fields => {
+      let updatedFields = [...fields];
+      let fieldToUpdate = updatedFields.find(f => f.name === name);
+
+      if (fieldToUpdate) {
+          fieldToUpdate.supplies -= 1; 
+      }
+
+      return updatedFields;
+      });
+  }
 }

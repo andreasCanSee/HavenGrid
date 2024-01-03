@@ -1,11 +1,12 @@
 <script lang="ts">
-    import type { Player } from "../../Models/types";
     import { gridSize } from "../Board/config";
-    import { players, activePlayerIndex } from "../../playerStore";
+    import { activePlayerIndex, players } from "../../playerStore";
     import { showBoat } from "../../Stores/boardStore";
 
-    export let playersAtLocation: Player[];
-    export let activePlayer: Player;
+    export let name: string; // Füge dies hinzu, um den Standortnamen zu erhalten
+
+    $: activePlayer = $players[$activePlayerIndex];
+    $: playersAtLocation = $players.filter(player => player.currentLocation === name);
 
     function calculateXPosition(index: number, totalPlayers: number) {
         const baseX = gridSize / 2;
@@ -29,7 +30,6 @@
         </filter>
     </defs>
 
-    <!-- Ringe in Spielerfarben -->
     {#each playersAtLocation as player, index}
         {#if !$showBoat || player !== activePlayer}
         <circle cx={calculateXPosition(index, playersAtLocation.length)} 
@@ -37,7 +37,7 @@
                 r={player === activePlayer ? "10" : "8"}
                 stroke-width={player === activePlayer ? "6" : "1"} 
                 fill={player.color}
-                style:filter={player === activePlayer  ? 'url(#strongGlow)' : ''} />
+                style:filter={player === activePlayer ? 'url(#strongGlow)' : ''} />
         {/if}
     {/each}
 </svg>

@@ -15,7 +15,7 @@
 <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
     <rect width={svgWidth} height={svgHeight} fill="deepskyblue"/>
         {#each lines as line}
-            <path d={createCurvePath(line)} stroke="navy" stroke-width="3" fill="none"  stroke-dasharray="1,4"/>
+            <path d={createCurvePath(line)} stroke="navy" stroke-width="3" fill="none"  stroke-dasharray="3,6"/>
         {/each}
         {#each initialBoardConfig as field (field.name)}
             <g transform={`translate(${(field.coordinates.x - 1) * gridSize}, ${(field.coordinates.y - 1) * gridSize})`}>
