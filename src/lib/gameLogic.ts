@@ -1,12 +1,12 @@
 import { currentTurnActions } from "./store";
 import { players, activePlayerIndex } from "./Stores/playerStore";
 import { get } from "svelte/store";
-import { finalizeTurn } from "./store";
 import { resetCardsStore } from "./Stores/cardsStore";
 import { getInitialPlayers } from "./Stores/playerStore";
 import { boardConfig } from "./Stores/boardStore";
 import { initialBoardConfig } from "./Stores/boardStore";
 import { drawnInfectionCards } from "./store";
+
 
 export function startPlayerTurn() {
     // Logik, die zu Beginn eines Spielerzuges ausgeführt wird
@@ -36,8 +36,25 @@ export function moveToNextPlayer() {
 }
 
 export function endActionPhase() {
-    finalizeTurn(get(activePlayerIndex));
-    activePlayerIndex.update(index => (index + 1) % get(players).length);
+    const currentPlayerActions = get(currentTurnActions);
+    const currentPlayerIndex = get(activePlayerIndex);
+  
+    players.update(currentPlayers => {
+      let updatedPlayers = [...currentPlayers];
+      let currentPlayer = updatedPlayers[currentPlayerIndex];
+      // Füge die aktuellen Aktionen zur Aktionshistorie hinzu
+      currentPlayer.actionsHistory.push([...currentPlayerActions]);
+  
+      // Aktualisiere den Spieler im Array
+      updatedPlayers[currentPlayerIndex] = currentPlayer;
+  
+      return updatedPlayers;
+    });
+
+    moveToNextPlayer();
+
+    // Setze currentTurnActions für den nächsten Spieler zurück
+    currentTurnActions.set([{ type: 'startAt', location: get(players)[currentPlayerIndex].currentLocation, freeAction: true }]);
 }
 
 export function restartGame(){
@@ -46,7 +63,7 @@ export function restartGame(){
     players.set(getInitialPlayers());
     activePlayerIndex.set(0);
 
-    currentTurnActions.set([]);
+    currentTurnActions.set([{ type: 'startAt', location: get(players)[get(activePlayerIndex)].currentLocation, freeAction: true }]);
 
     // Setze das Spielbrett zurück
     let newDrawnInfectionCards: string[] = [];

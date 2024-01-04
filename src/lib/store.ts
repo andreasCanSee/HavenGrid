@@ -14,24 +14,5 @@ export const resetCurrentTurnActions = () => {
   currentTurnActions.set([]);
 }
 
-export function finalizeTurn(activePlayerIndex: number) {
-  const currentPlayerActions = get(currentTurnActions);
-
-  players.update(currentPlayers => {
-    let updatedPlayers = [...currentPlayers];
-    let currentPlayer = updatedPlayers[activePlayerIndex];
-    // Füge die aktuellen Aktionen zur Aktionshistorie hinzu
-    currentPlayer.actionsHistory.push([...currentPlayerActions]);
-
-    // Aktualisiere den Spieler im Array
-    updatedPlayers[activePlayerIndex] = currentPlayer;
-
-    return updatedPlayers;
-  });
-
-  // Setze currentTurnActions für den nächsten Spieler zurück
-  resetCurrentTurnActions();
-}
-
 export const charterBoatMode = writable(false);
 

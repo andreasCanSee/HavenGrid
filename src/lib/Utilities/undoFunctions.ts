@@ -45,16 +45,30 @@ export function undoLastMove() {
    
 }
 
-const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo'];
+const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo', 'startAt'];
 
 function isMovementAction(actionType: string) {
     return movementActionTypes.includes(actionType);
 }
 
+function findLastLocation(): string {
+    let lastLocation = '';
+    
+    for (let i = get(currentTurnActions).length - 1; i >= 0; i--) {
+        const action = get(currentTurnActions)[i];
+        if (isMovementAction(action.type )) {
+            lastLocation = action.location || '';
+            break;
+        }
+    }
+
+    return lastLocation;
+}
+
 export function undoMoveToAction() {
     players.update(currentPlayers => {
         const currentPlayer = currentPlayers[get(activePlayerIndex)];
-        currentPlayer.currentLocation = findLastLocation(currentPlayer.actionsHistory);
+        currentPlayer.currentLocation = findLastLocation();
         return currentPlayers;
     });         
 }
@@ -144,38 +158,11 @@ export function undoSailToAction(action: Action){
         if(cardToReturn){
             const currentPlayer = allPlayers[get(activePlayerIndex)];
             currentPlayer.handCards.push(cardToReturn);
-            currentPlayer.currentLocation = findLastLocation(currentPlayer.actionsHistory);
+            currentPlayer.currentLocation = findLastLocation();
         }
         
         return allPlayers;
     });
-}
-
-function findLastLocation(actionsHistory: Action[][]): string {
-    let lastLocation = '';
-    
-    for (let i = get(currentTurnActions).length - 1; i >= 0; i--) {
-        const action = get(currentTurnActions)[i];
-        if (isMovementAction(action.type )) {
-            lastLocation = action.location || '';
-            break;
-        }
-    }
-
-        // Wenn keine moveTo-Aktion in currentTurnActions gefunden wurde, durchsuche die actionsHistory
-        if (!lastLocation) {
-            for (let i = actionsHistory.length - 1; i >= 0; i--) {
-                for (let j = actionsHistory[i].length - 1; j >= 0; j--) {
-                    const historyAction = actionsHistory[i][j]
-                    if (isMovementAction(historyAction.type )) {
-                        lastLocation = historyAction.location || '';
-                        break;
-                    }
-                }
-                if (lastLocation) break;
-            }
-        }
-        return lastLocation || actionsHistory[0][0]?.location || '';
 }
 
 export function undoCharterBoatToAction(action: Action) {
@@ -200,7 +187,7 @@ export function undoCharterBoatToAction(action: Action) {
         }
 
         // Aktualisiere die aktuelle Position des Spielers
-        currentPlayer.currentLocation = findLastLocation(currentPlayer.actionsHistory);
+        currentPlayer.currentLocation = findLastLocation();
 
         return allPlayers;
     });
