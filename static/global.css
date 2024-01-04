@@ -1,0 +1,15 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    background-image: url('waterworld.webp'); /* Pfad zu Ihrem Hintergrundbild */
+    background-size: cover; /* Streckt das Bild, um den Container zu bedecken, während das Seitenverhältnis beibehalten wird */
+    background-position: center bottom; /* Zentriert das Bild und positioniert es am unteren Rand */
+    background-repeat: no-repeat; /* Verhindert das Wiederholen des Bildes */
+    position: relative; /* Ermöglicht die Verwendung von z-index */
+    z-index: -1; /* Stellt sicher, dass der Hintergrund hinter anderen Elementen liegt */
+}

@@ -6,6 +6,45 @@ import { players, activePlayerIndex } from '../Stores/playerStore';
 import type { Action } from '../Models/types';
 import type { Card } from '../Models/types';
 
+export function undoLastMove() {
+
+    let lastActionRemoved: Action | undefined;
+
+    currentTurnActions.update(actions => {
+        if (actions.length > 0) {
+            lastActionRemoved = actions.pop();
+        }
+        return actions;
+    });
+    
+    if (lastActionRemoved) {
+        switch (lastActionRemoved.type) {
+            case 'moveTo':
+                undoMoveToAction();
+                break;
+            case 'pickUpSupplies':
+                undoPickUpSuppliesAction(lastActionRemoved);
+                break;
+            case 'makeSupply':
+                undoMakeSupplyAction();
+                break;
+            case 'deliverSupplies':
+                undoDeliverSuppliesAction(lastActionRemoved);
+                break;
+            case 'transferSupplies':
+                undoTransferSuppliesAction(lastActionRemoved);
+                break;
+            case 'sailTo':
+                undoSailToAction(lastActionRemoved);
+                break;
+            case 'charterBoatTo':
+                undoCharterBoatToAction(lastActionRemoved);
+                break;
+        }
+    }
+   
+}
+
 const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo'];
 
 function isMovementAction(actionType: string) {

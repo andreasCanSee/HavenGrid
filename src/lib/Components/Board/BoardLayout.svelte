@@ -15,20 +15,20 @@
 <div style="position: relative;">
     <!-- Oberes Rechteck -->
     <svg width={`${svgWidth + 60}px`} height="30" style="position: absolute; top: 0; left:0px; z-index: 10;">
-        <rect width={`${svgWidth + 60}px`} height="30" fill="deepskyblue"/>
+        <rect width={`${svgWidth + 60}px`} height="30" fill="deepskyblue" opacity="0.5"/>
     </svg>
     <!-- Linkes Rechteck -->
     <svg width="30" height={svgHeight} style="position: absolute; top: 30px; left: 0; z-index: 10;">
-        <rect width="30" height={svgHeight} fill="deepskyblue"/>
+        <rect width="30" height={svgHeight} fill="deepskyblue" opacity="0.5"/>
     </svg>
 
     <!-- Rechtes Rechteck -->
     <svg width="30" height={svgHeight} style={`position: absolute; top: 30px; left: ${svgWidth + 30}px; z-index: 10;`}>
-        <rect width="30" height={svgHeight} fill="deepskyblue"/>
+        <rect width="30" height={svgHeight} fill="deepskyblue" opacity="0.5"/>
     </svg>
 
     <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 30px;left: 30px;">
-        <rect width={svgWidth} height={svgHeight} fill="deepskyblue" />
+        <rect width={svgWidth} height={svgHeight} fill="deepskyblue" opacity="0.5"/>
             {#each lines as line}
                 <path d={createCurvePath(line)} stroke="navy" stroke-width="3" fill="none"  stroke-dasharray="3,6"/>
             {/each}
