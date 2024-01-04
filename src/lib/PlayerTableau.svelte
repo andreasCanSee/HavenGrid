@@ -55,7 +55,7 @@
     $: isDropzone = isActive || player.currentLocation === $players[$activePlayerIndex].currentLocation;
 </script>
 
-<div class="player-tableau"  on:dragover={event => isDropzone && event.preventDefault()} on:drop={event => isDropzone && handleDrop(event, player.name)} style="border: 2px solid {player.color}; padding: 10px; margin-top: 20px; opacity: {isActive ? 1 : 0.5}; display: flex; align-items: start; justify-content: flex-start; width: 700px;">
+<div class="player-tableau"  on:dragover={event => isDropzone && event.preventDefault()} on:drop={event => isDropzone && handleDrop(event, player.name)} style="border: 2px solid {player.color}; padding: 10px;margin-bottom:30px; opacity: {isActive ? 1 : 0.5}; display: flex; align-items: start; justify-content: flex-start; width: 400px;">
     <div class="player-info" style="flex-shrink: 0;">
         <div style="font-weight: bold; margin-bottom:10px">{player.name}</div>
         <img src={player.image} alt="🥷" style="max-width: 100px; max-height: 200px; object-fit: contain;" />

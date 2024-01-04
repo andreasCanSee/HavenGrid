@@ -14,7 +14,7 @@
 
 </script>
   
-<div style="position: relative;">
+
   <BoardLayout {svgWidth} {svgHeight}>
     {#if $showBoat}
       <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
@@ -28,10 +28,10 @@
       </g>
     {/if}
         
+    <!--width={($animatedPlayerPosition.imageFile == '/ship.png') ? 45 : 30}-->
     <!-- Info-Box als Slot-Inhalt -->
     <rect x={svgWidth - 280} y={svgHeight - 150} width={250} height={120} fill="transparent" stroke="white" stroke-width="5"/>
     <text x={svgWidth - 270} y={svgHeight - 120} fill="white" font-size="18px" font-family="Arial, sans-serif">
       Verbleibende Aktionen: {4 - remainingActions}
     </text>
   </BoardLayout>
-</div>

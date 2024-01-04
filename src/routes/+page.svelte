@@ -5,12 +5,21 @@
     import { players, getInitialPlayers, activePlayerIndex } from '../lib/Stores/playerStore'
     import type { Action } from '../lib/Models/types';
     import * as undoFunctions from '../lib/Utilities/undoFunctions';
-    import PlayerInteractionArea from '../lib/PlayerInteractionArea.svelte';
     import { resetCardsStore } from '../lib/Stores/cardsStore';
+    import PlayerTableau from '../lib/PlayerTableau.svelte';
+    import type { Player } from '../lib/Models/types';
 
-    /*onMount(() => {
-        restartGame();
-    })*/
+ 
+     // Funktion zum Rotieren der Spielerliste
+     function rotatePlayers(players: Player[], activeIndex: number) {
+        return [...players.slice(activeIndex), ...players.slice(0, activeIndex)];
+    }
+
+    let rotatedPlayers: Player[] = [];
+
+    $: if ($players && $players.length > 0 && typeof $activePlayerIndex === 'number') {
+        rotatedPlayers = rotatePlayers($players, $activePlayerIndex);
+    } 
 
     function undoLastMove() {
         let lastActionRemoved: Action | undefined;
@@ -100,29 +109,42 @@
 </script>
   
   <header>
-    <h1>Pandemic Legacy Season 2 Prolog</h1>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <h1>Pandemic Legacy Season 2 Prolog</h1>
+        <button on:click={restartGame}>Neustart 🔄</button>
+    </div>
   </header>
  
   
   <main>
-    
-    <Board/>
-    <div>
-        <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
-        <button on:click={endActionPhase}>Aktionsphase abschließen ☑️</button>
-        <button on:click={restartGame}>Neustart 🔄</button>
-    </div>
-    
-    <details>
-        <summary>Infektionsablagestapel</summary>
-        <ul>
-            {#each $drawnInfectionCards as card}
-              <li>{card}</li>
+    <div style="display: flex; width:100%">
+        <div style="flex: 1; min-width: 0;">
+            <Board/>
+        </div>
+
+        <div style="display: block; margin-left: 20px;">
+            {#each rotatedPlayers as player}
+                <PlayerTableau {player} isActive={$players[$activePlayerIndex].name === player.name} />
             {/each}
-        </ul>
-    </details>
- 
-    <PlayerInteractionArea />
+
+            <div >
+                <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
+                <button on:click={endActionPhase}>Aktionsphase abschließen ☑️</button>
+            </div>
+    
+            <div style="margin-top:20px">
+                <details>
+                    <summary>Infektionsablagestapel</summary>
+                    <ul>
+                        {#each $drawnInfectionCards as card}
+                        <li>{card}</li>
+                        {/each}
+                    </ul>
+                </details>
+            </div>
+            
+        </div>
+    </div>
   </main>
 
   

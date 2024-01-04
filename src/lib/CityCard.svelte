@@ -88,7 +88,7 @@
         on:dragstart={handleDragStart}
         on:dragend={handleDragEnd}
         style="display: block; 
-               width: 150px; /* Feste Breite */
+               width: 80px; /* Feste Breite */
                height: 40px; /* Feste Höhe */
                background-color: {color}; 
                padding: 5px; 

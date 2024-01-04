@@ -12,15 +12,31 @@
     let lines: Line[] = calculateLines(); // Berechnen der Linien
 </script>
 
-<svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
-    <rect width={svgWidth} height={svgHeight} fill="deepskyblue"/>
-        {#each lines as line}
-            <path d={createCurvePath(line)} stroke="navy" stroke-width="3" fill="none"  stroke-dasharray="3,6"/>
-        {/each}
-        {#each initialBoardConfig as field (field.name)}
-            <g transform={`translate(${(field.coordinates.x - 1) * gridSize}, ${(field.coordinates.y - 1) * gridSize})`}>
-                <Field name={field.name} color={field.color} capacity={field.capacity} />
-            </g>
-        {/each}
-        <slot></slot>
-  </svg>
+<div style="position: relative;">
+    <!-- Oberes Rechteck -->
+    <svg width={`${svgWidth + 60}px`} height="30" style="position: absolute; top: 0; left:0px; z-index: 10;">
+        <rect width={`${svgWidth + 60}px`} height="30" fill="deepskyblue"/>
+    </svg>
+    <!-- Linkes Rechteck -->
+    <svg width="30" height={svgHeight} style="position: absolute; top: 30px; left: 0; z-index: 10;">
+        <rect width="30" height={svgHeight} fill="deepskyblue"/>
+    </svg>
+
+    <!-- Rechtes Rechteck -->
+    <svg width="30" height={svgHeight} style={`position: absolute; top: 30px; left: ${svgWidth + 30}px; z-index: 10;`}>
+        <rect width="30" height={svgHeight} fill="deepskyblue"/>
+    </svg>
+
+    <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 30px;left: 30px;">
+        <rect width={svgWidth} height={svgHeight} fill="deepskyblue" />
+            {#each lines as line}
+                <path d={createCurvePath(line)} stroke="navy" stroke-width="3" fill="none"  stroke-dasharray="3,6"/>
+            {/each}
+            {#each initialBoardConfig as field (field.name)}
+                <g transform={`translate(${(field.coordinates.x - 1) * gridSize}, ${(field.coordinates.y - 1) * gridSize})`}>
+                    <Field name={field.name} color={field.color} capacity={field.capacity} />
+                </g>
+            {/each}
+            <slot></slot>
+    </svg>
+</div>

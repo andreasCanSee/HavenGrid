@@ -18,13 +18,6 @@ const supplyMargin = supplySize / 3; // Abstand zwischen den Würfeln
 
 $: playerSupplies = $players[$activePlayerIndex].supplies;
 
-function shouldHighlight(index: number){
-  if(supplies===0){
-    return true
-  }
-  return false
-}
-
 let supplies: number;
 
 // Reaktive Zuweisung für die dynamischen Eigenschaften
