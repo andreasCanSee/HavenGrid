@@ -1,7 +1,7 @@
 <script lang="ts">
     import Field from "../Field/Field.svelte";
     import type { Line } from "../../Models/types";
-    import { initialBoardConfig } from "../../Stores/boardStore";
+    import { initialBoardState } from "../../Models/initialBoardData";
     import { createCurvePath } from "./boardUtils";
     import { gridSize } from "./config";
     import { calculateLines } from "./boardUtils";
@@ -32,7 +32,7 @@
             {#each lines as line}
                 <path d={createCurvePath(line)} stroke="navy" stroke-width="3" fill="none"  stroke-dasharray="3,6"/>
             {/each}
-            {#each initialBoardConfig as field (field.name)}
+            {#each initialBoardState as field (field.name)}
                 <g transform={`translate(${(field.coordinates.x - 1) * gridSize}, ${(field.coordinates.y - 1) * gridSize})`}>
                     <Field name={field.name} color={field.color} capacity={field.capacity} />
                 </g>

@@ -1,18 +1,21 @@
 <script lang="ts">
-    import { boardConfig } from "../../Stores/boardStore";
     import { gridSize } from "../Board/config";
     import { handleFocus, handleKeyPress } from "./uiHandlers";
     import { moveToLocation } from "./fieldActions";
+    import { derived } from "svelte/store";
+    import { gameState } from "../../Stores/gameStateStore";
 
     export let name: string;
+
+    const boardState = derived(gameState, $gameState => 
+        $gameState.boardState.find(field => field.name === name)
+    );
     
     let hasSupplyCenter: boolean;
     let imageUrl: string, imageSize: number, imageX: number, imageY: number;
 
-    $: {
-        const fieldData = $boardConfig.find(field => field.name === name);
-        if (fieldData) {
-            hasSupplyCenter = fieldData.hasSupplyCenter;
+    $: if ($boardState){
+            hasSupplyCenter = $boardState.hasSupplyCenter;
 
             if (hasSupplyCenter) {
                 imageUrl = "/supplyCenter.png";
@@ -24,7 +27,7 @@
             imageX = (gridSize - imageSize) / 2;
             imageY = (gridSize - imageSize) / 2;
         }
-    }
+    
 
 </script>
 

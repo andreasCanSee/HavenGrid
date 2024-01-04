@@ -1,6 +1,6 @@
-import type { Field } from '../Models/types';
+import { initialBoardState } from "../Models/initialBoardData";
 
-export function findPath(currentLocation: string, target: string, boardConfig: Field[]): string[] {
+export function findPath(currentLocation: string, target: string): string[] {
 
     interface QueueItem {
       name: string;
@@ -19,7 +19,7 @@ export function findPath(currentLocation: string, target: string, boardConfig: F
 
       if (!visited.has(name)) {
         visited.add(name);
-        const neighbors = boardConfig.find(f => f.name === name)?.connections || [];
+        const neighbors = initialBoardState.find(f => f.name === name)?.connections || [];
         neighbors.forEach((neighbor: string) => {
           if (!visited.has(neighbor)) {
             queue.push({ name: neighbor, path: path.concat(name) });
@@ -30,3 +30,11 @@ export function findPath(currentLocation: string, target: string, boardConfig: F
 
     return []; // Kein Pfad gefunden
   }
+
+  export function shuffleArray<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]]; // Tausche Elemente
+    }
+    return array;
+}

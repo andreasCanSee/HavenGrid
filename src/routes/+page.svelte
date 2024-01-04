@@ -2,10 +2,24 @@
     import Board from '../lib/Components/Board/Board.svelte';
     import { players, activePlayerIndex } from '../lib/Stores/playerStore'
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
-    import PlayerTableau from '../lib/PlayerTableau.svelte';
+    import PlayerTableau from '../lib/Components/Player/PlayerTableau.svelte';
     import type { Player } from '../lib/Models/types';
-    import { endActionPhase } from '../lib/gameLogic';
-    import { restartGame } from '../lib/gameLogic';
+    import { endActionPhase } from '../lib/GameLogic/gameLogicController';
+    import { startGame } from '../lib/GameLogic/gameLogicController';
+    import { onMount } from 'svelte';
+
+    /*let infectionDeck;
+    let originalDeck = [];
+    let deckAfterDraw = [];
+    let discardPile = [];
+
+    onMount(() => {
+        infectionDeck = InfectionDeck.initialize();
+        originalDeck = [...infectionDeck.state.deck];
+        infectionDeck.drawAndDiscard(9);
+        deckAfterDraw = [...infectionDeck.state.deck];
+        discardPile = [...infectionDeck.state.discardPile];
+    });*/
 
      // Funktion zum Rotieren der Spielerliste
      function rotatePlayers(players: Player[], activeIndex: number) {
@@ -23,7 +37,7 @@
 <header>
     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-left: 10px">
             <h1><span style="color: firebrick">Pandemic Legacy Season 2</span> <span style="color: navy">Prolog</span></h1>
-        <button on:click={restartGame} style="margin-right: 20px">Neustart 🔄</button>
+        <button on:click={startGame} style="margin-right: 20px">Neustart 🔄</button>
     </div>
 </header>
  
@@ -48,4 +62,54 @@
     </div>
   </main>
 
-  
+ 
+<!--
+{#if infectionDeck}
+<div class="deck-container">
+    <div class="deck">
+        <h3>Ursprüngliches Deck</h3>
+        <ul>
+            {#each originalDeck as card}
+                <li>{card.data.name} - {card.data.color}</li>
+            {/each}
+        </ul>
+    </div>
+    
+    <div class="deck">
+        <h3>Deck nach Ziehen</h3>
+        <ul>
+            {#each deckAfterDraw as card}
+                <li>{card.data.name} - {card.data.color}</li>
+            {/each}
+        </ul>
+    </div>
+    
+    <div class="deck">
+        <h3>Ablagestapel</h3>
+        <ul>
+            {#each discardPile as card}
+                <li>{card.data.name} - {card.data.color}</li>
+            {/each}
+        </ul>
+    </div>
+</div>
+{/if}
+
+
+
+
+<style>
+    .deck-container {
+        display: flex;
+        margin-top: 20px;
+    }
+    .deck {
+        margin: 0 10px;
+        padding: 10px;
+    }
+    ul {
+        padding: 0;
+        list-style-type: none;
+    }
+</style>
+  -->

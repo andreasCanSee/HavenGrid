@@ -1,18 +1,21 @@
 <script lang="ts">
     import BoardLayout from './BoardLayout.svelte';
-    import { showBoat } from "../../Stores/boardStore";
+    import { showBoat } from '../../Stores/uiStore';
     import { fade } from 'svelte/transition';
     import { animatedPlayerPosition } from './boardUtils';
     import { currentTurnActions } from '../../store';
     import { calculateSvgDimensions } from './boardUtils';
-    import { drawnInfectionCards } from '../../store';
+    import { gameState } from '../../Stores/gameStateStore';
     import { derived } from 'svelte/store';
+
 
     $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
     const dimensions = calculateSvgDimensions();
     const svgWidth = dimensions.width;
     const svgHeight = dimensions.height;
+
+    const infectionDeck = derived(gameState, $gameState => $gameState.infectionDeck)
     
     let showTooltip = false;
 
@@ -20,7 +23,8 @@
         showTooltip = !showTooltip;
     }
 
-    $: rectHeight = $drawnInfectionCards.length * 21;
+   // $: rectHeight = $drawnInfectionCards.length * 21;
+   //let rectHeight = 21 * 11;
 
 
 </script>
@@ -52,14 +56,14 @@
           </div>
   </foreignObject>
   {#if showTooltip}
-    <rect fill="black" x={svgWidth - 400} y={svgHeight - 300} width="100" height={rectHeight}></rect>
-    {#each $drawnInfectionCards as card, index}
+    <rect fill="black" x={svgWidth - 400} y={svgHeight - 300} width="100" height={$infectionDeck.discardPile.length * 21}></rect>
+    {#each $infectionDeck.discardPile as card, index}
         <text x={svgWidth - 390} y={svgHeight - 280 + index * 20} fill="white" font-size="16px" font-family="Arial, sans-serif">
-            {card}
+            {card.data.name}
         </text>
     {/each}
 {/if}
-  </BoardLayout>
+</BoardLayout>
 
 
   

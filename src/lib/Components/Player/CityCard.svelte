@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { players, activePlayerIndex } from "./Stores/playerStore";
-    import { addToDiscardPile, cardsStore } from "./Stores/cardsStore";
-    import { addActionToCurrentTurn } from "./store";
-    import type { Action } from "./Models/types";
-    import { animateFerry } from "./Components/Board/boardUtils";
-    import { charterBoatMode } from '../lib/store';
+    import { players, activePlayerIndex } from "../../Stores/playerStore";
+    import { addToDiscardPile, cardsStore } from "../../Stores/cardsStore";
+    import { addActionToCurrentTurn } from "../../store";
+    import type { Action } from "../../Models/types";
+    import { animateFerry } from "../Board/boardUtils";
+    import { charterBoatMode } from '../../store';
 
     export let name: string;
     export let color: string;

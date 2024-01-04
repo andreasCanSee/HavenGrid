@@ -1,10 +1,10 @@
 import { get } from 'svelte/store';
 import { currentTurnActions } from '../store';
-import { boardConfig } from '../Stores/boardStore';
 import { cardsStore } from '../Stores/cardsStore';
 import { players, activePlayerIndex } from '../Stores/playerStore';
 import type { Action } from '../Models/types';
 import type { Card } from '../Models/types';
+import { gameState } from '../Stores/gameStateStore';
 
 export function undoLastMove() {
 
@@ -82,12 +82,15 @@ export function undoPickUpSuppliesAction(action: Action) {
         return currentPlayers;
     });
 
-    boardConfig.update(fields => {
-        let fieldToUpdate = fields.find(f => f.name === action.location);
-        if (fieldToUpdate) {
-            fieldToUpdate.supplies += 1;
-        }
-        return fields;
+    gameState.update(state => {
+        let updatedBoardState = state.boardState.map(field => {
+            if (field.name === action.location) {
+                return { ...field, supplies: field.supplies + 1 };
+            }
+            return field;
+        });
+    
+        return { ...state, boardState: updatedBoardState };
     });
 }
 
@@ -109,13 +112,17 @@ export function undoDeliverSuppliesAction(action: Action) {
             return currentPlayers;
         });
 
-        boardConfig.update(fields => {
-            let fieldToUpdate = fields.find(f => f.name === action.location);
-            if (fieldToUpdate && typeof action.supplies === 'number') {
-                fieldToUpdate.supplies -= action.supplies; // Vorräte des Feldes reduzieren
-                fieldToUpdate.supplies = Math.max(0, fieldToUpdate.supplies); // Verhindere negative Vorräte
-            }
-            return fields;
+        gameState.update(state => {
+            let updatedBoardState = state.boardState.map(field => {
+                if (field.name === action.location && typeof action.supplies === 'number') {
+                    let updatedSupplies = field.supplies - action.supplies;
+                    updatedSupplies = Math.max(0, updatedSupplies); // Verhindere negative Vorräte
+                    return { ...field, supplies: updatedSupplies };
+                }
+                return field;
+            });
+        
+            return { ...state, boardState: updatedBoardState };
         });
 }
 

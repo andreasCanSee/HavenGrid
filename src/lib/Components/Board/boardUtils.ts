@@ -1,13 +1,13 @@
 import type { Line } from "../../Models/types";
-import { initialBoardConfig } from "../../Stores/boardStore";
-import { showBoat } from "../../Stores/boardStore";
+import { initialBoardState } from "../../Models/initialBoardData";
+import { showBoat } from "../../Stores/uiStore";
 import { tweened } from 'svelte/motion';
 import { cubicOut, quadInOut } from 'svelte/easing';
 import { gridSize } from "./config";
 
 export function calculateSvgDimensions() {
-    const maxX = Math.max(...initialBoardConfig.map(field => field.coordinates.x));
-    const maxY = Math.max(...initialBoardConfig.map(field => field.coordinates.y));
+    const maxX = Math.max(...initialBoardState.map(field => field.coordinates.x));
+    const maxY = Math.max(...initialBoardState.map(field => field.coordinates.y));
     return {
       width: (maxX)* gridSize,
       height: (maxY) * gridSize
@@ -18,9 +18,9 @@ export function calculateSvgDimensions() {
 export function calculateLines(): Line[] {
     let lines: Line[] = [];
     let processedConnections = new Set();
-    let fieldsMap = new Map(initialBoardConfig.map(field => [field.name, field]));
+    let fieldsMap = new Map(initialBoardState.map(field => [field.name, field]));
 
-    initialBoardConfig.forEach(field => {
+    initialBoardState.forEach(field => {
       field.connections.forEach(connection => {
         const connectionKey = `${field.name}-${connection}`;
         const reverseConnectionKey = `${connection}-${field.name}`;
@@ -67,7 +67,7 @@ export function calculateLines(): Line[] {
     }
 
     export function getCoordinates(locationName: string): { x: number; y: number } | null {
-      const location = initialBoardConfig.find(f => f.name === locationName);
+      const location = initialBoardState.find(f => f.name === locationName);
         if (location) {
             return { 
                 x: location.coordinates.x * gridSize - gridSize / 2, 

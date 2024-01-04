@@ -1,5 +1,4 @@
 import { findPath } from "../../Utilities/utils";
-import { boardConfig } from "../../Stores/boardStore";
 import { get } from "svelte/store";
 import { animateFerry } from "../Board/boardUtils";
 import type { Action } from "../../Models/types";
@@ -9,7 +8,9 @@ import { charterBoatMode } from "../../store";
 import { cardsStore } from "../../Stores/cardsStore";
 import { addToDiscardPile } from "../../Stores/cardsStore";
 import { currentTurnActions } from "../../store";
-import { showBoat } from "../../Stores/boardStore";
+import { showBoat } from "../../Stores/uiStore";
+import { gameState } from "../../Stores/gameStateStore";
+import { initialBoardState } from "../../Models/initialBoardData";
 
 export function moveToLocation(targetLocation: string) {
     const activeLocation = get(players)[get(activePlayerIndex)].currentLocation;
@@ -24,7 +25,7 @@ export function moveToLocation(targetLocation: string) {
 // checken, dass nicht vorliegt:
 // if($charterBoatMode && targetLocation !== currentLocation){
 async function ferryToLocation(currentLocation: string, targetLocation: string, actionsTaken: number) {
-    let path = findPath(currentLocation, targetLocation, get(boardConfig));
+    let path = findPath(currentLocation, targetLocation);
 
     // Überprüfen, ob der Zielort direkt mit dem aktuellen Ort verbunden ist
     if (path.length > 0 && actionsTaken + path.length <= 4) {
@@ -65,7 +66,7 @@ async function charterToLocation(currentLocation: string, targetLocation: string
         });
   
         let locationColor = '';
-          get(boardConfig).forEach(place => {
+        initialBoardState.forEach(place => {
           if (place.name === currentLocation) {
             locationColor = place.color;
           }
@@ -90,6 +91,8 @@ async function charterToLocation(currentLocation: string, targetLocation: string
 }
 
 export function deliverSupplies(index: number, supplies: number, capacity: number, name: string){
+  
+ 
   let deliveryQuantity = index - supplies + 1;
 
   let currentPlayer = get(players)[get(activePlayerIndex)];
@@ -103,13 +106,17 @@ export function deliverSupplies(index: number, supplies: number, capacity: numbe
           return currentPlayers;
       });
 
-      boardConfig.update(fields => {
-          let currentField = fields.find(f => f.name === name);
-          if(currentField){
-              currentField.supplies = Math.min(currentField.supplies +deliveryQuantity ,capacity)
-          }
-          return fields;
-      })
+      // Aktualisiere boardState im gameState
+      gameState.update(state => {
+        let updatedBoardState = state.boardState.map(field => {
+            if (field.name === name) {
+                return { ...field, supplies: Math.min(field.supplies + deliveryQuantity, capacity) };
+            }
+            return field;
+        });
+
+        return { ...state, boardState: updatedBoardState };
+    });
 
       const action: Action = {
           type: 'deliverSupplies',
@@ -119,7 +126,6 @@ export function deliverSupplies(index: number, supplies: number, capacity: numbe
       }
       addActionToCurrentTurn(action);
   }
-  
 }
 
 export function pickUpSupplies(name: string) {
@@ -138,15 +144,16 @@ export function pickUpSupplies(name: string) {
       return updatedPlayers;
   });
 
-  boardConfig.update(fields => {
-      let updatedFields = [...fields];
-      let fieldToUpdate = updatedFields.find(f => f.name === name);
+  // Aktualisiere den boardState im gameState
+  gameState.update(state => {
+    let updatedBoardState = state.boardState.map(field => {
+        if (field.name === name) {
+            return { ...field, supplies: field.supplies - 1 };
+        }
+        return field;
+    });
 
-      if (fieldToUpdate) {
-          fieldToUpdate.supplies -= 1; 
-      }
-
-      return updatedFields;
-      });
+    return { ...state, boardState: updatedBoardState };
+    });
   }
 }

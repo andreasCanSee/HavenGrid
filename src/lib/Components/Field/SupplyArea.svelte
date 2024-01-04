@@ -2,7 +2,8 @@
 
 import { handleFocus } from "./uiHandlers";
 import { gridSize } from "../Board/config";
-import { boardConfig } from "../../Stores/boardStore";
+import { gameState } from "../../Stores/gameStateStore";
+import { derived } from "svelte/store";
 import { pickUpSupplies } from "./fieldActions";
 import { deliverSupplies } from "./fieldActions";
 import { handleKeyPress } from "./uiHandlers";
@@ -18,10 +19,14 @@ const supplyMargin = supplySize / 3; // Abstand zwischen den Würfeln
 
 $: playerSupplies = $players[$activePlayerIndex].supplies;
 
-let supplies: number;
+// Abgeleiteter Store für supplies
+const suppliesStore = derived(gameState, $gameState => 
+        $gameState.boardState.find(field => field.name === name)?.supplies || 0
+    );
 
-// Reaktive Zuweisung für die dynamischen Eigenschaften
-$: supplies = $boardConfig.find(field => field.name === name)?.supplies || 0;
+    // Verwende den abgeleiteten Store für supplies
+    let supplies: number;
+    $: supplies = $suppliesStore;
 
 </script>
 

@@ -29,7 +29,20 @@ export type Card = {
       color: string;
     };
     inBuildArea: boolean;
-  }
+}
+
+  export type InfectionCard = {
+    cardType: string;
+    data: {
+        name: string;  
+        color: string;
+    };
+};
+
+export type DeckState<T> = {
+  deck: T[];
+  discardPile: T[];
+};
 
 export type Action = {
   type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo';

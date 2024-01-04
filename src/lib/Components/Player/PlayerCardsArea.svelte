@@ -1,9 +1,9 @@
 <script>
     import CityCard from "./CityCard.svelte";
-    import { players, activePlayerIndex } from "./Stores/playerStore";
-    import { boardConfig } from "./Stores/boardStore";
+    import { players, activePlayerIndex } from "../../Stores/playerStore";
     export let playerIndex;
-    import { addToDiscardPile } from "./Stores/cardsStore";
+    import { addToDiscardPile } from "../../Stores/cardsStore";
+    import { gameState } from "../../Stores/gameStateStore";
 
     $: player = $players[playerIndex];
     $: playerCards = player.handCards;
@@ -105,21 +105,22 @@
     }
 
     function handleBuildCenter() {
-        const currentLocationColor = $boardConfig.find(location => location.name === player.currentLocation)?.color;
+        const currentLocationColor = $gameState.boardState.find(location => location.name === player.currentLocation)?.color;
         if (currentLocationColor === buildAreaColor) {
             const cardCount = player.handCards.filter(card => card.data.color === currentLocationColor && card.inBuildArea).length;
 
             if (cardCount >= 3) {
                 console.log('Success');
                 // Aktualisiere hasSupplyCenter für den aktuellen Standort
-                boardConfig.update(config => {
-                    return config.map(location => {
-                        if (location.name === player.currentLocation) {
-                            return { ...location, hasSupplyCenter: true };
-                        }
-                        return location;
-                    });
+                gameState.update(state => {
+                const updatedBoardState = state.boardState.map(location => {
+                    if (location.name === player.currentLocation) {
+                        return { ...location, hasSupplyCenter: true };
+                    }
+                    return location;
                 });
+                return {...state, boardState: updatedBoardState};
+            });
 
                 // Werfe alle Karten aus der Build Area ab
                 player.handCards.forEach(card => {

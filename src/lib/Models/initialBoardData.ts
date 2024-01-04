@@ -1,7 +1,6 @@
-import { writable } from "svelte/store";
 import type { Field } from "../Models/types";
 
-  export const initialBoardConfig: Field[] =[
+  export const initialBoardState: Field[] =[
       { name: 'Sao Paulo', coordinates: {x: 2, y: 6}, connections: ['Lagos', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false },
       { name: 'Lagos', coordinates: {x: 5, y: 5}, connections: ['Sao Paulo', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false},
       { name: 'Jacksonville',coordinates: {x: 2, y: 3}, connections: ['Asgard', 'Washington', 'New York'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false },
@@ -15,14 +14,3 @@ import type { Field } from "../Models/types";
       { name: 'Cairo', coordinates: {x: 9, y: 3}, connections: ['Istanbul', 'Tripolis'], color: 'black', capacity: 3, supplies: 3, hasSupplyCenter: false },
       { name: 'Istanbul', coordinates: {x: 8, y: 2}, connections: ['Cairo', 'Avalon'], color: 'black', capacity: 3, supplies: 3, hasSupplyCenter: false }
   ];
-  
-export const boardConfig = writable([...initialBoardConfig]);
-
-export const showBoat = writable(false); 
-/* 
-  Falls showBoat jedoch nur in wenigen spezifischen Komponenten relevant ist 
-  oder wenn es sich um eine UI-spezifische Zustandsinformation handelt, 
-  die nicht eng mit der Spiellogik verknüpft ist, könntest du erwägen, 
-  sie in einen lokaleren Kontext zu verschieben, um die Trennung zwischen UI-Status 
-  und Geschäftslogik deutlicher zu machen.
-*/
