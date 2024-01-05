@@ -1,20 +1,17 @@
-import { findPath } from "../../Utilities/utils";
 import { get } from "svelte/store";
+import { gameState } from "../../Stores/gameStateStore";
+import { findPath } from "../../Utilities/utils";
 import { animateFerry } from "../Board/boardUtils";
 import type { Action } from "../../Models/types";
-import { addActionToCurrentTurn } from "../../store";
-import { players, activePlayerIndex } from "../../Stores/playerStore";
-import { charterBoatMode } from "../../store";
-import { cardsStore } from "../../Stores/cardsStore";
-import { addToDiscardPile } from "../../Stores/cardsStore";
-import { currentTurnActions } from "../../store";
+import { currentTurnActions, addActionToCurrentTurn, charterBoatMode } from "../../store";
 import { showBoat } from "../../Stores/uiStore";
-import { gameState } from "../../Stores/gameStateStore";
 import { initialBoardState } from "../../Models/initialBoardData";
 
 export function moveToLocation(targetLocation: string) {
-    const activeLocation = get(players)[get(activePlayerIndex)].currentLocation;
+    const currentGameState = get(gameState);
+    const activeLocation = currentGameState.players[currentGameState.activePlayerIndex].currentLocation;
     let actionsTaken = get(currentTurnActions).filter(action => !action.freeAction).length;
+
     if(get(charterBoatMode) && targetLocation !== activeLocation && actionsTaken < 4){
       charterToLocation(activeLocation, targetLocation)
     }else{
@@ -38,11 +35,11 @@ async function ferryToLocation(currentLocation: string, targetLocation: string, 
             // Aktualisierung der Spielerposition für den nächsten Schritt
             currentLocation = location;
       }
-        // Spielerposition im Store aktualisieren
-        players.update(currentPlayers => {
-            let updatedPlayers = [...currentPlayers];
-            updatedPlayers[get(activePlayerIndex)].currentLocation = targetLocation;
-            return updatedPlayers;
+        // Spielerposition im gameState Store aktualisieren
+        gameState.update(state => {
+            let updatedPlayers = [...state.players];
+            updatedPlayers[state.activePlayerIndex].currentLocation = targetLocation;
+            return { ...state, players: updatedPlayers };
         });
     }
 }
@@ -51,34 +48,35 @@ async function charterToLocation(currentLocation: string, targetLocation: string
     if(get(charterBoatMode) && targetLocation !== currentLocation){
         await animateFerry(currentLocation, targetLocation, 'charterBoatTo');
   
-        players.update(allPlayers => {
-          const updatedPlayers = [...allPlayers];
-          const player = updatedPlayers[get(activePlayerIndex)];
-          const cardIndex = player.handCards.findIndex(card => card.data.name === currentLocation);
+        gameState.update(state => {
+          const updatedPlayers = [...state.players];
+          const activePlayer = updatedPlayers[state.activePlayerIndex];
+          const cardIndex = activePlayer.handCards.findIndex(card => card.data.name === currentLocation);
   
           if (cardIndex !== -1) {
-              // Entferne die gefundene Karte aus den Handkarten
-              player.handCards.splice(cardIndex, 1);
-          }
-  
-          player.currentLocation = targetLocation;
-          return updatedPlayers;
+            // Finde die Farbe des aktuellen Standorts
+            let locationColor = '';
+            initialBoardState.forEach(place => {
+              if (place.name === currentLocation) {
+                locationColor = place.color;
+              }
+          });
+         
+          // Erstelle die zu entsorgende Karte
+          const cardToDiscard = {
+            cardType: 'city', // oder ein anderer passender Wert für cardType
+            data: { name: currentLocation, color: locationColor },
+            inBuildArea: false
+          };
+          
+          state.playerDeck.discardPile.push(cardToDiscard)
+          activePlayer.handCards.splice(cardIndex, 1);
+        }
+        
+        
+        activePlayer.currentLocation = targetLocation;
+        return {...state, players: updatedPlayers};
         });
-  
-        let locationColor = '';
-        initialBoardState.forEach(place => {
-          if (place.name === currentLocation) {
-            locationColor = place.color;
-          }
-        });
-  
-        const cardToDiscard = {
-          cardType: 'city', // oder ein anderer passender Wert für cardType
-          data: { name: currentLocation, color: locationColor },
-          inBuildArea: false
-        };
-        addToDiscardPile(cardToDiscard);
-        console.log(get(cardsStore));
   
         const charterBoatToLocation: Action = {
           type: 'charterBoatTo',
@@ -91,69 +89,64 @@ async function charterToLocation(currentLocation: string, targetLocation: string
 }
 
 export function deliverSupplies(index: number, supplies: number, capacity: number, name: string){
-  
- 
+  const currentGameState = get(gameState);
+  let currentPlayer = currentGameState.players[currentGameState.activePlayerIndex];
   let deliveryQuantity = index - supplies + 1;
 
-  let currentPlayer = get(players)[get(activePlayerIndex)];
   if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat)){
+    gameState.update(state => {
+      let updatedPlayers = [...state.players];
+      let updatedPlayer = updatedPlayers[state.activePlayerIndex];
 
-      players.update(currentPlayers => {
-          let currentPlayer = currentPlayers[get(activePlayerIndex)];
-          if (currentPlayer.supplies >= deliveryQuantity) {
-              currentPlayer.supplies -= deliveryQuantity;
-          } 
-          return currentPlayers;
-      });
-
-      // Aktualisiere boardState im gameState
-      gameState.update(state => {
+      if (updatedPlayer.supplies >= deliveryQuantity) {
+        updatedPlayer.supplies -= deliveryQuantity;
+              
         let updatedBoardState = state.boardState.map(field => {
-            if (field.name === name) {
-                return { ...field, supplies: Math.min(field.supplies + deliveryQuantity, capacity) };
-            }
-            return field;
+          if (field.name === name) {
+            return { ...field, supplies: Math.min(field.supplies + deliveryQuantity, capacity) };
+          }
+          return field;
         });
-
-        return { ...state, boardState: updatedBoardState };
-    });
-
-      const action: Action = {
-          type: 'deliverSupplies',
-          location: name,
-          supplies: deliveryQuantity,
-          freeAction: false // nur zum testen
+        return { ...state, players: updatedPlayers, boardState: updatedBoardState };
       }
-      addActionToCurrentTurn(action);
+    return state;
+  });
+
+  const action: Action = {
+      type: 'deliverSupplies',
+      location: name,
+      supplies: deliveryQuantity,
+      freeAction: false // nur zum testen
+  }
+  addActionToCurrentTurn(action);
   }
 }
 
 export function pickUpSupplies(name: string) {
-  if (get(players)[get(activePlayerIndex)].currentLocation === name) {
-  // Aktion hinzufügen
-  const action: Action = {
-      type: 'pickUpSupplies',
-      location: name,
-      freeAction: true
-  };
-  addActionToCurrentTurn(action);
+  const currentGameState = get(gameState);
+  if (currentGameState.players[currentGameState.activePlayerIndex].currentLocation === name) {
+    // Aktion hinzufügen
+    const action: Action = {
+        type: 'pickUpSupplies',
+        location: name,
+        freeAction: true
+    };
+    addActionToCurrentTurn(action);
 
-  players.update(currentPlayers => {
-      let updatedPlayers = [...currentPlayers];
-      updatedPlayers[get(activePlayerIndex)].supplies += 1;
-      return updatedPlayers;
-  });
+    gameState.update(state => {
+      let updatedPlayers = [...state.players];
+      let updatedPlayer = updatedPlayers[state.activePlayerIndex];
 
-  // Aktualisiere den boardState im gameState
-  gameState.update(state => {
-    let updatedBoardState = state.boardState.map(field => {
-        if (field.name === name) {
-            return { ...field, supplies: field.supplies - 1 };
-        }
-        return field;
-    });
+      updatedPlayer.supplies += 1;
 
-    return { ...state, boardState: updatedBoardState };
+      let updatedBoardState = state.boardState.map(field => {
+          if (field.name === name) {
+              return { ...field, supplies: field.supplies - 1 };
+          }
+          return field;
+      });
+
+      return { ...state, players: updatedPlayers, boardState: updatedBoardState };
     });
   }
 }

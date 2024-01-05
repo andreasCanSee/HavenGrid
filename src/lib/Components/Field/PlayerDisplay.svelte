@@ -1,9 +1,14 @@
 <script lang="ts">
     import { gridSize } from "../Board/config";
-    import { activePlayerIndex, players } from "../../Stores/playerStore";
     import { showBoat } from "../../Stores/uiStore";
+    import { derived } from "svelte/store";
+    import { gameState } from "../../Stores/gameStateStore";
+    import { initialPlayerData } from "../../Models/initialPlayerData";
 
     export let name: string; // Füge dies hinzu, um den Standortnamen zu erhalten
+
+    const activePlayerIndex = derived(gameState, $gameState => $gameState.activePlayerIndex);
+    const players = derived(gameState, $gameState => $gameState.players)
 
     $: activePlayer = $players[$activePlayerIndex];
     $: playersAtLocation = $players.filter(player => player.currentLocation === name);
@@ -15,6 +20,11 @@
         }
         const offset = (index === $activePlayerIndex ? -1 : 1) * 20; // Verändert den Offset-Wert
         return baseX + offset;
+    }
+
+    function getPlayerColor(playerName: string) {
+        const player = initialPlayerData.find(p => p.name === playerName);
+        return player ? player.color : 'pink'; 
     }
 
 </script>
@@ -36,7 +46,7 @@
                 cy={gridSize / 2} 
                 r={player === activePlayer ? "10" : "8"}
                 stroke-width={player === activePlayer ? "6" : "1"} 
-                fill={player.color}
+                fill={getPlayerColor(player.name)}
                 style:filter={player === activePlayer ? 'url(#strongGlow)' : ''} />
         {/if}
     {/each}

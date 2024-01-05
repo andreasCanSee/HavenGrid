@@ -1,4 +1,30 @@
 import { gameState } from "../../Stores/gameStateStore";
+import type { DeckState, InfectionCard } from "../../Models/types";
+import { initialBoardState } from "../../Models/initialBoardData";
+import { shuffleArray } from "../../Utilities/utils";
+
+export function initializeInfectionDeck(): DeckState<InfectionCard>{
+    const infectionDeck = initialBoardState
+        .filter(field => field.color !== 'white')
+        .flatMap(field => Array(3).fill({
+            cardType: 'Infection',
+            data: {
+                name: field.name,
+                color: field.color,
+            },
+        }));
+  
+    const shuffledDeck = shuffleArray(infectionDeck);
+  
+    return {
+      deck: shuffledDeck,
+      discardPile: []
+    }
+
+  }
+
+
+
 
 export function drawAndDiscard(count: number) {
     gameState.update(state => {

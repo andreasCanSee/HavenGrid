@@ -1,53 +1,41 @@
 import { currentTurnActions } from "../store";
-import { players, activePlayerIndex } from "../Stores/playerStore";
 import { get } from "svelte/store";
-import { resetCardsStore } from "../Stores/cardsStore";
-import { getInitialPlayers } from "../Stores/playerStore";
 import { drawAndDiscard } from "./Decks/infectionDeck";
-import { resetGameState } from "../Stores/gameStateStore";
+import { gameState, resetGameState } from "../Stores/gameStateStore";
 
 export function drawPlayerCards() {
     // Spieler zieht Karten
 }
 
 function moveToNextPlayer() {
-    // Wechsle zum nächsten Spieler
-    activePlayerIndex.update(index => (index + 1) % get(players).length);
+    gameState.update(state => {
+        const nextPlayerIndex = (state.activePlayerIndex + 1) % state.players.length;
+        return { ...state, activePlayerIndex: nextPlayerIndex };
+    })
 }
 
 export function endActionPhase() {
-    const currentPlayerActions = get(currentTurnActions);
-    const currentPlayerIndex = get(activePlayerIndex);
-  
-    players.update(currentPlayers => {
-      let updatedPlayers = [...currentPlayers];
-      let currentPlayer = updatedPlayers[currentPlayerIndex];
-      // Füge die aktuellen Aktionen zur Aktionshistorie hinzu
-      currentPlayer.actionsHistory.push([...currentPlayerActions]);
-  
-      // Aktualisiere den Spieler im Array
-      updatedPlayers[currentPlayerIndex] = currentPlayer;
-  
-      return updatedPlayers;
-    });
-
+   
     // Perform Infection Phase
     drawAndDiscard(2);
 
     moveToNextPlayer();
 
+    // Bestimme die Position des nächsten Spielers aus dem gameState
+    const currentPlayerIndex = get(gameState).activePlayerIndex;
+    const currentPlayerLocation = get(gameState).players[currentPlayerIndex].currentLocation;
+
     // Setze currentTurnActions für den nächsten Spieler zurück
-    currentTurnActions.set([{ type: 'startAt', location: get(players)[currentPlayerIndex].currentLocation, freeAction: true }]);
+    currentTurnActions.set([{ type: 'startAt', location: currentPlayerLocation, freeAction: true }]);
 }
 
 export function startGame(){
     resetGameState();
-    resetCardsStore();
 
-    players.set(getInitialPlayers());
-    activePlayerIndex.set(0);
-
-    currentTurnActions.set([{ type: 'startAt', location: get(players)[get(activePlayerIndex)].currentLocation, freeAction: true }]);
+    const currentPlayerIndex = get(gameState).activePlayerIndex;
+    const currentPlayerLocation = get(gameState).players[currentPlayerIndex].currentLocation;
+ 
+    currentTurnActions.set([{ type: 'startAt', location: currentPlayerLocation, freeAction: true }]);
 
     drawAndDiscard(9);
 }

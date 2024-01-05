@@ -1,11 +1,10 @@
 <script>
     import CityCard from "./CityCard.svelte";
-    import { players, activePlayerIndex } from "../../Stores/playerStore";
     export let playerIndex;
-    import { addToDiscardPile } from "../../Stores/cardsStore";
     import { gameState } from "../../Stores/gameStateStore";
 
-    $: player = $players[playerIndex];
+
+    $: player = $gameState.players[playerIndex];
     $: playerCards = player.handCards;
 
     // Deklariere groupedCards
@@ -28,59 +27,56 @@
     function handleDrop(event) {
         const { name: droppedCardName, color: droppedCardColor } = JSON.parse(event.dataTransfer.getData('text/plain'));
 
-        players.update(allPlayers => {
-            const updatedPlayers = allPlayers.map(player => {
-                if (player.name === $players[$activePlayerIndex].name) {
-                    let cardFound = false; // Flag zum Verfolgen, ob die Karte gefunden wurde
-
-                    const updatedHandCards = player.handCards.map(card => {
-                        if (!cardFound && card.data.name === droppedCardName && card.data.color === droppedCardColor && !card.inBuildArea) {
-                            cardFound = true; // Karte gefunden und wird aktualisiert
-                            return { ...card, inBuildArea: true };
-                        }
-                        return card;
-                    });
-
-                    return { ...player, handCards: updatedHandCards };
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
+            const activePlayerIndex = state.activePlayerIndex;
+            const activePlayer = updatedPlayers[activePlayerIndex];
+           
+            let cardFound = false; // Flag zum Verfolgen, ob die Karte gefunden wurde
+                
+            const updatedHandCards = activePlayer.handCards.map(card => {
+                if (!cardFound && card.data.name === droppedCardName && card.data.color === droppedCardColor && !card.inBuildArea) {
+                    cardFound = true; // Karte gefunden und wird aktualisiert
+                    return { ...card, inBuildArea: true };
                 }
-                return player;
+                return card;
             });
-            return updatedPlayers;
+
+            activePlayer.handCards = updatedHandCards;
+            return { ...state, players: updatedPlayers };
         });
-        //  console.log('Nach drop', $players[$activePlayerIndex].handCards);
     }
 
     async function cancelBuildArea() {
-        players.update(allPlayers => {
-            const updatedPlayers = allPlayers.map(player => {
-                if (player.name === $players[$activePlayerIndex].name) {
-                    const updatedHandCards = player.handCards.map(card => {
-                        if (card.inBuildArea) {
-                            return { ...card, inBuildArea: false };
-                        }
-                        return card;
-                    });
-                    return { ...player, handCards: updatedHandCards };
-                }
-                return player;
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
+            const activePlayer = updatedPlayers[state.activePlayerIndex]
+
+            const updatedHandCards = activePlayer.handCards.map(card => {
+                if (card.inBuildArea) {
+                return { ...card, inBuildArea: false };
+            }
+            return card;
+      
             });
-            return updatedPlayers;
+            activePlayer.handCards = updatedHandCards;
+            return { ...state, players: updatedPlayers };
         });
         // console.log('Nach dem Zurücksetzen', $players[$activePlayerIndex].handCards)
     }
 
     $: {
-        if ($players.length > 0 && playerIndex !== undefined) {
-            const colorCounts = $players[playerIndex].handCards.reduce((acc, { data: { color }}) => {
-                acc[color] = (acc[color] || 0) + 1;
-                return acc;
-            }, {});
+    if ($gameState.players.length > 0 && playerIndex !== undefined) {
+        const colorCounts = $gameState.players[playerIndex].handCards.reduce((acc, { data: { color }}) => {
+            acc[color] = (acc[color] || 0) + 1;
+            return acc;
+        }, {});
 
-            buildAreaColor = Object.keys(colorCounts).find(color => colorCounts[color] >= 3);
-        } else {
-            buildAreaColor = null;
-        }
+        buildAreaColor = Object.keys(colorCounts).find(color => colorCounts[color] >= 3);
+    } else {
+        buildAreaColor = null;
     }
+}
 
     let buildAreaCardsCount = 0;
 
@@ -122,12 +118,12 @@
                 return {...state, boardState: updatedBoardState};
             });
 
-                // Werfe alle Karten aus der Build Area ab
+                /* Werfe alle Karten aus der Build Area ab
                 player.handCards.forEach(card => {
                     if (card.inBuildArea) {
                         addToDiscardPile(card);
                     }
-                });
+                });*/
 
                 // Setze inBuildArea für alle Karten zurück
                 //cancelBuildArea();

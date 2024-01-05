@@ -22,7 +22,7 @@ export type Line = {
 
 // Geschäftslogik
 
-export type Card = {
+export type CityCard = {
     cardType: string;
     data: {
       name: string;
@@ -57,12 +57,10 @@ export type Player = {
     name: string;
     currentLocation: string
     supplies: number;
-    actionsHistory: Action[][];
-    color: string;
-    image: string;
-    handCards: Card[]
+    handCards: CityCard[]
 }
 
+/*
 export type GameHistoryEntry = {
   actionType: 'PlayerAction' | 'DrawCard' | 'Infect';
   timestamp: Date;
@@ -82,7 +80,7 @@ export type DrawCardDetails = {
 export type InfectDetails = {
   cards: Card[];
 };
-
+*/
 /* 
     Interfaces sind in der Regel die beste Wahl, wenn du Objektstrukturen für Klassen 
     oder Objektliteralen definierst, die eine Implementierung haben könnten. 

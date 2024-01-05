@@ -1,37 +1,28 @@
 <script lang="ts">
     import Board from '../lib/Components/Board/Board.svelte';
-    import { players, activePlayerIndex } from '../lib/Stores/playerStore'
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
     import PlayerTableau from '../lib/Components/Player/PlayerTableau.svelte';
     import type { Player } from '../lib/Models/types';
     import { endActionPhase } from '../lib/GameLogic/gameLogicController';
     import { startGame } from '../lib/GameLogic/gameLogicController';
+    import { initialPlayerData } from '../lib/Models/initialPlayerData';
     import { onMount } from 'svelte';
-
-    /*let infectionDeck;
-    let originalDeck = [];
-    let deckAfterDraw = [];
-    let discardPile = [];
-
-    onMount(() => {
-        infectionDeck = InfectionDeck.initialize();
-        originalDeck = [...infectionDeck.state.deck];
-        infectionDeck.drawAndDiscard(9);
-        deckAfterDraw = [...infectionDeck.state.deck];
-        discardPile = [...infectionDeck.state.discardPile];
-    });*/
+    import { gameState } from '../lib/Stores/gameStateStore';
 
      // Funktion zum Rotieren der Spielerliste
      function rotatePlayers(players: Player[], activeIndex: number) {
         return [...players.slice(activeIndex), ...players.slice(0, activeIndex)];
     }
 
-    let rotatedPlayers: Player[] = [];
+    let rotatedPlayersWithStaticData = [];
 
-    $: if ($players && $players.length > 0 && typeof $activePlayerIndex === 'number') {
-        rotatedPlayers = rotatePlayers($players, $activePlayerIndex);
-    } 
-
+$: if ($gameState.players && $gameState.players.length > 0) {
+    rotatedPlayersWithStaticData = rotatePlayers($gameState.players, $gameState.activePlayerIndex)
+        .map(player => {
+            const staticData = initialPlayerData.find(p => p.name === player.name);
+            return { ...player, color: staticData?.color, image: staticData?.image };
+        });
+}
 </script>
   
 <header>
@@ -49,9 +40,9 @@
         </div>
 
         <div style="display: block; margin-right: 10px">
-            {#each rotatedPlayers as player}
-                <PlayerTableau {player} isActive={$players[$activePlayerIndex].name === player.name} />
-                {#if player.name === $players[$activePlayerIndex].name}
+            {#each rotatedPlayersWithStaticData as player}
+            <PlayerTableau {player} isActive={$gameState.players[$gameState.activePlayerIndex].name === player.name} color={player.color} image={player.image} />
+                {#if player.name === $gameState.players[$gameState.activePlayerIndex].name}
                 <div style="margin-bottom: 30px">
                     <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
                     <button on:click={endActionPhase}>Aktionsphase abschließen ☑️</button>
@@ -61,55 +52,3 @@
         </div>
     </div>
   </main>
-
- 
-<!--
-{#if infectionDeck}
-<div class="deck-container">
-    <div class="deck">
-        <h3>Ursprüngliches Deck</h3>
-        <ul>
-            {#each originalDeck as card}
-                <li>{card.data.name} - {card.data.color}</li>
-            {/each}
-        </ul>
-    </div>
-    
-    <div class="deck">
-        <h3>Deck nach Ziehen</h3>
-        <ul>
-            {#each deckAfterDraw as card}
-                <li>{card.data.name} - {card.data.color}</li>
-            {/each}
-        </ul>
-    </div>
-    
-    <div class="deck">
-        <h3>Ablagestapel</h3>
-        <ul>
-            {#each discardPile as card}
-                <li>{card.data.name} - {card.data.color}</li>
-            {/each}
-        </ul>
-    </div>
-</div>
-{/if}
-
-
-
-
-<style>
-    .deck-container {
-        display: flex;
-        margin-top: 20px;
-    }
-    .deck {
-        margin: 0 10px;
-        padding: 10px;
-    }
-    ul {
-        padding: 0;
-        list-style-type: none;
-    }
-</style>
-  -->

@@ -1,13 +1,10 @@
 <script lang="ts">
 
-import { handleFocus } from "./uiHandlers";
-import { gridSize } from "../Board/config";
-import { gameState } from "../../Stores/gameStateStore";
 import { derived } from "svelte/store";
-import { pickUpSupplies } from "./fieldActions";
-import { deliverSupplies } from "./fieldActions";
-import { handleKeyPress } from "./uiHandlers";
-import { activePlayerIndex, players } from "../../Stores/playerStore";
+import { gameState } from "../../Stores/gameStateStore";
+import { handleFocus, handleKeyPress  } from "./uiHandlers";
+import { gridSize } from "../Board/config";
+import { pickUpSupplies, deliverSupplies } from "./fieldActions";
 
 export let name: string;
 export let capacity: number;
@@ -16,6 +13,9 @@ let hoveredIndex = -1;
 
 const supplySize = gridSize / 6; // Größe eines Würfels
 const supplyMargin = supplySize / 3; // Abstand zwischen den Würfeln
+
+const activePlayerIndex = derived(gameState, $gameState => $gameState.activePlayerIndex);
+const players = derived(gameState, $gameState => $gameState.players);
 
 $: playerSupplies = $players[$activePlayerIndex].supplies;
 

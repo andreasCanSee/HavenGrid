@@ -1,68 +1,80 @@
 <script lang="ts">
     import { currentTurnActions, addActionToCurrentTurn } from '../../store';
     import { showBoat } from '../../Stores/uiStore';
-    import { players, activePlayerIndex, increaseSupplies } from '../../Stores/playerStore'
     import type { Action, Player } from '../../Models/types';
+    import { gameState } from '../../Stores/gameStateStore';
     import PlayerCardsArea from './PlayerCardsArea.svelte';
+
     export let player: Player;
     export let isActive: boolean;
+    export let color: string;
+    export let image: string;
 
     $: currentActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
     function handleIncreaseClick() {
         if(isActive && currentActions < 4 && !$showBoat){
-            increaseSupplies(player.name);
+            gameState.update(state => {
+                const updatedPlayers = [...state.players];
+                const activePlayer = updatedPlayers.find(p => p.name === player.name);
+                if (activePlayer) {
+                    activePlayer.supplies++;
+                }
+                return { ...state, players: updatedPlayers };
+            });
         }
     }
 
     function handleDragStart(event: DragEvent, playerName: string) {
-        const fromPlayer = $players.find(p => p.name === playerName);
+        const fromPlayer = $gameState.players.find(p => p.name === playerName);
         if (fromPlayer && event.dataTransfer) {
             event.dataTransfer.setData("text/plain", fromPlayer.name);
         }
     }
 
     function handleDrop(event: DragEvent, targetPlayerName: string) {
-        event.preventDefault();
-        if (!event.dataTransfer) return; 
-        const draggedPlayerName = event.dataTransfer.getData("text/plain");
+    event.preventDefault();
+    if (!event.dataTransfer) return; 
+    const draggedPlayerName = event.dataTransfer.getData("text/plain");
 
-        if(targetPlayerName !== draggedPlayerName){
-            players.update(allPlayers => {
-                const fromPlayer = allPlayers.find(p => p.name === draggedPlayerName);
-                const toPlayer = allPlayers.find(p => p.name === targetPlayerName);
+    if(targetPlayerName !== draggedPlayerName){
+        gameState.update(state => {
+            const fromPlayerIndex = state.players.findIndex(p => p.name === draggedPlayerName);
+            const toPlayerIndex = state.players.findIndex(p => p.name === targetPlayerName);
+            const fromPlayer = state.players[fromPlayerIndex];
+            const toPlayer = state.players[toPlayerIndex];
 
-                if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation && fromPlayer.supplies > 0) {
-                    fromPlayer.supplies--;
-                    toPlayer.supplies++;
+            if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation && fromPlayer.supplies > 0) {
+                fromPlayer.supplies--;
+                toPlayer.supplies++;
 
-                    const activePlayer = allPlayers[$activePlayerIndex];
-
-                    const action: Action = {
-                            type: 'transferSupplies',
-                            supplies: activePlayer.name === fromPlayer.name ? -1 : 1, 
-                            freeAction: true,
-                            transactionPartner: activePlayer.name === fromPlayer.name ? toPlayer.name : fromPlayer.name
-                        };
-                    addActionToCurrentTurn(action);              
-                }
-                return allPlayers;
-            });
-        }
+                const action: Action = {
+                        type: 'transferSupplies',
+                        supplies: state.activePlayerIndex === fromPlayerIndex ? -1 : 1, 
+                        freeAction: true,
+                        transactionPartner: state.activePlayerIndex === fromPlayerIndex ? toPlayer.name : fromPlayer.name
+                    };
+                addActionToCurrentTurn(action);              
+            }
+            return { ...state };
+        });
     }
+}
 
-    $: playerIndex = $players.findIndex(p => p.name === player.name);
-    $: isDropzone = isActive || player.currentLocation === $players[$activePlayerIndex].currentLocation;
+
+$: playerIndex = $gameState.players.findIndex(p => p.name === player.name);
+$: isDropzone = isActive || player.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation;
+
 </script>
 
-<div class="player-tableau"  on:dragover={event => isDropzone && event.preventDefault()} on:drop={event => isDropzone && handleDrop(event, player.name)} style="border: 2px solid {player.color}; padding: 10px;margin-bottom:10px; display: flex; align-items: start; justify-content: flex-start; width: 430px; opacity: {isActive ? 0.8 : 0.5};">
+<div class="player-tableau"  on:dragover={event => isDropzone && event.preventDefault()} on:drop={event => isDropzone && handleDrop(event, player.name)} style="border: 2px solid {color}; padding: 10px;margin-bottom:10px; display: flex; align-items: start; justify-content: flex-start; width: 430px; opacity: {isActive ? 0.8 : 0.5};">
     <div class="player-info" style="flex-shrink: 0;">
         <div style="font-weight: bold; margin-bottom:10px">{player.name}</div>
-        <img src={player.image} alt="🥷" style="max-width: 100px; max-height: 200px; object-fit: contain;" />
+        <img src={image} alt="🥷" style="max-width: 100px; max-height: 200px; object-fit: contain;" />
         <div class="supply-area" style="margin-top: 10px; display: flex; width: 100px; flex-wrap: wrap;">
             {#each Array(player.supplies) as _, index}
                 <div 
-                    draggable={isActive || (player.currentLocation === $players[$activePlayerIndex].currentLocation)}
+                    draggable={isActive || (player.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation)}
                     on:dragstart={(event) => handleDragStart(event, player.name)}
                     style="width: 20px; height: 20px; background-color: firebrick; margin-right: 5px; margin-bottom: 5px">
                 </div>

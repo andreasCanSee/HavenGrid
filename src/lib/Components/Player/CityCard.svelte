@@ -1,40 +1,39 @@
 <script lang="ts">
-    import { players, activePlayerIndex } from "../../Stores/playerStore";
-    import { addToDiscardPile, cardsStore } from "../../Stores/cardsStore";
     import { addActionToCurrentTurn } from "../../store";
     import type { Action } from "../../Models/types";
     import { animateFerry } from "../Board/boardUtils";
     import { charterBoatMode } from '../../store';
+    import { gameState } from "../../Stores/gameStateStore";
 
     export let name: string;
     export let color: string;
     export let buildAreaColor: string | null;
 
-    $: activePlayer = $players[$activePlayerIndex];
+    $: activePlayer = $gameState.players[$gameState.activePlayerIndex];
     $: isCurrentLocation = activePlayer.currentLocation === name;
 
     async function sailToLocation() {
         if (!isCurrentLocation) {
             const cardToDiscard = {
-                cardType: 'city', // oder ein anderer passender Wert für cardType
+                cardType: 'city',
                 data: { name, color },
                 inBuildArea: false
             };
-            addToDiscardPile(cardToDiscard);
+            // Füge hier die Logik hinzu, um die Karte dem discardPile hinzuzufügen
+            
             await animateFerry(activePlayer.currentLocation, name, 'sailTo');
             
-            players.update(allPlayers => {
-                const updatedPlayers = [...allPlayers];
-                const player = updatedPlayers[$activePlayerIndex];
+            gameState.update(state => {
+                const updatedPlayers = [...state.players];
+                const player = updatedPlayers[state.activePlayerIndex];
                 const cardIndex = player.handCards.findIndex(card => card.data.name === name);
 
                 if (cardIndex !== -1) {
-                    // Entferne die gefundene Karte aus den Handkarten
                     player.handCards.splice(cardIndex, 1);
                 }
 
                 player.currentLocation = name;
-                return updatedPlayers;
+                return { ...state, players: updatedPlayers };
             });
 
             const sailToLocation: Action = {

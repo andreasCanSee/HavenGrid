@@ -1,5 +1,4 @@
-import { writable } from "svelte/store";
-import type { GameHistoryEntry } from "../Models/types";
+import { writable } from "svelte/store";/*
 
 const gameHistory = writable<GameHistoryEntry[]>([]);
 
@@ -12,3 +11,4 @@ export const resetGameHistory = () => {
 }
 
 export default gameHistory;
+*/
