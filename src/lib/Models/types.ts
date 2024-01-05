@@ -1,18 +1,4 @@
 // UI
-
-export type Field = {
-    name: string;
-    coordinates: {
-      x: number;
-      y: number;
-    };
-    connections: string[];
-    color: string;
-    capacity: number;
-    supplies: number;
-    hasSupplyCenter: boolean;
-};
-
 export type Line = {
     x1: number;
     y1: number;
@@ -20,7 +6,46 @@ export type Line = {
     y2: number;
 };
 
+export type ExtendedPlayerData = PlayerState & {
+  color: string;
+  image: string;
+}
+export type ExtendedFieldData = FieldState & {
+  coordinates: {
+    x: number;
+    y: number;
+  };
+  connections: string[];
+  color: string;
+  capacity: number;
+}
+
 // Geschäftslogik
+
+export type GameState = {
+  boardState: FieldState[];
+  infectionDeck: DeckState<InfectionCard>;
+  players: PlayerState[];
+  playerDeck: DeckState<CityCard>;
+  activePlayerIndex: number;
+  infectionRate: number;
+  outbreaks: number;
+};
+
+export type PlayerState = {
+  name: string;
+  currentLocation: string
+  supplies: number;
+  handCards: CityCard[]
+}
+
+export type FieldState = {
+  name: string;
+  supplies: number;
+  hasSupplyCenter: boolean;
+}
+
+export type Card = CityCard | InfectionCard;
 
 export type CityCard = {
     cardType: string;
@@ -51,13 +76,6 @@ export type Action = {
   supplies?: number;
   freeAction: boolean;
   transactionPartner?: string;
-}
-
-export type Player = {
-    name: string;
-    currentLocation: string
-    supplies: number;
-    handCards: CityCard[]
 }
 
 /*

@@ -3,7 +3,7 @@
     import { showBoat } from '../../Stores/uiStore';
     import { fade } from 'svelte/transition';
     import { animatedPlayerPosition } from './boardUtils';
-    import { currentTurnActions } from '../../store';
+    import { currentTurnActions } from '../../Stores/turnStateStore';
     import { calculateSvgDimensions } from './boardUtils';
     import { gameState } from '../../Stores/gameStateStore';
     import { derived } from 'svelte/store';

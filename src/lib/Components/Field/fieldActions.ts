@@ -3,7 +3,8 @@ import { gameState } from "../../Stores/gameStateStore";
 import { findPath } from "../../Utilities/utils";
 import { animateFerry } from "../Board/boardUtils";
 import type { Action } from "../../Models/types";
-import { currentTurnActions, addActionToCurrentTurn, charterBoatMode } from "../../store";
+import { charterBoatMode } from "../../Stores/uiStore";
+import { currentTurnActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
 import { showBoat } from "../../Stores/uiStore";
 import { initialBoardState } from "../../Models/initialBoardData";
 

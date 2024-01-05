@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { addActionToCurrentTurn } from "../../store";
+    import { addActionToCurrentTurn } from "../../Stores/turnStateStore";
     import type { Action } from "../../Models/types";
     import { animateFerry } from "../Board/boardUtils";
-    import { charterBoatMode } from '../../store';
+import { charterBoatMode } from "../../Stores/uiStore";
     import { gameState } from "../../Stores/gameStateStore";
 
     export let name: string;

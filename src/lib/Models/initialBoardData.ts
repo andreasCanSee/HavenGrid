@@ -1,6 +1,6 @@
-import type { Field } from "../Models/types";
+import type { ExtendedFieldData } from "../Models/types";
 
-  export const initialBoardState: Field[] =[
+  export const initialBoardState: ExtendedFieldData[] =[
       { name: 'Sao Paulo', coordinates: {x: 2, y: 6}, connections: ['Lagos', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false },
       { name: 'Lagos', coordinates: {x: 5, y: 5}, connections: ['Sao Paulo', 'Asgard'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false},
       { name: 'Jacksonville',coordinates: {x: 2, y: 3}, connections: ['Asgard', 'Washington', 'New York'], color: 'yellow', capacity: 3, supplies: 3, hasSupplyCenter: false },

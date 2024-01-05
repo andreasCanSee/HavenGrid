@@ -1,4 +1,5 @@
 import { initialBoardState } from "../Models/initialBoardData";
+import type { PlayerState } from "../Models/types";
 
 export function findPath(currentLocation: string, target: string): string[] {
 
@@ -31,10 +32,7 @@ export function findPath(currentLocation: string, target: string): string[] {
     return []; // Kein Pfad gefunden
   }
 
-  export function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]]; // Tausche Elemente
-    }
-    return array;
+// Funktion zum Rotieren der Spielerliste
+export function rotatePlayers(players: PlayerState[], activeIndex: number) {
+   return [...players.slice(activeIndex), ...players.slice(0, activeIndex)];
 }

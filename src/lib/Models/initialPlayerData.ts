@@ -1,6 +1,6 @@
-import type { Player } from "../Models/types";
+import type { ExtendedPlayerData } from "../Models/types";
 
-export const initialPlayerData  = [
+export const initialPlayerData: ExtendedPlayerData[] = [
   {
     name: "Spieler 1",
     currentLocation: "Atlantis",
@@ -16,5 +16,5 @@ export const initialPlayerData  = [
     image: '/survivor-female.png',
     supplies: 0,
     handCards: [], // Initialisiere mit leeren Handkarten, die später verteilt werden
-  },
+  }
 ];

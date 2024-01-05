@@ -1,7 +1,6 @@
 import { get } from 'svelte/store';
-import { currentTurnActions } from '../store';
+import { currentTurnActions } from '../Stores/turnStateStore';
 import type { Action } from '../Models/types';
-import type { CityCard } from '../Models/types';
 import { gameState } from '../Stores/gameStateStore';
 
 export function undoLastMove() {
