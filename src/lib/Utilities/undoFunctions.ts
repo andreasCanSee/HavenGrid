@@ -135,25 +135,16 @@ export function undoDeliverSuppliesAction(action: Action) {
 export function undoTransferSuppliesAction(action: Action) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
-        const activePlayerIndex = state.activePlayerIndex;
-        const activePlayer = updatedPlayers[activePlayerIndex];
-        const otherPlayerIndex = updatedPlayers.findIndex(p => p.name === action.transactionPartner && p.currentLocation === activePlayer.currentLocation);
+        const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === action.transferringPlayer);
+        const toPlayerIndex = updatedPlayers.findIndex(p => p.name === action.receivingPlayer);
 
-        if (otherPlayerIndex !== -1) {
-            const otherPlayer = updatedPlayers[otherPlayerIndex];
-
-            if (action.supplies === -1) {
-                // Der aktive Spieler hatte Vorräte abgegeben und erhält sie zurück
-                activePlayer.supplies++;
-                otherPlayer.supplies--;
-            } else if (action.supplies === 1) {
-                // Der aktive Spieler hatte Vorräte erhalten und gibt sie zurück
-                activePlayer.supplies--;
-                otherPlayer.supplies++;
-            }
+        if (fromPlayerIndex !== -1 && toPlayerIndex !== -1) {
+            // Rückgängig machen des Supply-Transfers
+            updatedPlayers[fromPlayerIndex].supplies++; // Erhöhe Supplies beim abgebenden Spieler
+            updatedPlayers[toPlayerIndex].supplies--;   // Reduziere Supplies beim aufnehmenden Spieler
         }
 
-        return { ...state, players: updatedPlayers };
+        return { ...state, players: updatedPlayers }; 
     });
 }
 

@@ -1,20 +1,55 @@
 <script lang="ts">
+    import PlayerSupplyArea from "./PlayerSupplyArea.svelte";
+    import { transferSupplies } from "./playerActions";
+
     export let name: string;
     export let color: string;
     export let image: string;
     export let isActive: boolean;
 
+    function handleDragOver(event: DragEvent) {
+        event.preventDefault();  // Ermöglicht das Ablegen
+    }
+
+    function handleDrop(event: DragEvent, targetPlayerName: string) {
+        event.preventDefault();
+        if (!event.dataTransfer) return; 
+        const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
+        if (dragData && dragData.type === 'supplies') {
+            console.log(`Supply wurde von ${dragData.fromPlayer} an ${targetPlayerName} übergeben.`);
+            transferSupplies(dragData.fromPlayer, targetPlayerName);
+        }
+    }
+
 </script>
 
-<div class="player-tableau" style="border: 2px solid {color}; padding: 10px;margin-bottom:10px; display: flex; align-items: start; justify-content: flex-start; width: 430px; opacity: {isActive ? 0.8 : 0.5};">
-    <div class="player-info" style="flex-shrink: 0;">
-        <div style="font-weight: bold; margin-bottom:10px">{name}</div>
-        <img src={image} alt="🥷" style="max-width: 100px; max-height: 200px; object-fit: contain;" />
-        <div class="supply-area" style="margin-top: 10px; display: flex; width: 100px; flex-wrap: wrap;">
-            
-            <div 
-                style="width: 18px; height: 18px; background-color: transparent; border: 1px solid black; margin-right: 5px;">
-            </div>
+<div style=
+        "border: 6px solid {color}; 
+        padding: 10px;
+        margin-bottom:10px; 
+        display: flex; 
+        align-items: start; 
+        justify-content: flex-start; 
+        box-shadow: {isActive ? `0px 0px 10px ${color}` : 'none'};
+        filter: {!isActive ? 'blur(1px)'  : 'none'};
+        width: 430px; 
+        opacity: {isActive ? 0.8 : 0.5};"
+        on:drop={event => handleDrop(event, name)}
+        on:dragover={handleDragOver}
+        role="listbox"
+        tabindex="0">
+    <div>
+        <h2 style="color: {color}; margin-top: 0px;">{name}</h2>
+        <img src={image} alt="🥷" style="max-width: 100px; 
+                                        max-height: 200px; 
+                                        border-radius: 15px;
+                                        box-shadow: 0px 0px 10px #000;
+                                        object-fit: contain;" />
+        <div class="supply-area" style="margin-top: 10px; 
+                                        display: flex; 
+                                        width: 100px; 
+                                        flex-wrap: wrap;">
+            <PlayerSupplyArea {name} {isActive}/>
         </div>  
     </div> 
     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">

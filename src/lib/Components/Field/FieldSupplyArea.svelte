@@ -30,6 +30,7 @@ const suppliesStore = derived(gameState, $gameState =>
 
 </script>
 
+<svg>
 <g transform={`translate(${gridSize / 2 - (capacity * supplySize + (capacity - 1) * supplyMargin) / 2}, ${gridSize / 2 - 50 })`}>
     {#each Array(capacity) as _, index}
       {#if index < supplies}
@@ -67,6 +68,7 @@ const suppliesStore = derived(gameState, $gameState =>
       {/if}
     {/each}
   </g>
+</svg>
 
   <style>
     .hover-effect {

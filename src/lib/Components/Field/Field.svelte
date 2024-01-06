@@ -2,7 +2,7 @@
   import Location from "./Location.svelte";
   import PlayerDisplay from "./PlayerDisplay.svelte";
   import FieldLabel from "./FieldLabel.svelte";
-  import SupplyArea from './SupplyArea.svelte';
+  import FieldSupplyArea from './FieldSupplyArea.svelte';
   import { gridSize } from "../Board/config";
 
   export let name: string;
@@ -22,7 +22,7 @@
 
   <FieldLabel {name} {color}/>
 
-  <SupplyArea {name} {capacity}/>
+  <FieldSupplyArea {name} {capacity}/>
 </svg>
 
 

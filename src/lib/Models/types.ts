@@ -75,7 +75,8 @@ export type Action = {
   startLocation?: string;
   supplies?: number;
   freeAction: boolean;
-  transactionPartner?: string;
+  transferringPlayer?: string;
+  receivingPlayer?: string;
 }
 
 /*
