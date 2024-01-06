@@ -1,11 +1,33 @@
 <script lang="ts">
+    import { derived } from "svelte/store";
     import PlayerSupplyArea from "./PlayerSupplyArea.svelte";
     import { transferSupplies } from "./playerActions";
+    import { gameState } from "../../Stores/gameStateStore";
+    import type { PlayerState } from "../../Models/types";
 
     export let name: string;
     export let color: string;
     export let image: string;
     export let isActive: boolean;
+
+    const playersStore = derived(
+        gameState,
+        $gameState => $gameState.players
+    );
+
+    let player: PlayerState | undefined;
+    $: player = $playersStore.find(p => p.name === name);
+    
+    let playerLocation: string, playerSupplies: number;
+    $: if(player){
+        playerLocation = player.currentLocation;
+        playerSupplies = player.supplies;
+    }
+
+    let isAtActivePlayerLocation: boolean;
+    $: isAtActivePlayerLocation = !isActive && player?.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation;
+
+    $: isDropzone = isActive || (player && player.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation);
 
     function handleDragOver(event: DragEvent) {
         event.preventDefault();  // Ermöglicht das Ablegen
@@ -15,9 +37,17 @@
         event.preventDefault();
         if (!event.dataTransfer) return; 
         const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
+        
         if (dragData && dragData.type === 'supplies') {
-            console.log(`Supply wurde von ${dragData.fromPlayer} an ${targetPlayerName} übergeben.`);
-            transferSupplies(dragData.fromPlayer, targetPlayerName);
+            const fromPlayer = $gameState.players.find(p => p.name === dragData.fromPlayer);
+            const toPlayer = $gameState.players.find(p => p.name === targetPlayerName);
+
+            if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {;
+                transferSupplies(dragData.fromPlayer, targetPlayerName);
+            }
+        }
+        else if (dragData && dragData.type === 'cityCard'){
+            // Karte tauschen
         }
     }
 
@@ -34,8 +64,8 @@
         filter: {!isActive ? 'blur(1px)'  : 'none'};
         width: 430px; 
         opacity: {isActive ? 0.8 : 0.5};"
-        on:drop={event => handleDrop(event, name)}
-        on:dragover={handleDragOver}
+        on:drop={isDropzone ? event => handleDrop(event, name) : undefined}
+        on:dragover={isDropzone ? handleDragOver : undefined}
         role="listbox"
         tabindex="0">
     <div>
@@ -49,7 +79,11 @@
                                         display: flex; 
                                         width: 100px; 
                                         flex-wrap: wrap;">
-            <PlayerSupplyArea {name} {isActive}/>
+            <PlayerSupplyArea 
+                {name} 
+                {isActive} 
+                {playerSupplies}
+                {isAtActivePlayerLocation} />
         </div>  
     </div> 
     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
