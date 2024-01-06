@@ -1,7 +1,7 @@
 import { get } from "svelte/store";
 import { gameState } from "../../Stores/gameStateStore";
 import { findPath } from "../../Utilities/utils";
-import { animateFerry } from "../Board/boardUtils";
+import { animateFerry } from "../../Components/Board/boardUtils";
 import type { Action } from "../../Models/types";
 import { charterBoatMode } from "../../Stores/uiStore";
 import { currentTurnActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
@@ -87,67 +87,4 @@ async function charterToLocation(currentLocation: string, targetLocation: string
         };
         addActionToCurrentTurn(charterBoatToLocation);
     }
-}
-
-export function deliverSupplies(index: number, supplies: number, capacity: number, name: string){
-  const currentGameState = get(gameState);
-  let currentPlayer = currentGameState.players[currentGameState.activePlayerIndex];
-  let deliveryQuantity = index - supplies + 1;
-
-  if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat)){
-    gameState.update(state => {
-      let updatedPlayers = [...state.players];
-      let updatedPlayer = updatedPlayers[state.activePlayerIndex];
-
-      if (updatedPlayer.supplies >= deliveryQuantity) {
-        updatedPlayer.supplies -= deliveryQuantity;
-              
-        let updatedBoardState = state.boardState.map(field => {
-          if (field.name === name) {
-            return { ...field, supplies: Math.min(field.supplies + deliveryQuantity, capacity) };
-          }
-          return field;
-        });
-        return { ...state, players: updatedPlayers, boardState: updatedBoardState };
-      }
-    return state;
-  });
-
-  const action: Action = {
-      type: 'deliverSupplies',
-      location: name,
-      supplies: deliveryQuantity,
-      freeAction: false // nur zum testen
-  }
-  addActionToCurrentTurn(action);
-  }
-}
-
-export function pickUpSupplies(name: string) {
-  const currentGameState = get(gameState);
-  if (currentGameState.players[currentGameState.activePlayerIndex].currentLocation === name) {
-    // Aktion hinzufügen
-    const action: Action = {
-        type: 'pickUpSupplies',
-        location: name,
-        freeAction: true
-    };
-    addActionToCurrentTurn(action);
-
-    gameState.update(state => {
-      let updatedPlayers = [...state.players];
-      let updatedPlayer = updatedPlayers[state.activePlayerIndex];
-
-      updatedPlayer.supplies += 1;
-
-      let updatedBoardState = state.boardState.map(field => {
-          if (field.name === name) {
-              return { ...field, supplies: field.supplies - 1 };
-          }
-          return field;
-      });
-
-      return { ...state, players: updatedPlayers, boardState: updatedBoardState };
-    });
-  }
 }

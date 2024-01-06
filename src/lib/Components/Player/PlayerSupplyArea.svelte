@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { handleFocus } from "../Field/uiHandlers";
-    import { increasePlayerSupplies } from "./playerActions";
-    import { handleKeyPress } from "../Field/uiHandlers";
+    import { handleFocus } from "../../Utilities/uiHandlers";
+    import { increasePlayerSupplies } from "../../GameLogic/Actions/supplyManagement";
+    import { handleKeyPress } from "../../Utilities/uiHandlers";
 
     export let playerIndex: number;
     export let isActive: Boolean;

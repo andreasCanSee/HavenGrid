@@ -1,7 +1,7 @@
 <script lang="ts">
     import { gridSize } from "../Board/config";
-    import { handleFocus, handleKeyPress } from "./uiHandlers";
-    import { moveToLocation } from "./fieldActions";
+    import { handleFocus, handleKeyPress } from "../../Utilities/uiHandlers";
+    import { moveToLocation } from "../../GameLogic/Actions/playerMovements";
     import { derived } from "svelte/store";
     import { gameState } from "../../Stores/gameStateStore";
 

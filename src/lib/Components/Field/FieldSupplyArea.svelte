@@ -2,9 +2,9 @@
 
 import { derived } from "svelte/store";
 import { gameState } from "../../Stores/gameStateStore";
-import { handleFocus, handleKeyPress  } from "./uiHandlers";
+import { handleFocus, handleKeyPress  } from "../../Utilities/uiHandlers";
 import { gridSize } from "../Board/config";
-import { pickUpSupplies, deliverSupplies } from "./fieldActions";
+import { pickUpSupplies, deliverSupplies } from "../../GameLogic/Actions/supplyManagement";
 
 export let name: string;
 export let capacity: number;

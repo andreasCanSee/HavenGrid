@@ -8,4 +8,3 @@ export function handleKeyPress(event: KeyboardEvent, action: () => void) {
       action();
     }
 }
-

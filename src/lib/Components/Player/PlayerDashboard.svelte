@@ -4,7 +4,8 @@
     import CardManagementArea from "./CardManagementArea.svelte";
     import { gameState } from "../../Stores/gameStateStore";
     import type { PlayerState, CityCard } from "../../Models/types";
-    import { transferSupplies, transferCityCard } from "./playerActions";
+    import { transferCityCard } from "../../GameLogic/Actions/cardsAction";
+    import { transferSupplies } from "../../GameLogic/Actions/supplyManagement";
 
     export let name: string;
     export let color: string;
