@@ -21,8 +21,8 @@
 </script>
 
 <div 
-    style="margin-top: 10px; display: flex; width: 100px; flex-wrap: wrap;">
-    {#each Array(playerSupplies) as _, index}
+    style="margin-top: 10px; display: flex; flex-wrap: wrap; background-color:grey; padding: 5px; border-radius: 10px; width: 100%">
+    {#each Array(playerSupplies) as _}
         <div 
             style="width: 20px; height: 20px; background-color: firebrick;border: 2px solid firebrick; margin-right: 5px; margin-bottom: 5px"
             draggable={(isActive || isAtActivePlayerLocation) ? "true" : "false"}
@@ -33,14 +33,14 @@
     {/each}
     {#if isActive}
         <div 
-            style="width: 20px; height: 20px; background-color: transparent; border: 2px solid firebrick; margin-right: 5px;"
+            style="width: 20px; height: 20px; background-color: transparent; border: 2px solid black; margin-right: 5px;"
             draggable="true"
             role="button"
             tabindex="0"
             on:focus={handleFocus}
             on:click={()=>increasePlayerSupplies(name)}
             on:keydown={event => handleKeyPress(event, () => increasePlayerSupplies(name))}>
-            🛠️
+             🛠️
         </div>
     {/if}
 </div>

@@ -1,9 +1,10 @@
 <script lang="ts">
     import { derived } from "svelte/store";
     import PlayerSupplyArea from "./PlayerSupplyArea.svelte";
-    import { transferSupplies } from "./playerActions";
+    import CardManagementArea from "./CardManagementArea.svelte";
     import { gameState } from "../../Stores/gameStateStore";
-    import type { PlayerState } from "../../Models/types";
+    import type { PlayerState, CityCard } from "../../Models/types";
+    import { transferSupplies, transferCityCard } from "./playerActions";
 
     export let name: string;
     export let color: string;
@@ -18,16 +19,18 @@
     let player: PlayerState | undefined;
     $: player = $playersStore.find(p => p.name === name);
     
-    let playerLocation: string, playerSupplies: number;
+    let playerLocation: string, playerSupplies: number, playerHandCards: CityCard[];
     $: if(player){
         playerLocation = player.currentLocation;
         playerSupplies = player.supplies;
+        playerHandCards = player.handCards;
     }
 
     let isAtActivePlayerLocation: boolean;
     $: isAtActivePlayerLocation = !isActive && player?.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation;
 
-    $: isDropzone = isActive || (player && player.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation);
+    let isDropzone: boolean;
+    $: isDropzone = isActive || isAtActivePlayerLocation;
 
     function handleDragOver(event: DragEvent) {
         event.preventDefault();  // Ermöglicht das Ablegen
@@ -38,16 +41,18 @@
         if (!event.dataTransfer) return; 
         const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
         
+        const fromPlayer = $playersStore.find(p => p.name === dragData.fromPlayer);
+        const toPlayer = $playersStore.find(p => p.name === targetPlayerName);
         if (dragData && dragData.type === 'supplies') {
-            const fromPlayer = $gameState.players.find(p => p.name === dragData.fromPlayer);
-            const toPlayer = $gameState.players.find(p => p.name === targetPlayerName);
-
             if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {;
                 transferSupplies(dragData.fromPlayer, targetPlayerName);
             }
         }
         else if (dragData && dragData.type === 'cityCard'){
-            // Karte tauschen
+            let cityName = dragData.cardData.name; 
+            if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {
+            transferCityCard(dragData.fromPlayer, targetPlayerName, cityName);
+        }
         }
     }
 
@@ -69,7 +74,10 @@
         role="listbox"
         tabindex="0">
     <div>
-        <h2 style="color: {color}; margin-top: 0px;">{name}</h2>
+        <div style="width: 100%; background-color:white; border-radius: 15px;text-align: center;">
+
+            <p style="color: {color}; margin-top: 0px; font-weight: bold;">{name}</p>
+        </div>
         <img src={image} alt="🥷" style="max-width: 100px; 
                                         max-height: 200px; 
                                         border-radius: 15px;
@@ -87,6 +95,11 @@
         </div>  
     </div> 
     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
-        <!--CardManagementArea playerIndex={playerIndex}/-->
+        <CardManagementArea 
+        {name} 
+        {isActive} 
+        {playerLocation}
+        {playerHandCards}
+        {isAtActivePlayerLocation} />
     </div>
 </div>

@@ -1,4 +1,5 @@
 // UI
+
 export type Line = {
     x1: number;
     y1: number;
@@ -70,7 +71,7 @@ export type DeckState<T> = {
 };
 
 export type Action = {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'transferCard';
   location?: string;
   startLocation?: string;
   supplies?: number;
@@ -78,34 +79,3 @@ export type Action = {
   transferringPlayer?: string;
   receivingPlayer?: string;
 }
-
-/*
-export type GameHistoryEntry = {
-  actionType: 'PlayerAction' | 'DrawCard' | 'Infect';
-  timestamp: Date;
-  details: PlayerActionDetails | DrawCardDetails | InfectDetails;
-};
-
-export type PlayerActionDetails = {
-  player: Player; 
-  action: Action;
-};
-
-export type DrawCardDetails = {
-  player: Player; 
-  cards: Card[];
-};
-
-export type InfectDetails = {
-  cards: Card[];
-};
-*/
-/* 
-    Interfaces sind in der Regel die beste Wahl, wenn du Objektstrukturen für Klassen 
-    oder Objektliteralen definierst, die eine Implementierung haben könnten. 
-    Interfaces unterstützen auch das Erweitern (Extending), was bei größeren Projekten nützlich sein kann.
-
-    Types sind flexibler und können eine Vielzahl von Strukturen definieren, 
-    einschließlich Unions und Tuples. 
-    Sie sind nützlich, wenn du komplexe oder verbundene Typen definieren möchtest.
-*/

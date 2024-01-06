@@ -37,6 +37,9 @@ export function undoLastMove() {
             case 'charterBoatTo':
                 undoCharterBoatToAction(lastActionRemoved);
                 break;
+            case 'transferCard':
+                undoTransferCardAction(lastActionRemoved);
+                break;
         }
     }
    
@@ -146,6 +149,31 @@ export function undoTransferSuppliesAction(action: Action) {
 
         return { ...state, players: updatedPlayers }; 
     });
+}
+
+export function undoTransferCardAction(action: Action){
+    gameState.update(state => {
+        const updatedPlayers = [...state.players];
+        const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === action.transferringPlayer);
+        const toPlayerIndex = updatedPlayers.findIndex(p => p.name === action.receivingPlayer);
+
+        if (fromPlayerIndex !== -1 && toPlayerIndex !== -1) {
+            const fromPlayer = updatedPlayers[fromPlayerIndex];
+            const toPlayer = updatedPlayers[toPlayerIndex];
+
+            // Finde die Karte im Handkartendeck des aufnehmenden Spielers
+            const cardIndex = toPlayer.handCards.findIndex(card => card.data.name === action.location);
+
+            if (cardIndex !== -1) {
+                // Entferne die Karte aus dem Handkartendeck des aufnehmenden Spielers und füge sie dem abgebenden Spieler hinzu
+                const [card] = toPlayer.handCards.splice(cardIndex, 1);
+                fromPlayer.handCards.push(card);
+            }
+        }
+
+        return { ...state, players: updatedPlayers };
+    });
+
 }
 
 export function undoSailToAction(action: Action) {

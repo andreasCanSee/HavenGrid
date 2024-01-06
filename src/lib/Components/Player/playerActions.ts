@@ -23,7 +23,6 @@ export function increasePlayerSupplies(name: string) {
 export function transferSupplies(fromPlayerName: string, toPlayerName: string){
   
     if(countNonFreeActions() < 4){
-        console.log('in transfer supplies 2')
         gameState.update(state => {
             const updatedPlayers = [...state.players];
             const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === fromPlayerName);
@@ -43,5 +42,41 @@ export function transferSupplies(fromPlayerName: string, toPlayerName: string){
             freeAction: true,
         };
         addActionToCurrentTurn(action); 
+    }
+}
+
+export function transferCityCard(fromPlayerName: string, toPlayerName: string, cityName: string){
+    if(countNonFreeActions() < 4){
+
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
+            const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === fromPlayerName);
+            const toPlayerIndex = updatedPlayers.findIndex(p => p.name === toPlayerName);
+
+            if (fromPlayerIndex !== -1 && toPlayerIndex !== -1) {
+                const fromPlayer = updatedPlayers[fromPlayerIndex];
+                const toPlayer = updatedPlayers[toPlayerIndex];
+
+                // Finde die Karte im Handkartendeck des abgebenden Spielers
+                const cardIndex = fromPlayer.handCards.findIndex(card => card.data.name === cityName);
+
+                if (cardIndex !== -1) {
+                    // Entferne die Karte aus dem Handkartendeck des abgebenden Spielers und füge sie dem empfangenden Spieler hinzu
+                    const [card] = fromPlayer.handCards.splice(cardIndex, 1);
+                    toPlayer.handCards.push(card);
+                }
+            }
+            return { ...state, players: updatedPlayers}
+        })
+
+        const action: Action = {
+            type: 'transferCard',
+            transferringPlayer: fromPlayerName,
+            receivingPlayer: toPlayerName,
+            location: cityName,
+            freeAction: false,
+        };
+        addActionToCurrentTurn(action); 
+
     }
 }
