@@ -3,15 +3,15 @@
     import { increasePlayerSupplies } from "./playerActions";
     import { handleKeyPress } from "../Field/uiHandlers";
 
-    export let name: string;
+    export let playerIndex: number;
     export let isActive: Boolean;
     export let playerSupplies: number;
     export let isAtActivePlayerLocation: boolean;
 
-    function handleDragStart(event: DragEvent, playerName: string) {
+    function handleDragStart(event: DragEvent, playerIndex: number) {
         const dragData = {
             type: 'supplies',
-            fromPlayer: playerName
+            fromPlayerIndex: playerIndex
         };
         if (event.dataTransfer) {
             event.dataTransfer.setData("application/json", JSON.stringify(dragData));
@@ -26,7 +26,7 @@
         <div 
             style="width: 20px; height: 20px; background-color: firebrick;border: 2px solid firebrick; margin-right: 5px; margin-bottom: 5px"
             draggable={(isActive || isAtActivePlayerLocation) ? "true" : "false"}
-            on:dragstart={(event) => handleDragStart(event, name)}
+            on:dragstart={(event) => handleDragStart(event, playerIndex)}
             role="button"
             tabindex="0">
         </div>
@@ -38,8 +38,8 @@
             role="button"
             tabindex="0"
             on:focus={handleFocus}
-            on:click={()=>increasePlayerSupplies(name)}
-            on:keydown={event => handleKeyPress(event, () => increasePlayerSupplies(name))}>
+            on:click={()=>increasePlayerSupplies(playerIndex)}
+            on:keydown={event => handleKeyPress(event, () => increasePlayerSupplies(playerIndex))}>
              🛠️
         </div>
     {/if}

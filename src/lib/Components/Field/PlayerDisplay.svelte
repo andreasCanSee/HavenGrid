@@ -22,8 +22,8 @@
         return baseX + offset;
     }
 
-    function getPlayerColor(playerName: string) {
-        const player = initialPlayerData.find(p => p.name === playerName);
+    function getPlayerColor(playerIndex: number) {
+        const player = initialPlayerData[playerIndex]
         return player ? player.color : 'pink'; 
     }
 
@@ -46,7 +46,7 @@
                 cy={gridSize / 2} 
                 r={player === activePlayer ? "10" : "8"}
                 stroke-width={player === activePlayer ? "6" : "1"} 
-                fill={getPlayerColor(player.name)}
+                fill={getPlayerColor(player.playerIndex)}
                 style:filter={player === activePlayer ? 'url(#strongGlow)' : ''} />
         {/if}
     {/each}

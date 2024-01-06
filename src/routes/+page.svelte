@@ -40,6 +40,7 @@
             color={initialPlayerData[index].color}
             image={initialPlayerData[index].image}
             isActive={index === $gameState.activePlayerIndex}
+            playerIndex={index}
         />
             {#if index === $gameState.activePlayerIndex}
                 <div style="margin-bottom: 30px">

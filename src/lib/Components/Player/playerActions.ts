@@ -1,14 +1,12 @@
-import { showBoat } from "../../Stores/uiStore";
-import { currentTurnActions, countNonFreeActions } from "../../Stores/turnStateStore";
 import { gameState } from "../../Stores/gameStateStore";
 import type { Action } from "../../Models/types";
-import { addActionToCurrentTurn } from "../../Stores/turnStateStore";
+import { countNonFreeActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
 
-export function increasePlayerSupplies(name: string) {
+export function increasePlayerSupplies(playerIndex: number) {
     if(countNonFreeActions() < 4){
         gameState.update(state => {
             const updatedPlayers = [...state.players];
-            const activePlayer = updatedPlayers.find(p => p.name === name);
+            const activePlayer = updatedPlayers[playerIndex];
             if (activePlayer) {
                 activePlayer.supplies++;
             }
@@ -20,63 +18,51 @@ export function increasePlayerSupplies(name: string) {
     addActionToCurrentTurn(action);
 }
 
-export function transferSupplies(fromPlayerName: string, toPlayerName: string){
-  
-    if(countNonFreeActions() < 4){
-        gameState.update(state => {
-            const updatedPlayers = [...state.players];
-            const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === fromPlayerName);
-            const toPlayerIndex = updatedPlayers.findIndex(p => p.name === toPlayerName);
-            
-            if (fromPlayerIndex !== -1 && toPlayerIndex !== -1) {
-                updatedPlayers[fromPlayerIndex].supplies--;
-                updatedPlayers[toPlayerIndex].supplies++;
-            }       
-            return { ...state, players: updatedPlayers};
-        });
+export function transferSupplies(fromPlayerIndex: number, toPlayerIndex: number){
+    gameState.update(state => {
+        const updatedPlayers = [...state.players];
+        updatedPlayers[fromPlayerIndex].supplies--;
+        updatedPlayers[toPlayerIndex].supplies++;
+               
+        return { ...state, players: updatedPlayers};
+    });
 
-        const action: Action = {
-            type: 'transferSupplies',
-            transferringPlayer: fromPlayerName,
-            receivingPlayer: toPlayerName,
-            freeAction: true,
-        };
-        addActionToCurrentTurn(action); 
-    }
+    const action: Action = {
+        type: 'transferSupplies',
+        transferringPlayerIndex: fromPlayerIndex,
+        receivingPlayerIndex: toPlayerIndex,
+        freeAction: true,
+    };
+    addActionToCurrentTurn(action); 
 }
 
-export function transferCityCard(fromPlayerName: string, toPlayerName: string, cityName: string){
+export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
+    console.log(fromPlayerIndex, toPlayerIndex, cityName)
     if(countNonFreeActions() < 4){
 
         gameState.update(state => {
             const updatedPlayers = [...state.players];
-            const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === fromPlayerName);
-            const toPlayerIndex = updatedPlayers.findIndex(p => p.name === toPlayerName);
+            const fromPlayer = updatedPlayers[fromPlayerIndex];
+            const toPlayer = updatedPlayers[toPlayerIndex];
 
-            if (fromPlayerIndex !== -1 && toPlayerIndex !== -1) {
-                const fromPlayer = updatedPlayers[fromPlayerIndex];
-                const toPlayer = updatedPlayers[toPlayerIndex];
+            // Finde die Karte im Handkartendeck des abgebenden Spielers
+            const cardIndex = fromPlayer.handCards.findIndex(card => card.data.name === cityName);
 
-                // Finde die Karte im Handkartendeck des abgebenden Spielers
-                const cardIndex = fromPlayer.handCards.findIndex(card => card.data.name === cityName);
-
-                if (cardIndex !== -1) {
-                    // Entferne die Karte aus dem Handkartendeck des abgebenden Spielers und füge sie dem empfangenden Spieler hinzu
-                    const [card] = fromPlayer.handCards.splice(cardIndex, 1);
-                    toPlayer.handCards.push(card);
-                }
+            if (cardIndex !== -1) {
+                // Entferne die Karte aus dem Handkartendeck des abgebenden Spielers und füge sie dem empfangenden Spieler hinzu
+                const [card] = fromPlayer.handCards.splice(cardIndex, 1);
+                toPlayer.handCards.push(card);
             }
-            return { ...state, players: updatedPlayers}
-        })
+        return { ...state, players: updatedPlayers}
+    })
 
         const action: Action = {
-            type: 'transferCard',
-            transferringPlayer: fromPlayerName,
-            receivingPlayer: toPlayerName,
+            type: 'exchangeCard',
+            transferringPlayerIndex: fromPlayerIndex,
+            receivingPlayerIndex: toPlayerIndex,
             location: cityName,
             freeAction: false,
         };
         addActionToCurrentTurn(action); 
-
     }
 }

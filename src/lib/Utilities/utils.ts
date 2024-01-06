@@ -1,5 +1,4 @@
 import { initialBoardState } from "../Models/initialBoardData";
-import type { PlayerState } from "../Models/types";
 
 export function findPath(currentLocation: string, target: string): string[] {
 
@@ -31,8 +30,3 @@ export function findPath(currentLocation: string, target: string): string[] {
 
     return []; // Kein Pfad gefunden
   }
-
-// Funktion zum Rotieren der Spielerliste
-export function rotatePlayers(players: PlayerState[], activeIndex: number) {
-   return [...players.slice(activeIndex), ...players.slice(0, activeIndex)];
-}

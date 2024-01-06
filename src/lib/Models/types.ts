@@ -8,6 +8,7 @@ export type Line = {
 };
 
 export type ExtendedPlayerData = PlayerState & {
+  name: string;
   color: string;
   image: string;
 }
@@ -34,7 +35,7 @@ export type GameState = {
 };
 
 export type PlayerState = {
-  name: string;
+  playerIndex: number;
   currentLocation: string
   supplies: number;
   handCards: CityCard[]
@@ -71,11 +72,11 @@ export type DeckState<T> = {
 };
 
 export type Action = {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'transferCard';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard';
   location?: string;
   startLocation?: string;
   supplies?: number;
   freeAction: boolean;
-  transferringPlayer?: string;
-  receivingPlayer?: string;
+  transferringPlayerIndex?: number;
+  receivingPlayerIndex?: number;
 }

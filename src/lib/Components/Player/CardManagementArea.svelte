@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { CityCard } from "../../Models/types";
-    export let name: string;
+    export let playerIndex: number;
     export let isActive: boolean;
     export let playerHandCards: CityCard[];
     export let isAtActivePlayerLocation: boolean;
@@ -14,10 +14,10 @@
         black: playerHandCards.filter(card => card.data.color === 'black' && !card.inBuildArea)
     };
 
-    function handleCardDragStart(event: DragEvent, card: CityCard, playerName: string) {
+    function handleCardDragStart(event: DragEvent, card: CityCard, playerIndex: number) {
         const dragData = {
             type: 'cityCard',
-            fromPlayer: playerName,
+            fromPlayerIndex: playerIndex,
             cardData: card.data
         };
         if(event.dataTransfer){
@@ -46,7 +46,7 @@
                                     border: none;
                                     text-align: center;"
                                     draggable={(isActive || isAtActivePlayerLocation) && card.data.name === playerLocation}
-                                    on:dragstart={event => handleCardDragStart(event, card, name)}>
+                                    on:dragstart={event => handleCardDragStart(event, card, playerIndex)}>
                             {card.data.name}
                         </button>
                     {/each}

@@ -11,11 +11,11 @@ export function initializeGameState(): GameState {
   const { playerDeck: newPlayerDeck, infectionDeck: newInfectionDeck } = initializeDecks();
 
   // Initialisiere die Spielerdaten
-  let updatedPlayers = initialPlayerData.map(({ name, currentLocation, supplies, handCards }) => ({
-    name,
-    currentLocation,
-    supplies,
-    handCards // Handkarten initial leer setzen
+  let updatedPlayers = initialPlayerData.map((player, index) =>({ 
+    playerIndex: index,
+    currentLocation:  player.currentLocation,
+    supplies: player.supplies,
+    handCards: player.handCards // Handkarten initial leer setzen
   }));
 
   // Verteile Startkarten an die Spieler

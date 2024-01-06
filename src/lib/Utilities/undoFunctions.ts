@@ -37,8 +37,8 @@ export function undoLastMove() {
             case 'charterBoatTo':
                 undoCharterBoatToAction(lastActionRemoved);
                 break;
-            case 'transferCard':
-                undoTransferCardAction(lastActionRemoved);
+            case 'exchangeCard':
+                undoexchangeCardAction(lastActionRemoved);
                 break;
         }
     }
@@ -136,30 +136,31 @@ export function undoDeliverSuppliesAction(action: Action) {
 
 
 export function undoTransferSuppliesAction(action: Action) {
-    gameState.update(state => {
-        const updatedPlayers = [...state.players];
-        const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === action.transferringPlayer);
-        const toPlayerIndex = updatedPlayers.findIndex(p => p.name === action.receivingPlayer);
+    
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
 
-        if (fromPlayerIndex !== -1 && toPlayerIndex !== -1) {
-            // Rückgängig machen des Supply-Transfers
-            updatedPlayers[fromPlayerIndex].supplies++; // Erhöhe Supplies beim abgebenden Spieler
-            updatedPlayers[toPlayerIndex].supplies--;   // Reduziere Supplies beim aufnehmenden Spieler
-        }
+            // Prüfe, ob die Indizes definiert sind
+            if (typeof action.transferringPlayerIndex === 'number' && typeof action.receivingPlayerIndex === 'number') {
+                // Rückgängig machen des Supply-Transfers
+                if (updatedPlayers[action.receivingPlayerIndex].supplies > 0) {
+                    updatedPlayers[action.transferringPlayerIndex].supplies++; // Erhöhe Supplies beim abgebenden Spieler
+                    updatedPlayers[action.receivingPlayerIndex].supplies--; // Reduziere Supplies beim aufnehmenden Spieler
+                }
+            }
 
-        return { ...state, players: updatedPlayers }; 
-    });
+            return { ...state, players: updatedPlayers }; 
+        });
+    
 }
 
-export function undoTransferCardAction(action: Action){
+export function undoexchangeCardAction(action: Action){
     gameState.update(state => {
         const updatedPlayers = [...state.players];
-        const fromPlayerIndex = updatedPlayers.findIndex(p => p.name === action.transferringPlayer);
-        const toPlayerIndex = updatedPlayers.findIndex(p => p.name === action.receivingPlayer);
 
-        if (fromPlayerIndex !== -1 && toPlayerIndex !== -1) {
-            const fromPlayer = updatedPlayers[fromPlayerIndex];
-            const toPlayer = updatedPlayers[toPlayerIndex];
+        if (typeof action.transferringPlayerIndex === 'number' && typeof action.receivingPlayerIndex === 'number') {
+            const fromPlayer = updatedPlayers[action.transferringPlayerIndex];
+            const toPlayer = updatedPlayers[action.receivingPlayerIndex];
 
             // Finde die Karte im Handkartendeck des aufnehmenden Spielers
             const cardIndex = toPlayer.handCards.findIndex(card => card.data.name === action.location);

@@ -10,6 +10,7 @@
     export let color: string;
     export let image: string;
     export let isActive: boolean;
+    export let playerIndex: number;
 
     const playersStore = derived(
         gameState,
@@ -17,7 +18,7 @@
     );
 
     let player: PlayerState | undefined;
-    $: player = $playersStore.find(p => p.name === name);
+    $: player = $playersStore[playerIndex];
     
     let playerLocation: string, playerSupplies: number, playerHandCards: CityCard[];
     $: if(player){
@@ -36,22 +37,21 @@
         event.preventDefault();  // Ermöglicht das Ablegen
     }
 
-    function handleDrop(event: DragEvent, targetPlayerName: string) {
+    function handleDrop(event: DragEvent, targetPlayerIndex: number) {
         event.preventDefault();
         if (!event.dataTransfer) return; 
         const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
-        
-        const fromPlayer = $playersStore.find(p => p.name === dragData.fromPlayer);
-        const toPlayer = $playersStore.find(p => p.name === targetPlayerName);
+        const fromPlayer = $playersStore[dragData.fromPlayerIndex]
+        const toPlayer = $playersStore[targetPlayerIndex];
         if (dragData && dragData.type === 'supplies') {
             if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {;
-                transferSupplies(dragData.fromPlayer, targetPlayerName);
+                transferSupplies(dragData.fromPlayerIndex, targetPlayerIndex);
             }
         }
         else if (dragData && dragData.type === 'cityCard'){
             let cityName = dragData.cardData.name; 
             if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {
-            transferCityCard(dragData.fromPlayer, targetPlayerName, cityName);
+            transferCityCard(dragData.fromPlayerIndex, targetPlayerIndex, cityName);
         }
         }
     }
@@ -69,12 +69,12 @@
         filter: {!isActive ? 'blur(1px)'  : 'none'};
         width: 430px; 
         opacity: {isActive ? 0.8 : 0.5};"
-        on:drop={isDropzone ? event => handleDrop(event, name) : undefined}
+        on:drop={isDropzone ? event => handleDrop(event, playerIndex) : undefined}
         on:dragover={isDropzone ? handleDragOver : undefined}
         role="listbox"
         tabindex="0">
     <div>
-        <div style="width: 100%; background-color:white; border-radius: 15px;text-align: center;">
+        <div style="width: 100%; background-color:white; border-radius: 7px;text-align: center;">
 
             <p style="color: {color}; margin-top: 0px; font-weight: bold;">{name}</p>
         </div>
@@ -88,7 +88,7 @@
                                         width: 100px; 
                                         flex-wrap: wrap;">
             <PlayerSupplyArea 
-                {name} 
+                {playerIndex} 
                 {isActive} 
                 {playerSupplies}
                 {isAtActivePlayerLocation} />
@@ -96,7 +96,7 @@
     </div> 
     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
         <CardManagementArea 
-        {name} 
+        {playerIndex} 
         {isActive} 
         {playerLocation}
         {playerHandCards}
