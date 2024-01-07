@@ -37,11 +37,11 @@ The "Pandemic" board game is a cooperative game where players work together as m
  
 **Board Components (`Board.svelte`, `BoardLayout.svelte`):** These form the heart of the game's visual interface. `Board.svelte` dynamically overlays game states onto the board, while `BoardLayout.svelte`  is responsible for the static aspects of the game board.
 
-**Field Components (`Field.svelte`, `Location.svelte``, etc.):**
+**Field Components (`Field.svelte`, `Location.svelte`, etc.):**
 They represent individual locations on the board, handling both the display (labels, supply areas) and player interactions (like moving and action execution).
 
 ### Player Interaction and Management
-**Player Dashboard (`PlayerDashboard.svelte`):** This is a central hub for player interactions, bifurcating into areas like PlayerSupplyArea for managing player resources and CardManagementArea for handling player cards.
+**Player Dashboard (`PlayerDashboard.svelte`):** This is a central hub for player interactions, bifurcating into areas like PlayerSupplyArea for managing player supplies and CardManagementArea for handling player cards.
 
 **City Cards and Build Area:** These components manage specific player actions like building supply centers, showcasing some creative approach to UI design with features like sliders for confirming construction actions.
 
