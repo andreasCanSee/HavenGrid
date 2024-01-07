@@ -3,11 +3,10 @@ import type { Action } from "../../Models/types";
 import { countNonFreeActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
 
 export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
-    console.log(fromPlayerIndex, toPlayerIndex, cityName)
     if(countNonFreeActions() < 4){
-
         gameState.update(state => {
-            const updatedPlayers = [...state.players];
+            const updatedPlayers = [...state.players]; //hier ist ein problem
+            console.log("Updated Players", updatedPlayers)
             const fromPlayer = updatedPlayers[fromPlayerIndex];
             const toPlayer = updatedPlayers[toPlayerIndex];
 

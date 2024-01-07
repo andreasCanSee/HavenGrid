@@ -4,24 +4,24 @@ import { findPath } from "../../Utilities/utils";
 import { animateFerry } from "../../Components/Board/boardUtils";
 import type { Action } from "../../Models/types";
 import { charterBoatMode } from "../../Stores/uiStore";
-import { currentTurnActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
+import { addActionToCurrentTurn, countNonFreeActions, currentTurnActions } from "../../Stores/turnStateStore";
 import { showBoat } from "../../Stores/uiStore";
 import { initialBoardState } from "../../Models/initialBoardData";
 
 export function moveToLocation(targetLocation: string) {
     const currentGameState = get(gameState);
     const activeLocation = currentGameState.players[currentGameState.activePlayerIndex].currentLocation;
-    let actionsTaken = get(currentTurnActions).filter(action => !action.freeAction).length;
-
-    if(get(charterBoatMode) && targetLocation !== activeLocation && actionsTaken < 4){
-      charterToLocation(activeLocation, targetLocation)
-    }else{
-      ferryToLocation(activeLocation, targetLocation, actionsTaken );
+    const countActions = countNonFreeActions()
+    if(countActions < 4 && !get(showBoat)){
+      if(get(charterBoatMode) && targetLocation !== activeLocation){
+        charterToLocation(activeLocation, targetLocation)
+      }
+      else{
+        ferryToLocation(activeLocation, targetLocation, countActions);
+      }
     }
 }
 
-// checken, dass nicht vorliegt:
-// if($charterBoatMode && targetLocation !== currentLocation){
 async function ferryToLocation(currentLocation: string, targetLocation: string, actionsTaken: number) {
     let path = findPath(currentLocation, targetLocation);
 
@@ -46,14 +46,16 @@ async function ferryToLocation(currentLocation: string, targetLocation: string, 
 }
 
 async function charterToLocation(currentLocation: string, targetLocation: string) {
-    if(get(charterBoatMode) && targetLocation !== currentLocation){
+        console.log(`current: ${currentLocation}, target: ${targetLocation}`) 
+       
         await animateFerry(currentLocation, targetLocation, 'charterBoatTo');
-  
+      
         gameState.update(state => {
           const updatedPlayers = [...state.players];
           const activePlayer = updatedPlayers[state.activePlayerIndex];
+          activePlayer.currentLocation = targetLocation;
+
           const cardIndex = activePlayer.handCards.findIndex(card => card.data.name === currentLocation);
-  
           if (cardIndex !== -1) {
             // Finde die Farbe des aktuellen Standorts
             let locationColor = '';
@@ -66,7 +68,7 @@ async function charterToLocation(currentLocation: string, targetLocation: string
           // Erstelle die zu entsorgende Karte
           const cardToDiscard = {
             cardType: 'city', // oder ein anderer passender Wert für cardType
-            data: { name: currentLocation, color: locationColor },
+            data: { name: targetLocation, color: locationColor },
             inBuildArea: false
           };
           
@@ -74,8 +76,7 @@ async function charterToLocation(currentLocation: string, targetLocation: string
           activePlayer.handCards.splice(cardIndex, 1);
         }
         
-        
-        activePlayer.currentLocation = targetLocation;
+
         return {...state, players: updatedPlayers};
         });
   
@@ -86,5 +87,45 @@ async function charterToLocation(currentLocation: string, targetLocation: string
           freeAction: false
         };
         addActionToCurrentTurn(charterBoatToLocation);
-    }
+
 }
+
+export async function sailToLocation(currentLocation: string, targetLocation: string, cardColor: string, playerIndex: number) {
+  const countActions = countNonFreeActions()
+
+  if(countActions < 4 && !get(showBoat) && currentLocation !== targetLocation){
+
+    await animateFerry(currentLocation, targetLocation, 'sailTo');
+    gameState.update(state => {
+      const updatedPlayers = [...state.players];
+      const activePlayer = updatedPlayers[playerIndex]
+      activePlayer.currentLocation = targetLocation;
+      
+      // Erstelle die zu entsorgende Karte
+      const cardToDiscard = {
+        cardType: 'city', 
+        data: { name: targetLocation, color: cardColor },
+        inBuildArea: false
+      };
+      state.playerDeck.discardPile.push(cardToDiscard)
+
+      const cardIndex = activePlayer.handCards.findIndex(card => card.data.name === targetLocation);
+      //activePlayer.handCards.splice(cardIndex, 1);
+      if(cardIndex !== -1) {
+        activePlayer.handCards.splice(cardIndex, 1);
+      }
+
+      return { ...state, players: updatedPlayers };
+    });
+    
+    const sailToLocation: Action = {
+      type: 'sailTo',
+      location: targetLocation,
+      freeAction: false
+    };
+    addActionToCurrentTurn(sailToLocation);
+    console.log('Aktuelle Züge', get(currentTurnActions))
+
+   }
+}
+

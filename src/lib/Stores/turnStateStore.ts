@@ -12,7 +12,7 @@ export function initializeNextTurn(location: string){
   currentTurnActions.set([{ type: 'startAt', location, freeAction: true }]);
 }
 
-export function countNonFreeActions(){
+export function countNonFreeActions(): number{
   const actions = get(currentTurnActions);
   return actions.filter(action => !action.freeAction).length;
 }

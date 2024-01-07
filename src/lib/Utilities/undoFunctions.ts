@@ -34,9 +34,9 @@ export function undoLastMove() {
             case 'sailTo':
                 undoSailToAction(lastActionRemoved);
                 break;
-            case 'charterBoatTo':
+            /*case 'charterBoatTo':
                 undoCharterBoatToAction(lastActionRemoved);
-                break;
+                break;*/
             case 'exchangeCard':
                 undoexchangeCardAction(lastActionRemoved);
                 break;
@@ -181,7 +181,7 @@ export function undoSailToAction(action: Action) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         const currentPlayer = updatedPlayers[state.activePlayerIndex];
-
+        
         // Karte vom discardPile zurückholen
         const cardIndex = state.playerDeck.discardPile.findIndex(card => card.data.name === action.location && card.cardType === 'city');
         let cardToReturn = null;
@@ -200,7 +200,7 @@ export function undoSailToAction(action: Action) {
         return { ...state, players: updatedPlayers };
     });
 }
-
+/*
 export function undoCharterBoatToAction(action: Action) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
@@ -223,4 +223,4 @@ export function undoCharterBoatToAction(action: Action) {
 
         return { ...state, players: updatedPlayers };
     });
-}
+}*/

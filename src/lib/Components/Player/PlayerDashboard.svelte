@@ -8,7 +8,7 @@
     import { transferSupplies } from "../../GameLogic/Actions/supplyManagement";
 
     export let name: string;
-    export let color: string;
+    export let playerColor: string;
     export let image: string;
     export let isActive: boolean;
     export let playerIndex: number;
@@ -60,13 +60,13 @@
 </script>
 
 <div style=
-        "border: 6px solid {color}; 
+        "border: 6px solid {playerColor}; 
         padding: 10px;
         margin-bottom:10px; 
         display: flex; 
         align-items: start; 
         justify-content: flex-start; 
-        box-shadow: {isActive ? `0px 0px 10px ${color}` : 'none'};
+        box-shadow: {isActive ? `0px 0px 10px ${playerColor}` : 'none'};
         filter: {!isActive ? 'blur(1px)'  : 'none'};
         width: 430px; 
         opacity: {isActive ? 0.8 : 0.5};"
@@ -77,7 +77,7 @@
     <div>
         <div style="width: 100%; background-color:white; border-radius: 7px;text-align: center;">
 
-            <p style="color: {color}; margin-top: 0px; font-weight: bold;">{name}</p>
+            <p style="color: {playerColor}; margin-top: 0px; font-weight: bold;">{name}</p>
         </div>
         <img src={image} alt="🥷" style="max-width: 100px; 
                                         max-height: 200px; 
@@ -97,7 +97,8 @@
     </div> 
     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
         <CardManagementArea 
-        {playerIndex} 
+        {playerIndex}
+        {playerColor} 
         {isActive} 
         {playerLocation}
         {playerHandCards}

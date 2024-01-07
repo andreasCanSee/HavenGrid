@@ -5,7 +5,7 @@
     import { gameState } from '../lib/Stores/gameStateStore';
     import { resetGameState } from '../lib/Stores/gameStateStore';
     import { initialPlayerData } from '../lib/Models/initialPlayerData';
-    import { endActionPhase } from '../lib/GameLogic/gameLogic';
+    import { endTurnAndInitializeNext } from '../lib/GameLogic/turnCycleLogic';
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
 
 
@@ -37,7 +37,7 @@
   
         <PlayerDashboard 
             name={initialPlayerData[index].name}
-            color={initialPlayerData[index].color}
+            playerColor={initialPlayerData[index].color}
             image={initialPlayerData[index].image}
             isActive={index === $gameState.activePlayerIndex}
             playerIndex={index}
@@ -45,7 +45,7 @@
             {#if index === $gameState.activePlayerIndex}
                 <div style="margin-bottom: 30px">
                     <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
-                    <button on:click={endActionPhase}>Aktionsphase abschließen ☑️</button>
+                    <button on:click={endTurnAndInitializeNext}>Aktionsphase abschließen ☑️</button>
                 </div>
             {/if}
         {/each}   

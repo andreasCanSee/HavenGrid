@@ -4,7 +4,7 @@ import { performInfectionPhase } from "./Decks/infectionDeck";
 import { performPlayerCardsPhase } from "./Decks/playerDeck";
 import { get } from "svelte/store";
 
-export function endActionPhase() {
+export function endTurnAndInitializeNext() {
    
     gameState.update(state => {
         // Spielkarten nachziehen

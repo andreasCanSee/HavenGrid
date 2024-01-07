@@ -11,7 +11,9 @@ export type ExtendedPlayerData = PlayerState & {
   name: string;
   color: string;
   image: string;
+  playerIndex?: number;
 }
+
 export type ExtendedFieldData = FieldState & {
   coordinates: {
     x: number;

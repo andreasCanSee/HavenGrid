@@ -1,57 +1,51 @@
 <script lang="ts">
-    import type { CityCard } from "../../Models/types";
+    import type { CityCard as CityCardType } from "../../Models/types";
+    import CityCard from "./CityCard.svelte";
+
     export let playerIndex: number;
+    export let playerHandCards: CityCardType[];
+    export let playerColor: string;
     export let isActive: boolean;
-    export let playerHandCards: CityCard[];
     export let isAtActivePlayerLocation: boolean;
     export let playerLocation: string;
 
-    let groupedCards: Record<string, CityCard[]>;
-
+    let groupedCards: Record<string, CityCardType[]>;
+    
     $: groupedCards = {
         yellow: playerHandCards.filter(card => card.data.color === 'yellow' && !card.inBuildArea),
         blue: playerHandCards.filter(card => card.data.color === 'blue' && !card.inBuildArea),
         black: playerHandCards.filter(card => card.data.color === 'black' && !card.inBuildArea)
-    };
-
-    function handleCardDragStart(event: DragEvent, card: CityCard, playerIndex: number) {
-        const dragData = {
-            type: 'cityCard',
-            fromPlayerIndex: playerIndex,
-            cardData: card.data
-        };
-        if(event.dataTransfer){
-            event.dataTransfer.setData("application/json", JSON.stringify(dragData));
-            console.log(dragData)
-        }
     }
- 
+
+    // Funktion, die die Farbe zurückgibt, wenn drei oder mehr Karten dieser Farbe vorhanden sind
+    $: buildAreaColor = (() => {
+        const colorCounts = playerHandCards.reduce((acc: Record<string, number>, card) => {
+            const color = card.data.color;
+            acc[color] = (acc[color] || 0) + 1;
+            return acc;
+        }, {});
+
+        for (const color in colorCounts) {
+            if (colorCounts[color] >= 3) {
+                return color;
+            }
+        }
+
+        return null;
+        })();
+    
 </script>
 
 <div style="display: flex; flex-direction: column;">
     {#if playerHandCards.length > 0}
-    <div style="display: flex;">
+        <div style="display: flex;">
             {#each ['yellow', 'blue', 'black'] as color}
                 <div class="card-stack" style="margin: 5px;"> 
-                    {#each groupedCards[color] as card}
-                        <button style="
-                                    display: block; 
-                                    width: 80px; /* Feste Breite */
-                                    height: 40px; /* Feste Höhe */
-                                    background-color: {card.data.color}; 
-                                    padding: 5px; 
-                                    color: {card.data.color === 'yellow' ? 'black' : 'white'}; 
-                                    margin-bottom: 5px; 
-                                    cursor: pointer; 
-                                    border: none;
-                                    text-align: center;"
-                                    draggable={(isActive || isAtActivePlayerLocation) && card.data.name === playerLocation}
-                                    on:dragstart={event => handleCardDragStart(event, card, playerIndex)}>
-                            {card.data.name}
-                        </button>
+                    {#each groupedCards[color] as cityCard, index (cityCard.data.name + '-' + index)}
+                        <CityCard {cityCard} {playerLocation} {playerIndex} {isActive} {isAtActivePlayerLocation} {playerColor}/>
                     {/each}
                 </div>
             {/each}
-        </div>
+        </div>          
     {/if}
 </div>

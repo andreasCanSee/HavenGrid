@@ -1,102 +1,72 @@
 <script lang="ts">
-    import { addActionToCurrentTurn } from "../../Stores/turnStateStore";
-    import type { Action } from "../../Models/types";
-    import { animateFerry } from "../Board/boardUtils";
-import { charterBoatMode } from "../../Stores/uiStore";
-    import { gameState } from "../../Stores/gameStateStore";
+    import { charterBoatMode } from "../../Stores/uiStore";
+    import { sailToLocation } from "../../GameLogic/Actions/playerMovements";
+    import type { CityCard as CityCardType } from "../../Models/types";
 
-    export let name: string;
-    export let color: string;
-    export let buildAreaColor: string | null;
+    export let cityCard: CityCardType;
+    export let playerLocation: string;
+    export let playerIndex: number;
+    export let isActive: boolean;
+    export let isAtActivePlayerLocation: boolean;
+    export let playerColor: string;
 
-    $: activePlayer = $gameState.players[$gameState.activePlayerIndex];
-    $: isCurrentLocation = activePlayer.currentLocation === name;
+    const cardName = cityCard.data.name;
+    const cardColor = cityCard.data.color;
 
-    async function sailToLocation() {
-        if (!isCurrentLocation) {
-            const cardToDiscard = {
-                cardType: 'city',
-                data: { name, color },
-                inBuildArea: false
-            };
-            // Füge hier die Logik hinzu, um die Karte dem discardPile hinzuzufügen
-            
-            await animateFerry(activePlayer.currentLocation, name, 'sailTo');
-            
-            gameState.update(state => {
-                const updatedPlayers = [...state.players];
-                const player = updatedPlayers[state.activePlayerIndex];
-                const cardIndex = player.handCards.findIndex(card => card.data.name === name);
+    let isSelected: boolean = false;
 
-                if (cardIndex !== -1) {
-                    player.handCards.splice(cardIndex, 1);
-                }
+     // Charterflug aktivieren
+     function setCharterMode() {
+        // Aktiviere den Charter Boat Mode
+        charterBoatMode.set(true);
+        isSelected = true; // Markiere den Button
 
-                player.currentLocation = name;
-                return { ...state, players: updatedPlayers };
-            });
-
-            const sailToLocation: Action = {
-                type: 'sailTo',
-                location: name,
-                freeAction: false
-            };
-            addActionToCurrentTurn(sailToLocation);
-        } 
+        // Setze einen einmaligen Event Listener, der auf den nächsten Klick wartet
+        setTimeout(() => {
+            window.addEventListener('click', () => {
+                charterBoatMode.set(false);
+                isSelected = false;
+            }, { once: true });
+        }, 0);
     }
 
-    function charterToLocation() {
-    // Aktiviere den Charter Boat Mode
-    charterBoatMode.set(true);
+    // Karten tauschen
 
-    // Setze einen einmaligen Event Listener, der auf den nächsten Klick wartet
-    setTimeout(() => {
-        window.addEventListener('click', () => {
-            charterBoatMode.set(false);
-        }, { once: true });
-    }, 0);
-}
+    function handleCardDragStart(event: DragEvent, card: CityCardType, playerIndex: number) {
+        const dragData = {
+            type: 'cityCard',
+            fromPlayerIndex: playerIndex,
+            cardData: card.data
+        };
+        if(event.dataTransfer){
+            event.dataTransfer.setData("application/json", JSON.stringify(dragData));
+        }
+    }
 
-    function handleCardClick() {
-        if (!isCurrentLocation) {
-            sailToLocation();
+    function handleCardClick(playerLocation: string, cardName: string, cardColor: string, playerIndex: number) {
+        if (playerLocation !== cardName) {
+            sailToLocation(playerLocation, cardName, cardColor, playerIndex);
         } else {
-            charterToLocation();
+            setCharterMode();
         }
     }
 
-    $: showBorder = $charterBoatMode && isCurrentLocation;
-    $: borderStyle = showBorder ? `5px solid ${activePlayer.color}` : 'none';
-
-    function handleDragStart(event: DragEvent) {
-        if (event.dataTransfer) {
-            event.dataTransfer.setData('text/plain', JSON.stringify({ name, color }));
-        }
-    }
-
-    
-    function handleDragEnd(event: DragEvent) {
-        // Logik für Drag-Ende
-    }
-    
-    
 </script>
 
-<button class="player-card" 
-        draggable={buildAreaColor === color}
-        on:dragstart={handleDragStart}
-        on:dragend={handleDragEnd}
-        style="display: block; 
-               width: 80px; /* Feste Breite */
-               height: 40px; /* Feste Höhe */
-               background-color: {color}; 
-               padding: 5px; 
-               color: {color === 'yellow' ? 'black' : 'white'}; 
-               margin-bottom: 5px; 
-               border: {borderStyle}; 
-               cursor: pointer; 
-               text-align: center;"
-        on:click={handleCardClick}>
-    {name} 
-    {isCurrentLocation ? '🚢': '🛥️'}
+<button 
+    style = "display: block; 
+            width: 80px; /* Feste Breite */
+            height: 40px; /* Feste Höhe */
+            background-color: {cardColor}; 
+            padding: 5px; 
+            color: {cardColor === 'yellow' ? 'black' : 'white'}; 
+            margin-bottom: 5px; 
+            cursor: pointer; 
+            border: {isSelected ? `3px solid ${playerColor}` : 'none'}; /* Dynamischer Stil für den Rahmen */
+            text-align: center;"
+            disabled={!isActive}
+            on:click={() => handleCardClick(playerLocation, cardName, cardColor, playerIndex)}
+            draggable={((isActive || isAtActivePlayerLocation) && cardName === playerLocation)}
+            on:dragstart={event => handleCardDragStart(event, cityCard, playerIndex)}>
+                {cardName} {cardName === playerLocation ? '🚢': '🛥️' }
 </button>
