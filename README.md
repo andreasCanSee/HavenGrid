@@ -7,7 +7,8 @@ The "Pandemic" board game is a cooperative game where players work together as m
 
 ## Key Facts
 
-- All Player Actions (somewhat) Implemented: ✅ [Full Rulebook](https://images-cdn.zmangames.com/us-east-1/filer_public/38/ec/38ec25b0-821b-4c2e-b925-27c)
+- All Player Actions (somewhat) Implemented: ✅ [Full Rulebook](https://images-cdn.zmangames.com/us-east-1/filer_public/38/ec/38ec25b0-821b-4c2e-b925-27c4a4038acd/pandemic_legacy_season_2_rules.pdf)
+
     - DRIVE / FERRY
         - Move to an adjacent location connected by a line
     - SAIL
