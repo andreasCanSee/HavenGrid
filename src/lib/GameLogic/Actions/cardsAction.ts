@@ -1,6 +1,7 @@
 import { gameState } from "../../Stores/gameStateStore";
-import type { Action } from "../../Models/types";
+import type { Action, GameState, PlayerState, CityCard } from "../../Models/types";
 import { countNonFreeActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
+import { discardCard } from "./actionUtils";
 
 export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
     if(countNonFreeActions() < 4){
@@ -30,4 +31,29 @@ export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number,
         };
         addActionToCurrentTurn(action); 
     }
+}
+
+
+export function buildSupplyCenter(playerLocation: string) {
+    gameState.update((state: GameState) => {
+        const activePlayer: PlayerState = state.players[state.activePlayerIndex];
+
+        // Entferne alle Karten mit inBuildArea = true aus den Handkarten des Spielers
+        // Entferne alle Karten mit inBuildArea = true und füge sie dem Ablagestapel hinzu
+        activePlayer.handCards.forEach((card: CityCard) => {
+            if (card.inBuildArea) {
+                const { newDiscardPile, newHandCards } = discardCard(card.data.name, card.data.color, activePlayer.handCards, state.playerDeck.discardPile);
+                activePlayer.handCards = newHandCards;
+                state.playerDeck.discardPile = newDiscardPile;
+            }
+        });
+
+        // Setze hasSupplyCenter auf true am aktuellen Standort des Spielers
+        const locationIndex = state.boardState.findIndex(field => field.name === playerLocation);
+        if (locationIndex !== -1) {
+            state.boardState[locationIndex].hasSupplyCenter = true;
+        }
+
+        return state;
+    });
 }

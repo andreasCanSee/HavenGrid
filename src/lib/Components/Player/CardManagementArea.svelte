@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { CityCard as CityCardType } from "../../Models/types";
+    import { gameState } from "../../Stores/gameStateStore";
     import CityCard from "./CityCard.svelte";
+    import BuildArea from "./BuildArea.svelte";
 
     export let playerIndex: number;
     export let playerHandCards: CityCardType[];
@@ -33,6 +35,46 @@
 
         return null;
         })();
+
+        function handleUpdateCard(event: CustomEvent<any>) {
+            const { cardName, inBuildArea } = event.detail;
+
+            gameState.update(state => {
+                const activePlayer = state.players[playerIndex];
+                let cardToUpdate;
+
+                if (inBuildArea) {
+                    // Finden Sie die erste Karte, die noch nicht in BuildArea ist
+                    cardToUpdate = activePlayer.handCards.find(card => card.data.name === cardName && !card.inBuildArea);
+                } else {
+                    // Finden Sie die erste Karte, die bereits in BuildArea ist
+                    cardToUpdate = activePlayer.handCards.find(card => card.data.name === cardName && card.inBuildArea);
+                }
+
+                // Aktualisieren Sie die inBuildArea-Eigenschaft, wenn eine solche Karte gefunden wird
+                if (cardToUpdate) {
+                    cardToUpdate.inBuildArea = inBuildArea;
+                }
+
+                return state;
+            });
+        }
+
+        $: if (buildAreaColor == null || !isActive) {
+        resetInBuildArea();
+    }
+
+    function resetInBuildArea() {
+        gameState.update(state => {
+            const activePlayer = state.players[playerIndex];
+            activePlayer.handCards.forEach(card => {
+                card.inBuildArea = false;
+            });
+            return state;
+        });
+    }
+
+
     
 </script>
 
@@ -46,6 +88,9 @@
                     {/each}
                 </div>
             {/each}
-        </div>          
+        </div>
+        {#if buildAreaColor && isActive}
+            <BuildArea {buildAreaColor} cityCards={playerHandCards.filter(card => card.data.color === buildAreaColor)} {playerLocation} on:updateCard={handleUpdateCard} />
+        {/if}          
     {/if}
 </div>

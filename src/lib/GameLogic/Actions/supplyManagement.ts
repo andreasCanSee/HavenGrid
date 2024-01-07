@@ -5,6 +5,7 @@ import { gameState } from "../../Stores/gameStateStore";
 import type { Action } from "../../Models/types";
 
 export function increasePlayerSupplies(playerIndex: number) {
+  
     if(countNonFreeActions() < 4){
         gameState.update(state => {
             const updatedPlayers = [...state.players];
@@ -14,10 +15,10 @@ export function increasePlayerSupplies(playerIndex: number) {
             }
             return { ...state, players: updatedPlayers };
         });
-    }
 
-    const action: Action = { type: 'makeSupply', freeAction: false };
-    addActionToCurrentTurn(action);
+        const action: Action = { type: 'makeSupply', freeAction: false };
+        addActionToCurrentTurn(action);
+    } 
 }
 
 export function transferSupplies(fromPlayerIndex: number, toPlayerIndex: number){
@@ -43,32 +44,32 @@ export function deliverSupplies(index: number, supplies: number, capacity: numbe
     let currentPlayer = currentGameState.players[currentGameState.activePlayerIndex];
     let deliveryQuantity = index - supplies + 1;
   
-    if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat)){
-      gameState.update(state => {
-        let updatedPlayers = [...state.players];
-        let updatedPlayer = updatedPlayers[state.activePlayerIndex];
-  
-        if (updatedPlayer.supplies >= deliveryQuantity) {
-          updatedPlayer.supplies -= deliveryQuantity;
-                
-          let updatedBoardState = state.boardState.map(field => {
-            if (field.name === name) {
-              return { ...field, supplies: Math.min(field.supplies + deliveryQuantity, capacity) };
-            }
-            return field;
-          });
-          return { ...state, players: updatedPlayers, boardState: updatedBoardState };
-        }
-      return state;
-    });
-  
-    const action: Action = {
-        type: 'deliverSupplies',
-        location: name,
-        supplies: deliveryQuantity,
-        freeAction: false // nur zum testen
-    }
-    addActionToCurrentTurn(action);
+    if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat) && countNonFreeActions() < 4){
+        gameState.update(state => {
+          let updatedPlayers = [...state.players];
+          let updatedPlayer = updatedPlayers[state.activePlayerIndex];
+    
+          if (updatedPlayer.supplies >= deliveryQuantity) {
+            updatedPlayer.supplies -= deliveryQuantity;
+                  
+            let updatedBoardState = state.boardState.map(field => {
+              if (field.name === name) {
+                return { ...field, supplies: Math.min(field.supplies + deliveryQuantity, capacity) };
+              }
+              return field;
+            });
+            return { ...state, players: updatedPlayers, boardState: updatedBoardState };
+          }
+        return state;
+      });
+    
+      const action: Action = {
+          type: 'deliverSupplies',
+          location: name,
+          supplies: deliveryQuantity,
+          freeAction: false 
+      }
+      addActionToCurrentTurn(action);
     }
   }
   

@@ -67,9 +67,9 @@
         align-items: start; 
         justify-content: flex-start; 
         box-shadow: {isActive ? `0px 0px 10px ${playerColor}` : 'none'};
-        filter: {!isActive ? 'blur(1px)'  : 'none'};
+        filter: {isActive || isAtActivePlayerLocation ? 'none' : 'blur(1px)'};
         width: 430px; 
-        opacity: {isActive ? 0.8 : 0.5};"
+        opacity: {isActive || isAtActivePlayerLocation ? 0.8 : 0.5};"
         on:drop={isDropzone ? event => handleDrop(event, playerIndex) : undefined}
         on:dragover={isDropzone ? handleDragOver : undefined}
         role="listbox"
@@ -104,4 +104,5 @@
         {playerHandCards}
         {isAtActivePlayerLocation} />
     </div>
+    
 </div>
