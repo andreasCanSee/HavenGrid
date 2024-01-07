@@ -14,3 +14,14 @@ import type { ExtendedFieldData } from "../Models/types";
       { name: 'Cairo', coordinates: {x: 9, y: 3}, connections: ['Istanbul', 'Tripolis'], color: 'black', capacity: 3, supplies: 3, hasSupplyCenter: false },
       { name: 'Istanbul', coordinates: {x: 8, y: 2}, connections: ['Cairo', 'Avalon'], color: 'black', capacity: 3, supplies: 3, hasSupplyCenter: false }
   ];
+
+  // Erstellen der Zuordnungstabelle: Stadt -> Farbe
+  const cityColorMap: Map<string, string> = new Map();
+  initialBoardState.forEach(place => {
+      cityColorMap.set(place.name, place.color);
+  });
+
+  // Verwenden der Map zur Farbsuche
+  export function getColorOfCity(cityName: string): string {
+      return cityColorMap.get(cityName) || 'green';
+  }

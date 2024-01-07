@@ -8,7 +8,8 @@ export function undoLastMove() {
     let lastActionRemoved: Action | undefined;
 
     currentTurnActions.update(actions => {
-        if (actions.length > 0) {
+        // Nie den Startort einer Runde entfernen
+        if (actions.length > 1) {
             lastActionRemoved = actions.pop();
         }
         return actions;
@@ -34,9 +35,9 @@ export function undoLastMove() {
             case 'sailTo':
                 undoSailToAction(lastActionRemoved);
                 break;
-            /*case 'charterBoatTo':
+            case 'charterBoatTo':
                 undoCharterBoatToAction(lastActionRemoved);
-                break;*/
+                break;
             case 'exchangeCard':
                 undoexchangeCardAction(lastActionRemoved);
                 break;
@@ -200,7 +201,7 @@ export function undoSailToAction(action: Action) {
         return { ...state, players: updatedPlayers };
     });
 }
-/*
+
 export function undoCharterBoatToAction(action: Action) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
@@ -208,19 +209,20 @@ export function undoCharterBoatToAction(action: Action) {
 
         // Karte vom discardPile zurückholen
         const cardIndex = state.playerDeck.discardPile.findIndex(card => card.data.name === action.startLocation && card.cardType === 'city');
-        let cardToReturn = null;
         if (cardIndex !== -1) {
-            cardToReturn = state.playerDeck.discardPile.splice(cardIndex, 1)[0];
-        }
-
-        // Wenn eine Karte zurückgeholt wird, füge sie den Handkarten des aktuellen Spielers hinzu
-        if (cardToReturn) {
+            const cardToReturn = state.playerDeck.discardPile.splice(cardIndex, 1)[0];
+            // Wenn eine Karte zurückgeholt wird, füge sie den Handkarten des aktuellen Spielers hinzu
             currentPlayer.handCards.push(cardToReturn);
         }
 
         // Aktualisiere die aktuelle Position des Spielers
-        currentPlayer.currentLocation = findLastLocation();
+        if (action.startLocation) {
+            currentPlayer.currentLocation = action.startLocation;
+        }
+        else{
+            currentPlayer.currentLocation = findLastLocation();
+        }
 
         return { ...state, players: updatedPlayers };
     });
-}*/
+}

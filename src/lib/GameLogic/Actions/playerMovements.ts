@@ -4,9 +4,10 @@ import { findPath } from "../../Utilities/utils";
 import { animateFerry } from "../../Components/Board/boardUtils";
 import type { Action } from "../../Models/types";
 import { charterBoatMode } from "../../Stores/uiStore";
-import { addActionToCurrentTurn, countNonFreeActions, currentTurnActions } from "../../Stores/turnStateStore";
+import { addActionToCurrentTurn, countNonFreeActions } from "../../Stores/turnStateStore";
 import { showBoat } from "../../Stores/uiStore";
-import { initialBoardState } from "../../Models/initialBoardData";
+import { getColorOfCity } from "../../Models/initialBoardData";
+import { discardCard } from "./actionUtils";
 
 export function moveToLocation(targetLocation: string) {
     const currentGameState = get(gameState);
@@ -45,9 +46,8 @@ async function ferryToLocation(currentLocation: string, targetLocation: string, 
     }
 }
 
-async function charterToLocation(currentLocation: string, targetLocation: string) {
-        console.log(`current: ${currentLocation}, target: ${targetLocation}`) 
-       
+export async function charterToLocation(currentLocation: string, targetLocation: string) {
+    
         await animateFerry(currentLocation, targetLocation, 'charterBoatTo');
       
         gameState.update(state => {
@@ -55,29 +55,14 @@ async function charterToLocation(currentLocation: string, targetLocation: string
           const activePlayer = updatedPlayers[state.activePlayerIndex];
           activePlayer.currentLocation = targetLocation;
 
-          const cardIndex = activePlayer.handCards.findIndex(card => card.data.name === currentLocation);
-          if (cardIndex !== -1) {
-            // Finde die Farbe des aktuellen Standorts
-            let locationColor = '';
-            initialBoardState.forEach(place => {
-              if (place.name === currentLocation) {
-                locationColor = place.color;
-              }
-          });
-         
-          // Erstelle die zu entsorgende Karte
-          const cardToDiscard = {
-            cardType: 'city', // oder ein anderer passender Wert für cardType
-            data: { name: targetLocation, color: locationColor },
-            inBuildArea: false
-          };
-          
-          state.playerDeck.discardPile.push(cardToDiscard)
-          activePlayer.handCards.splice(cardIndex, 1);
-        }
-        
+          // Finde die Farbe des aktuellen Standorts
+          const locationColor = getColorOfCity(currentLocation)
 
-        return {...state, players: updatedPlayers};
+          const { newDiscardPile, newHandCards } = discardCard(currentLocation, locationColor, activePlayer.handCards, state.playerDeck.deck);
+          state.playerDeck.discardPile = newDiscardPile;
+          activePlayer.handCards = newHandCards;
+
+          return {...state, players: updatedPlayers };
         });
   
         const charterBoatToLocation: Action = {
@@ -85,9 +70,9 @@ async function charterToLocation(currentLocation: string, targetLocation: string
           startLocation: currentLocation,
           location: targetLocation,
           freeAction: false
-        };
+        }
+      
         addActionToCurrentTurn(charterBoatToLocation);
-
 }
 
 export async function sailToLocation(currentLocation: string, targetLocation: string, cardColor: string, playerIndex: number) {
@@ -100,21 +85,11 @@ export async function sailToLocation(currentLocation: string, targetLocation: st
       const updatedPlayers = [...state.players];
       const activePlayer = updatedPlayers[playerIndex]
       activePlayer.currentLocation = targetLocation;
+
+      const { newDiscardPile, newHandCards } = discardCard(targetLocation, cardColor, activePlayer.handCards, state.playerDeck.discardPile);
+      state.playerDeck.discardPile = newDiscardPile;
+      activePlayer.handCards = newHandCards;
       
-      // Erstelle die zu entsorgende Karte
-      const cardToDiscard = {
-        cardType: 'city', 
-        data: { name: targetLocation, color: cardColor },
-        inBuildArea: false
-      };
-      state.playerDeck.discardPile.push(cardToDiscard)
-
-      const cardIndex = activePlayer.handCards.findIndex(card => card.data.name === targetLocation);
-      //activePlayer.handCards.splice(cardIndex, 1);
-      if(cardIndex !== -1) {
-        activePlayer.handCards.splice(cardIndex, 1);
-      }
-
       return { ...state, players: updatedPlayers };
     });
     
@@ -124,8 +99,8 @@ export async function sailToLocation(currentLocation: string, targetLocation: st
       freeAction: false
     };
     addActionToCurrentTurn(sailToLocation);
-    console.log('Aktuelle Züge', get(currentTurnActions))
-
    }
 }
+
+
 
