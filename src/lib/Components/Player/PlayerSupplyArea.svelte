@@ -4,9 +4,9 @@
     import { handleKeyPress } from "../../Utilities/uiHandlers";
 
     export let playerIndex: number;
-    export let isActive: Boolean;
-    export let playerSupplies: number;
+    export let isActive: boolean;
     export let isAtActivePlayerLocation: boolean;
+    export let playerSupplies: number;
 
     function handleDragStart(event: DragEvent, playerIndex: number) {
         const dragData = {

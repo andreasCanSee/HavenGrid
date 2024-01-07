@@ -5,29 +5,40 @@
     import { buildSupplyCenter } from "../../GameLogic/Actions/cardsAction";
 
     export let buildAreaColor: string;
-    export let cityCards: CityCardType[];
+    export let cityCards: CardWithOriginalIndex[];
     export let playerLocation: string;
 
-    interface GroupedCards {
-        [key: string]: CityCardType[];
+    type CardWithOriginalIndex = {
+        card: CityCardType;
+        originalIndex: number;
     }
 
-    $: groupedCityCards = cityCards.reduce((acc: GroupedCards, card) => {
-        (acc[card.data.name] = acc[card.data.name] || []).push(card);
+    type GroupedCards = {
+        [key: string]: CardWithOriginalIndex[];
+    }
+
+    $: groupedCityCards = cityCards.reduce((acc: GroupedCards, cardWithIndex) => {
+        const cardName = cardWithIndex.card.data.name;
+        (acc[cardName] = acc[cardName] || []).push(cardWithIndex);
         return acc;
     }, {});
 
-    $: inBuildAreaCount = cityCards.reduce((count, card) => card.inBuildArea ? count + 1 : count, 0);
-    $: showBuildButton = inBuildAreaCount === 3 && getColorOfCity(playerLocation) === buildAreaColor;
+
+   
+    $: showBuildButton = (
+        cityCards.length >= 3 && 
+        cityCards.filter(({ card }) => card.inBuildArea).length === 3 &&
+        getColorOfCity(playerLocation) === buildAreaColor
+    );
 
     const dispatch = createEventDispatcher();
 
-    function handleSliderChange(cardName: string, event: Event) {
+    function handleSliderChange(cardName: string, originalIndex: number, event: Event) {
         const target = event.target as HTMLInputElement;
         if (target) {
             const value = parseInt(target.value);
             const inBuildArea = value === 10;
-            dispatch('updateCard', { cardName, inBuildArea });
+            dispatch('updateCard', { cardName, originalIndex, inBuildArea });
         }
     }
 
@@ -37,9 +48,9 @@
     {#each Object.keys(groupedCityCards) as cardName}
         <div style="margin: 3.5px; padding: 3.5px; border: 1px solid #ccc; background-color: white;">
             <div style="font-size: 70%;">{cardName}</div>
-            {#each groupedCityCards[cardName] as card, index}
-                <input type="range" style="width: 70%;" min="0" max="10" value={card.inBuildArea ? 10 : 0}
-                on:change={(event) => handleSliderChange(card.data.name, event)}>
+            {#each groupedCityCards[cardName] as cardWithIndex}
+                <input type="range" id={`slider-${cardWithIndex.card.data.name}-${cardWithIndex.originalIndex}`} style="width: 70%;" min="0" max="10" value={cardWithIndex.card.inBuildArea ? 10 : 0}
+                on:change={(event) => handleSliderChange(cardWithIndex.card.data.name, cardWithIndex.originalIndex, event)}>
             {/each}
 
         </div>

@@ -35,25 +35,38 @@ export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number,
 
 
 export function buildSupplyCenter(playerLocation: string) {
-    gameState.update((state: GameState) => {
-        const activePlayer: PlayerState = state.players[state.activePlayerIndex];
-
-        // Entferne alle Karten mit inBuildArea = true aus den Handkarten des Spielers
-        // Entferne alle Karten mit inBuildArea = true und füge sie dem Ablagestapel hinzu
-        activePlayer.handCards.forEach((card: CityCard) => {
-            if (card.inBuildArea) {
-                const { newDiscardPile, newHandCards } = discardCard(card.data.name, card.data.color, activePlayer.handCards, state.playerDeck.discardPile);
-                activePlayer.handCards = newHandCards;
-                state.playerDeck.discardPile = newDiscardPile;
+    if(countNonFreeActions() < 4){
+        let discardedCards: CityCard[] = [];
+        gameState.update((state: GameState) => {
+            const activePlayer: PlayerState = state.players[state.activePlayerIndex];
+            discardedCards = activePlayer.handCards.filter(card => card.inBuildArea);
+    
+            // Entferne alle Karten mit inBuildArea = true aus den Handkarten des Spielers
+            // Entferne alle Karten mit inBuildArea = true und füge sie dem Ablagestapel hinzu
+            activePlayer.handCards.forEach((card: CityCard) => {
+                if (card.inBuildArea) {
+                    const { newDiscardPile, newHandCards } = discardCard(card.data.name, card.data.color, activePlayer.handCards, state.playerDeck.discardPile);
+                    activePlayer.handCards = newHandCards;
+                    state.playerDeck.discardPile = newDiscardPile;
+                }
+            });
+    
+            // Setze hasSupplyCenter auf true am aktuellen Standort des Spielers
+            const locationIndex = state.boardState.findIndex(field => field.name === playerLocation);
+            if (locationIndex !== -1) {
+                state.boardState[locationIndex].hasSupplyCenter = true;
             }
+    
+            return state;
         });
+        const action: Action = {
+            type: 'buildSupplyCenter',
+            cards: discardedCards,
+            location: playerLocation,
+            freeAction: false,
+        };
+        addActionToCurrentTurn(action); 
 
-        // Setze hasSupplyCenter auf true am aktuellen Standort des Spielers
-        const locationIndex = state.boardState.findIndex(field => field.name === playerLocation);
-        if (locationIndex !== -1) {
-            state.boardState[locationIndex].hasSupplyCenter = true;
-        }
-
-        return state;
-    });
+    }
+    
 }

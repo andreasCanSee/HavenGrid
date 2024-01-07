@@ -41,6 +41,9 @@ export function undoLastMove() {
             case 'exchangeCard':
                 undoexchangeCardAction(lastActionRemoved);
                 break;
+            case 'buildSupplyCenter':
+                undoBuildSupplyCenterAction(lastActionRemoved);
+                break;
         }
     }
    
@@ -226,3 +229,33 @@ export function undoCharterBoatToAction(action: Action) {
         return { ...state, players: updatedPlayers };
     });
 }
+
+export function undoBuildSupplyCenterAction(action: Action) {
+    gameState.update(state => {
+        const updatedPlayers = [...state.players];
+        const activePlayer = updatedPlayers[state.activePlayerIndex];
+
+        // Karten vom Ablagestapel zurück in die Hand des Spielers legen
+        action.cards?.forEach(card => {
+            const cardIndex = state.playerDeck.discardPile.findIndex(discardCard => 
+                discardCard.data.name === card.data.name && discardCard.data.color === card.data.color
+            );
+
+            if (cardIndex !== -1) {
+                const [cardToReturn] = state.playerDeck.discardPile.splice(cardIndex, 1);
+                activePlayer.handCards.push(cardToReturn);
+            }
+        });
+
+        // Entferne das Versorgungszentrum vom Standort
+        if (action.location) {
+            const locationIndex = state.boardState.findIndex(field => field.name === action.location);
+            if (locationIndex !== -1) {
+                state.boardState[locationIndex].hasSupplyCenter = false;
+            }
+        }
+
+        return { ...state, players: updatedPlayers };
+    });
+}
+

@@ -31,9 +31,6 @@
     let isAtActivePlayerLocation: boolean;
     $: isAtActivePlayerLocation = !isActive && player?.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation;
 
-    let isDropzone: boolean;
-    $: isDropzone = isActive || isAtActivePlayerLocation;
-
     function handleDragOver(event: DragEvent) {
         event.preventDefault();  // Ermöglicht das Ablegen
     }
@@ -70,13 +67,12 @@
         filter: {isActive || isAtActivePlayerLocation ? 'none' : 'blur(1px)'};
         width: 430px; 
         opacity: {isActive || isAtActivePlayerLocation ? 0.8 : 0.5};"
-        on:drop={isDropzone ? event => handleDrop(event, playerIndex) : undefined}
-        on:dragover={isDropzone ? handleDragOver : undefined}
+        on:drop={isActive || isAtActivePlayerLocation ? event => handleDrop(event, playerIndex) : undefined}
+        on:dragover={isActive || isAtActivePlayerLocation ? handleDragOver : undefined}
         role="listbox"
         tabindex="0">
     <div>
         <div style="width: 100%; background-color:white; border-radius: 7px;text-align: center;">
-
             <p style="color: {playerColor}; margin-top: 0px; font-weight: bold;">{name}</p>
         </div>
         <img src={image} alt="🥷" style="max-width: 100px; 
@@ -91,18 +87,17 @@
             <PlayerSupplyArea 
                 {playerIndex} 
                 {isActive} 
-                {playerSupplies}
-                {isAtActivePlayerLocation} />
+                {isAtActivePlayerLocation}
+                {playerSupplies} />
         </div>  
     </div> 
     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
         <CardManagementArea 
         {playerIndex}
-        {playerColor} 
         {isActive} 
         {playerLocation}
         {playerHandCards}
+        {playerColor} 
         {isAtActivePlayerLocation} />
     </div>
-    
 </div>

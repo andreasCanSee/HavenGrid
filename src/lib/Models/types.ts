@@ -74,11 +74,12 @@ export type DeckState<T> = {
 };
 
 export type Action = {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard' | 'buildSupplyCenter';
   location?: string;
   startLocation?: string;
   supplies?: number;
   freeAction: boolean;
   transferringPlayerIndex?: number;
   receivingPlayerIndex?: number;
+  cards?: CityCard[]
 }
