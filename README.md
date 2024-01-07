@@ -47,6 +47,7 @@ They represent individual locations on the board, handling both the display (lab
 
 ### Game Logic and Mechanics
 **Action Handlers (`actionUtils.ts`, `playerMovements.ts`, etc.):** These scripts define the logic for each player action, crucial for the game mechanics.
+
 **Deck Management (`deckInitialization.ts`, `playerDeck.ts`, etc.):** They handle the initialization and dynamics of the game decks, a core part of Pandemic's gameplay.
 
 ### Advanced State Management
