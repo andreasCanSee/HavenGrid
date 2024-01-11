@@ -3,6 +3,9 @@ import { writable } from "svelte/store";
 export const showBoat = writable(false); 
 
 export const charterBoatMode = writable(false);
+
+export const isDiscardMode = writable<{ active: boolean; playerIndex: number | null }>({ active: false, playerIndex: null });
+
 /* 
   Falls showBoat jedoch nur in wenigen spezifischen Komponenten relevant ist 
   oder wenn es sich um eine UI-spezifische Zustandsinformation handelt, 

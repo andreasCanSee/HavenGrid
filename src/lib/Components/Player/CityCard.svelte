@@ -2,16 +2,18 @@
     import { charterBoatMode } from "../../Stores/uiStore";
     import { sailToLocation } from "../../GameLogic/Actions/playerMovements";
     import type { CityCard as CityCardType } from "../../Models/types";
-
     export let cityCard: CityCardType;
     export let playerLocation: string;
     export let playerIndex: number;
     export let isActive: boolean;
     export let isAtActivePlayerLocation: boolean;
     export let playerColor: string;
+    export let canDiscard: boolean;
 
     const cardName = cityCard.data.name;
     const cardColor = cityCard.data.color;
+
+    $: isCardDraggable = (((isActive || isAtActivePlayerLocation) && canDiscard)) || (((isActive || isAtActivePlayerLocation) && cardName === playerLocation))
 
     let isSelected: boolean = false;
 
@@ -32,11 +34,11 @@
 
     // Karten tauschen
 
-    function handleCardDragStart(event: DragEvent, card: CityCardType, playerIndex: number) {
+    function handleCardDragStart(event: DragEvent, card: CityCardType, playerIndex: number, isDiscardOnly: boolean) {
         const dragData = {
-            type: 'cityCard',
+            type: isDiscardOnly ? 'discardCard' : 'cityCard',
             fromPlayerIndex: playerIndex,
-            cardData: card.data
+            cardData: card.data,
         };
         if(event.dataTransfer){
             event.dataTransfer.setData("application/json", JSON.stringify(dragData));
@@ -66,7 +68,7 @@
             text-align: center;"
             disabled={!isActive}
             on:click={() => handleCardClick(playerLocation, cardName, cardColor, playerIndex)}
-            draggable={((isActive || isAtActivePlayerLocation) && cardName === playerLocation)}
-            on:dragstart={event => handleCardDragStart(event, cityCard, playerIndex)}>
+            draggable={isCardDraggable}
+            on:dragstart={event => handleCardDragStart(event, cityCard, playerIndex, canDiscard)}>
                 {cardName} {cardName === playerLocation ? '🚢': '🛥️' }
 </button>

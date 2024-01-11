@@ -5,8 +5,9 @@
     import { gameState } from '../lib/Stores/gameStateStore';
     import { resetGameState } from '../lib/Stores/gameStateStore';
     import { initialPlayerData } from '../lib/Models/initialPlayerData';
-    import { endTurnAndInitializeNext } from '../lib/GameLogic/turnCycleLogic';
+    import { endTurn} from '../lib/GameLogic/turnCycleLogic';
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
+    import { isDiscardMode } from '../lib/Stores/uiStore';
 
 
     function createPlayerOrder(activePlayerIndex: number, totalPlayers: number) {
@@ -45,7 +46,7 @@
             {#if index === $gameState.activePlayerIndex}
                 <div style="margin-bottom: 30px">
                     <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
-                    <button on:click={endTurnAndInitializeNext}>Aktionsphase abschließen ☑️</button>
+                    <button on:click={endTurn} disabled={$isDiscardMode.active}> Aktionsphase abschließen ☑️</button>
                 </div>
             {/if}
         {/each}   

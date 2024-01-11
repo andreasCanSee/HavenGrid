@@ -3,6 +3,7 @@
     import { gameState } from "../../Stores/gameStateStore";
     import CityCard from "./CityCard.svelte";
     import BuildArea from "./BuildArea.svelte";
+    import { isDiscardMode } from "../../Stores/uiStore";
 
     export let playerIndex: number;
     export let playerHandCards: CityCardType[];
@@ -22,6 +23,9 @@
         { color: 'blue' },
         { color: 'black' }
     ];
+
+    let showDiscardMessage: boolean;
+    $: showDiscardMessage = $isDiscardMode.active && $isDiscardMode.playerIndex === playerIndex;
 
     $: groupedCards = playerHandCards.reduce((acc: GroupedCardsType, card) => {
         if (!card.inBuildArea) {
@@ -80,12 +84,17 @@
 </script>
 
 <div style="display: flex; flex-direction: column;">
+    {#if showDiscardMessage && isActive}
+        <p style="color: red; text-align: center;">
+            Bitte Karten abwerfen, bis maximal 7 Karten übrig bleiben!
+        </p>
+    {/if}
     {#if playerHandCards.length > 0}
         <div style="display: flex;">
             {#each cardColors as cardColor}
                 <div class="card-stack" style="margin: 5px;"> 
                     {#each groupedCards[cardColor.color] as cityCard, index (cityCard.data.name + '-' + index)}
-                        <CityCard {cityCard} {playerLocation} {playerIndex} {isActive} {isAtActivePlayerLocation} {playerColor}/>
+                        <CityCard {cityCard} {playerLocation} {playerIndex} {isActive} {isAtActivePlayerLocation} {playerColor} canDiscard={showDiscardMessage}/>
                     {/each}
                 </div>
             {/each}

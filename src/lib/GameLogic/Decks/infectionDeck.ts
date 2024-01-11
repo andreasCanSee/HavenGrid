@@ -1,7 +1,7 @@
 import type { DeckState, InfectionCard, FieldState } from "../../Models/types";
 import { drawCards } from "./deckUtils";
 
-export function performInfectionPhase(infectionDeck: DeckState<InfectionCard>, infectionRate: number, boardState: FieldState[]){
+export function performInfections(infectionDeck: DeckState<InfectionCard>, infectionRate: number, boardState: FieldState[]){
 
     // Infection Phase I: Draw & Discard Infection Cards
     const [remainingInfectionDeck, drawnInfectionCards] = drawCards(infectionDeck.deck, infectionRate);

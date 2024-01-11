@@ -6,6 +6,7 @@
     import type { PlayerState, CityCard } from "../../Models/types";
     import { transferCityCard } from "../../GameLogic/Actions/cardsAction";
     import { transferSupplies } from "../../GameLogic/Actions/supplyManagement";
+    import { handleDragOver } from "../../Utilities/uiHandlers";
 
     export let name: string;
     export let playerColor: string;
@@ -30,10 +31,6 @@
 
     let isAtActivePlayerLocation: boolean;
     $: isAtActivePlayerLocation = !isActive && player?.currentLocation === $gameState.players[$gameState.activePlayerIndex].currentLocation;
-
-    function handleDragOver(event: DragEvent) {
-        event.preventDefault();  // Ermöglicht das Ablegen
-    }
 
     function handleDrop(event: DragEvent, targetPlayerIndex: number) {
         event.preventDefault();

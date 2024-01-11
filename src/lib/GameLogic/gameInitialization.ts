@@ -3,7 +3,7 @@ import { initialBoardState } from '../Models/initialBoardData';
 import { initialPlayerData } from '../Models/initialPlayerData';
 import { initializeDecks } from './Decks/deckInitialization';
 import { performPlayerCardsPhase } from '../GameLogic/Decks/playerDeck';
-import { performInfectionPhase } from '../GameLogic/Decks/infectionDeck';
+import { performInfections } from '../GameLogic/Decks/infectionDeck';
 import { initializeNextTurn } from '../Stores/turnStateStore';
 
 export function initializeGameState(): GameState {
@@ -33,7 +33,7 @@ export function initializeGameState(): GameState {
     supplies,
     hasSupplyCenter
   }));
-  const { updatedInfectionDeck, updatedBoardState } = performInfectionPhase(newInfectionDeck, initialInfectionRate, boardState);
+  const { updatedInfectionDeck, updatedBoardState } = performInfections(newInfectionDeck, initialInfectionRate, boardState);
 
   // Setze den gesamten Spielzustand zurück
   const gameState = {

@@ -7,7 +7,10 @@
     import { calculateSvgDimensions } from './boardUtils';
     import { gameState } from '../../Stores/gameStateStore';
     import { derived } from 'svelte/store';
-
+    import { handleDragOver } from '../../Utilities/uiHandlers';
+    import { discardCard } from '../../GameLogic/Actions/actionUtils';
+    import { isDiscardMode } from '../../Stores/uiStore';
+    import { get } from 'svelte/store';
 
     $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
@@ -23,13 +26,47 @@
         showTooltip = !showTooltip;
     }
 
+    function handleDrop(event: DragEvent) {
+        event.preventDefault();
+        if (!event.dataTransfer) return;
+        const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
+        
+        if (dragData && dragData.type === 'discardCard') {
+            
+          gameState.update(currentState => {
+
+            let newState = {...currentState};
+            let affectedPlayer = { ...newState.players[dragData.fromPlayerIndex]}
+
+            const { newDiscardPile, newHandCards } = discardCard(
+                    dragData.cardData.name, 
+                    dragData.cardData.color, 
+                    affectedPlayer.handCards, 
+                    newState.playerDeck.discardPile
+                );
+
+            affectedPlayer.handCards = newHandCards;
+            newState.playerDeck.discardPile = newDiscardPile;
+            newState.players[newState.activePlayerIndex] = affectedPlayer;
+
+            return newState;
+          })
+
+          // Überprüfe den aktualisierten Spielzustand und setze isDiscardMode zurück, falls notwendig
+        const updatedState = get(gameState);
+        if (updatedState.players[dragData.fromPlayerIndex].handCards.length <= 7) {
+          isDiscardMode.set({ active: false, playerIndex: null });
+        }
+        }
+    }
+
    // $: rectHeight = $drawnInfectionCards.length * 21;
    //let rectHeight = 21 * 11;
 
 
 </script>
   
-
+<div on:dragover={ $isDiscardMode.active ? handleDragOver : undefined} on:drop={ $isDiscardMode.active ? event => handleDrop(event) : undefined } role="listbox" tabindex="0">
   <BoardLayout {svgWidth} {svgHeight}>
     {#if $showBoat}
       <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
@@ -64,6 +101,6 @@
     {/each}
 {/if}
 </BoardLayout>
-
+</div>
 
   

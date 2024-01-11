@@ -2,12 +2,14 @@ import { gameState } from "../../Stores/gameStateStore";
 import type { Action, GameState, PlayerState, CityCard } from "../../Models/types";
 import { countNonFreeActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
 import { discardCard } from "./actionUtils";
+import { checkHandCardLimit } from "../turnCycleLogic";
+import { get } from "svelte/store";
+import { isDiscardMode } from "../../Stores/uiStore";
 
 export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
     if(countNonFreeActions() < 4){
         gameState.update(state => {
             const updatedPlayers = [...state.players]; //hier ist ein problem
-            console.log("Updated Players", updatedPlayers)
             const fromPlayer = updatedPlayers[fromPlayerIndex];
             const toPlayer = updatedPlayers[toPlayerIndex];
 
@@ -21,6 +23,13 @@ export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number,
             }
         return { ...state, players: updatedPlayers}
     })
+
+    const currentState = get(gameState);
+    if (checkHandCardLimit(currentState.players[toPlayerIndex].handCards)) {
+        isDiscardMode.set({active: true, playerIndex: toPlayerIndex});
+        console.log(get(isDiscardMode))
+    }
+
 
         const action: Action = {
             type: 'exchangeCard',

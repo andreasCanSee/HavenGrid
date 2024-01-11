@@ -8,3 +8,7 @@ export function handleKeyPress(event: KeyboardEvent, action: () => void) {
       action();
     }
 }
+
+export function handleDragOver(event: DragEvent) {
+  event.preventDefault();  // Ermöglicht das Ablegen
+}

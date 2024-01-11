@@ -1,5 +1,7 @@
 # Pandemic Legacy Season 2 Prologue
 
+![Pandemic](/static/pandemic-logo.png)
+
 ## Project Background
 This project is a web application that recreates the prologue of "Pandemic Legacy Season 2." Developed with Svelte and TypeScript, it represents my first foray into TypeScript. Inspired by my passion for cooperative board games and the challenge of maintaining the game experience for my friends and me between our infrequent meetups, this app aims to make the prologue of the game, which becomes inaccessible after the game starts, digitally available.
 
