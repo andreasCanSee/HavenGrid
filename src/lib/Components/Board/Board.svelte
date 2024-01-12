@@ -30,14 +30,12 @@
         event.preventDefault();
         if (!event.dataTransfer) return;
         const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
-        
+  
         if (dragData && dragData.type === 'discardCard') {
-            
           gameState.update(currentState => {
 
             let newState = {...currentState};
             let affectedPlayer = { ...newState.players[dragData.fromPlayerIndex]}
-
             const { newDiscardPile, newHandCards } = discardCard(
                     dragData.cardData.name, 
                     dragData.cardData.color, 
@@ -47,17 +45,18 @@
 
             affectedPlayer.handCards = newHandCards;
             newState.playerDeck.discardPile = newDiscardPile;
-            newState.players[newState.activePlayerIndex] = affectedPlayer;
-
+            newState.players[dragData.fromPlayerIndex] = affectedPlayer;
+            
             return newState;
           })
 
           // Überprüfe den aktualisierten Spielzustand und setze isDiscardMode zurück, falls notwendig
         const updatedState = get(gameState);
+       
         if (updatedState.players[dragData.fromPlayerIndex].handCards.length <= 7) {
           isDiscardMode.set({ active: false, playerIndex: null });
         }
-        }
+      }
     }
 
    // $: rectHeight = $drawnInfectionCards.length * 21;

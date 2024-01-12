@@ -3,10 +3,11 @@ import { addActionToCurrentTurn, countNonFreeActions } from "../../Stores/turnSt
 import { showBoat } from "../../Stores/uiStore";
 import { gameState } from "../../Stores/gameStateStore";
 import type { Action } from "../../Models/types";
+import { isDiscardMode } from "../../Stores/uiStore";
 
 export function increasePlayerSupplies(playerIndex: number) {
   
-    if(countNonFreeActions() < 4){
+    if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
         gameState.update(state => {
             const updatedPlayers = [...state.players];
             const activePlayer = updatedPlayers[playerIndex];
@@ -22,6 +23,10 @@ export function increasePlayerSupplies(playerIndex: number) {
 }
 
 export function transferSupplies(fromPlayerIndex: number, toPlayerIndex: number){
+
+  if(!get(isDiscardMode).active){
+
+  
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         updatedPlayers[fromPlayerIndex].supplies--;
@@ -37,6 +42,7 @@ export function transferSupplies(fromPlayerIndex: number, toPlayerIndex: number)
         freeAction: true,
     };
     addActionToCurrentTurn(action); 
+  }
 }
 
 export function deliverSupplies(index: number, supplies: number, capacity: number, name: string){
@@ -44,7 +50,7 @@ export function deliverSupplies(index: number, supplies: number, capacity: numbe
     let currentPlayer = currentGameState.players[currentGameState.activePlayerIndex];
     let deliveryQuantity = index - supplies + 1;
   
-    if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat) && countNonFreeActions() < 4){
+    if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat) && countNonFreeActions() < 4 && !get(isDiscardMode).active){
         gameState.update(state => {
           let updatedPlayers = [...state.players];
           let updatedPlayer = updatedPlayers[state.activePlayerIndex];

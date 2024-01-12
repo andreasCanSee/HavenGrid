@@ -8,12 +8,13 @@ import { addActionToCurrentTurn, countNonFreeActions } from "../../Stores/turnSt
 import { showBoat } from "../../Stores/uiStore";
 import { getColorOfCity } from "../../Models/initialBoardData";
 import { discardCard } from "./actionUtils";
+import { isDiscardMode } from "../../Stores/uiStore";
 
 export function moveToLocation(targetLocation: string) {
     const currentGameState = get(gameState);
     const activeLocation = currentGameState.players[currentGameState.activePlayerIndex].currentLocation;
     const countActions = countNonFreeActions()
-    if(countActions < 4 && !get(showBoat)){
+    if(countActions < 4 && !get(showBoat) && !get(isDiscardMode).active){
       if(get(charterBoatMode) && targetLocation !== activeLocation){
         charterToLocation(activeLocation, targetLocation)
       }
@@ -27,7 +28,7 @@ async function ferryToLocation(currentLocation: string, targetLocation: string, 
     let path = findPath(currentLocation, targetLocation);
 
     // Überprüfen, ob der Zielort direkt mit dem aktuellen Ort verbunden ist
-    if (path.length > 0 && actionsTaken + path.length <= 4) {
+    if (path.length > 0 && actionsTaken + path.length <= 4 && !get(isDiscardMode).active) {
         for (const location of path) {
             await animateFerry(currentLocation, location, 'moveTo');
             // Aktion zur Bewegung hinzufügen
@@ -78,7 +79,7 @@ export async function charterToLocation(currentLocation: string, targetLocation:
 export async function sailToLocation(currentLocation: string, targetLocation: string, cardColor: string, playerIndex: number) {
   const countActions = countNonFreeActions()
 
-  if(countActions < 4 && !get(showBoat) && currentLocation !== targetLocation){
+  if(countActions < 4 && !get(showBoat) && currentLocation !== targetLocation && !get(isDiscardMode).active){
 
     await animateFerry(currentLocation, targetLocation, 'sailTo');
     gameState.update(state => {

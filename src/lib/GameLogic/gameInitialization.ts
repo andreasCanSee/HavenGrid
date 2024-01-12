@@ -5,6 +5,7 @@ import { initializeDecks } from './Decks/deckInitialization';
 import { performPlayerCardsPhase } from '../GameLogic/Decks/playerDeck';
 import { performInfections } from '../GameLogic/Decks/infectionDeck';
 import { initializeNextTurn } from '../Stores/turnStateStore';
+import { isDiscardMode } from '../Stores/uiStore';
 
 export function initializeGameState(): GameState {
   // Initialisiere die Decks
@@ -47,7 +48,9 @@ export function initializeGameState(): GameState {
   };
 
   const currentPlayerLocation = gameState.players[gameState.activePlayerIndex].currentLocation;
-  initializeNextTurn(currentPlayerLocation);
+  initializeNextTurn(currentPlayerLocation); // bezieht sich eigentlich auf anderen Store
+  // Setze isDiscardMode zurück
+  isDiscardMode.set({ active: false, playerIndex: null }); // bezieht sich eigentlich auf anderen Store
 
   return gameState;
 }

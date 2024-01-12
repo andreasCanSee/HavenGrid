@@ -11,6 +11,7 @@ let cardsDrawn = false;
 export function endTurn() {
 
     if(!cardsDrawn){
+
         gameState.update(state => {
             // Spielkarten nachziehen
             const { updatedPlayerDeck, updatedPlayers } = performPlayerCardsPhase(state.playerDeck, state.players, state.activePlayerIndex);
@@ -18,8 +19,8 @@ export function endTurn() {
                 ...state, playerDeck: updatedPlayerDeck, players: updatedPlayers
             }
         });
-
         const currentState = get(gameState);
+
         if (checkHandCardLimit(currentState.players[currentState.activePlayerIndex].handCards)) {
             isDiscardMode.set({ active: true, playerIndex: currentState.activePlayerIndex });
             cardsDrawn = true; // Markiere, dass Karten gezogen wurden

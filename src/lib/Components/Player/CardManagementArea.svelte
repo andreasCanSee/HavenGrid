@@ -26,6 +26,7 @@
 
     let showDiscardMessage: boolean;
     $: showDiscardMessage = $isDiscardMode.active && $isDiscardMode.playerIndex === playerIndex;
+    
 
     $: groupedCards = playerHandCards.reduce((acc: GroupedCardsType, card) => {
         if (!card.inBuildArea) {
@@ -69,8 +70,7 @@
             return state;
         });
     }
-
-
+    
     function resetBuildArea() {
         gameState.update(state => {
             const activePlayer = state.players[playerIndex];
@@ -84,7 +84,7 @@
 </script>
 
 <div style="display: flex; flex-direction: column;">
-    {#if showDiscardMessage && isActive}
+    {#if showDiscardMessage && (isActive || isAtActivePlayerLocation)}
         <p style="color: red; text-align: center;">
             Bitte Karten abwerfen, bis maximal 7 Karten übrig bleiben!
         </p>

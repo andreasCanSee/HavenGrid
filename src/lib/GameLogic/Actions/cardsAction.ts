@@ -7,7 +7,7 @@ import { get } from "svelte/store";
 import { isDiscardMode } from "../../Stores/uiStore";
 
 export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
-    if(countNonFreeActions() < 4){
+    if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
         gameState.update(state => {
             const updatedPlayers = [...state.players]; //hier ist ein problem
             const fromPlayer = updatedPlayers[fromPlayerIndex];
@@ -27,7 +27,7 @@ export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number,
     const currentState = get(gameState);
     if (checkHandCardLimit(currentState.players[toPlayerIndex].handCards)) {
         isDiscardMode.set({active: true, playerIndex: toPlayerIndex});
-        console.log(get(isDiscardMode))
+        console.log('Discard Mode', get(isDiscardMode))
     }
 
 
@@ -44,7 +44,7 @@ export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number,
 
 
 export function buildSupplyCenter(playerLocation: string) {
-    if(countNonFreeActions() < 4){
+    if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
         let discardedCards: CityCard[] = [];
         gameState.update((state: GameState) => {
             const activePlayer: PlayerState = state.players[state.activePlayerIndex];
