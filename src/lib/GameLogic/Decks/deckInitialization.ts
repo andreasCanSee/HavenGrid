@@ -1,9 +1,9 @@
-import type { DeckState, CityCard, InfectionCard } from "../../Models/types";
+import type { DeckState, PlayerCard, InfectionCard, CityCard } from "../../Models/types";
 import { initialBoardState } from "../../Models/initialBoardData";
 import { shuffleArray } from "./deckUtils";
 
-export function initializeDecks(): { playerDeck: DeckState<CityCard>, infectionDeck: DeckState<InfectionCard>}{
-    const playerDeckCards: CityCard[] = [];
+export function initializeDecks(): { playerDeck: DeckState<PlayerCard>, infectionDeck: DeckState<InfectionCard>}{
+    const playerDeckCards: PlayerCard[] = [];
     const infectionDeckCards: InfectionCard[] = [];
 
     initialBoardState
@@ -11,17 +11,14 @@ export function initializeDecks(): { playerDeck: DeckState<CityCard>, infectionD
         .forEach(field => {
         
             // Füge Karten zum Spielerdeck hinzu
-            playerDeckCards.push(...Array.from({ length: 4 }, () => ({
+            playerDeckCards.push(...Array.from({ length: 4 }, (): CityCard => ({
                 cardType: 'city',
-                data: {
-                    name: field.name,
-                    color: field.color,
-                },
+                name: field.name,
                 inBuildArea: false
             })));
 
             // Füge Karten zum Infektionsdeck hinzu
-            infectionDeckCards.push(...Array.from({ length: 3 }, () => ({
+            infectionDeckCards.push(...Array.from({ length: 3 }, (): InfectionCard => ({
                 cardType: 'infection',
                 data: {
                     name: field.name,

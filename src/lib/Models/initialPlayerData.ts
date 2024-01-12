@@ -8,7 +8,10 @@ export const initialPlayerData: ExtendedPlayerData[] = (() => {
       color: "purple",
       image: '/survivor-male.png',
       supplies: 0,
-      handCards: [],
+      handCards: {
+        cityCards: [],
+        actionCards: []
+      }
     },
     {
       name: "Spieler 2",
@@ -16,7 +19,10 @@ export const initialPlayerData: ExtendedPlayerData[] = (() => {
       color: "orange",
       image: '/survivor-female.png',
       supplies: 0,
-      handCards: [],
+      handCards: {
+        cityCards: [],
+        actionCards: []
+      }
     },
     // Weitere Spieler können hier hinzugefügt werden
   ];

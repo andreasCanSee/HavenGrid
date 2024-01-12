@@ -2,7 +2,9 @@
     import { charterBoatMode } from "../../Stores/uiStore";
     import { sailToLocation } from "../../GameLogic/Actions/playerMovements";
     import type { CityCard as CityCardType } from "../../Models/types";
+
     export let cityCard: CityCardType;
+    export let cardColor: string;
     export let playerLocation: string;
     export let playerIndex: number;
     export let isActive: boolean;
@@ -10,8 +12,7 @@
     export let playerColor: string;
     export let canDiscard: boolean;
 
-    const cardName = cityCard.data.name;
-    const cardColor = cityCard.data.color;
+    const cardName = cityCard.name;
 
     $: isCardDraggable = (((isActive || isAtActivePlayerLocation) && canDiscard)) || (((isActive || isAtActivePlayerLocation) && cardName === playerLocation))
 
@@ -33,21 +34,21 @@
     }
 
     // Karten tauschen
-
     function handleCardDragStart(event: DragEvent, card: CityCardType, playerIndex: number, isDiscardOnly: boolean) {
         const dragData = {
-            type: isDiscardOnly ? 'discardCard' : 'cityCard',
+            type: isDiscardOnly ? 'discardCityCard' : 'cityCard',
             fromPlayerIndex: playerIndex,
-            cardData: card.data,
+            cardName: card.name,
         };
         if(event.dataTransfer){
             event.dataTransfer.setData("application/json", JSON.stringify(dragData));
         }
     }
 
-    function handleCardClick(playerLocation: string, cardName: string, cardColor: string, playerIndex: number) {
+    // Bewegungskation auslösen
+    function handleCardClick(playerLocation: string, cardName: string, playerIndex: number) {
         if (playerLocation !== cardName) {
-            sailToLocation(playerLocation, cardName, cardColor, playerIndex);
+            sailToLocation(playerLocation, cardName, playerIndex);
         } else {
             setCharterMode();
         }
@@ -60,14 +61,14 @@
             width: 80px; /* Feste Breite */
             height: 40px; /* Feste Höhe */
             background-color: {cardColor}; 
-            padding: 5px; 
+            padding: 5px;
             color: {cardColor === 'yellow' ? 'black' : 'white'}; 
             margin-bottom: 5px; 
             cursor: pointer; 
             border: {isSelected ? `3px solid ${playerColor}` : 'none'}; /* Dynamischer Stil für den Rahmen */
             text-align: center;"
             disabled={!isActive}
-            on:click={() => handleCardClick(playerLocation, cardName, cardColor, playerIndex)}
+            on:click={() => handleCardClick(playerLocation, cardName, playerIndex)}
             draggable={isCardDraggable}
             on:dragstart={event => handleCardDragStart(event, cityCard, playerIndex, canDiscard)}>
                 {cardName} {cardName === playerLocation ? '🚢': '🛥️' }

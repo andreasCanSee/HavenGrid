@@ -6,8 +6,7 @@ import type { Action } from "../../Models/types";
 import { charterBoatMode } from "../../Stores/uiStore";
 import { addActionToCurrentTurn, countNonFreeActions } from "../../Stores/turnStateStore";
 import { showBoat } from "../../Stores/uiStore";
-import { getColorOfCity } from "../../Models/initialBoardData";
-import { discardCard } from "./actionUtils";
+import { discardCityCard } from "./actionUtils";
 import { isDiscardMode } from "../../Stores/uiStore";
 
 export function moveToLocation(targetLocation: string) {
@@ -56,12 +55,14 @@ export async function charterToLocation(currentLocation: string, targetLocation:
           const activePlayer = updatedPlayers[state.activePlayerIndex];
           activePlayer.currentLocation = targetLocation;
 
-          // Finde die Farbe des aktuellen Standorts
-          const locationColor = getColorOfCity(currentLocation)
+          const { newDiscardPile, newCityCards } = discardCityCard(
+            currentLocation, 
+            activePlayer.handCards.cityCards, // Übergebe nur CityCards
+            state.playerDeck.discardPile
+          );
 
-          const { newDiscardPile, newHandCards } = discardCard(currentLocation, locationColor, activePlayer.handCards, state.playerDeck.deck);
           state.playerDeck.discardPile = newDiscardPile;
-          activePlayer.handCards = newHandCards;
+          activePlayer.handCards.cityCards = newCityCards;
 
           return {...state, players: updatedPlayers };
         });
@@ -76,7 +77,7 @@ export async function charterToLocation(currentLocation: string, targetLocation:
         addActionToCurrentTurn(charterBoatToLocation);
 }
 
-export async function sailToLocation(currentLocation: string, targetLocation: string, cardColor: string, playerIndex: number) {
+export async function sailToLocation(currentLocation: string, targetLocation: string, playerIndex: number) {
   const countActions = countNonFreeActions()
 
   if(countActions < 4 && !get(showBoat) && currentLocation !== targetLocation && !get(isDiscardMode).active){
@@ -87,9 +88,17 @@ export async function sailToLocation(currentLocation: string, targetLocation: st
       const activePlayer = updatedPlayers[playerIndex]
       activePlayer.currentLocation = targetLocation;
 
-      const { newDiscardPile, newHandCards } = discardCard(targetLocation, cardColor, activePlayer.handCards, state.playerDeck.discardPile);
+      const { newDiscardPile, newCityCards } = discardCityCard(
+        targetLocation, 
+        activePlayer.handCards.cityCards, 
+        state.playerDeck.discardPile
+      );
+
       state.playerDeck.discardPile = newDiscardPile;
-      activePlayer.handCards = newHandCards;
+      activePlayer.handCards = {
+        ...activePlayer.handCards,
+        cityCards: newCityCards // Aktualisiere nur die CityCards
+      };
       
       return { ...state, players: updatedPlayers };
     });

@@ -3,7 +3,7 @@ import { initializeNextTurn } from "../Stores/turnStateStore";
 import { performInfections } from "./Decks/infectionDeck";
 import { performPlayerCardsPhase } from "./Decks/playerDeck";
 import { get } from "svelte/store";
-import type { CityCard, GameState } from "../Models/types";
+import type { GameState, PlayerHand } from "../Models/types";
 import { setDiscardMode } from "../Stores/uiStore";
 
 let cardsDrawn = false;
@@ -13,11 +13,21 @@ export function endTurn() {
     if(!cardsDrawn){
 
         gameState.update(state => {
+
+            const newState = { ...state };
+
             // Spielkarten nachziehen
-            const { updatedPlayerDeck, updatedPlayers } = performPlayerCardsPhase(state.playerDeck, state.players, state.activePlayerIndex);
-            return {
-                ...state, playerDeck: updatedPlayerDeck, players: updatedPlayers
-            }
+            const activePlayer = newState.players[newState.activePlayerIndex];
+            const { updatedPlayerDeck, updatedPlayer } = performPlayerCardsPhase(newState.playerDeck, activePlayer, 2);
+
+            // Aktualisiere den spezifischen Spieler im Array
+            newState.players = [...newState.players];
+            newState.players[newState.activePlayerIndex] = updatedPlayer;
+
+            // Aktualisiere das Spielerdeck
+            newState.playerDeck = updatedPlayerDeck;
+
+            return newState;
         });
         const currentState = get(gameState);
 
@@ -53,8 +63,9 @@ function performInfectionPhaseAndMoveToNextPlayer(state: GameState){
     initializeNextTurn(currentPlayerLocation);
 }
 
-export function checkHandCardLimit(handCards: CityCard[]){
+export function checkHandCardLimit(handCards: PlayerHand){
     const handCardLimit = 7;
+    const totalCards = handCards.cityCards.length + handCards.actionCards.length;
 
-    return handCards.length > handCardLimit
+    return totalCards > handCardLimit;
 }

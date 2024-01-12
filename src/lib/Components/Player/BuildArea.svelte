@@ -5,7 +5,7 @@
     import { buildSupplyCenter } from "../../GameLogic/Actions/cardsAction";
 
     export let buildAreaColor: string;
-    export let cityCards: CardWithOriginalIndex[];
+    export let selectedCityCards: CardWithOriginalIndex[];
     export let playerLocation: string;
 
     type CardWithOriginalIndex = {
@@ -13,32 +13,32 @@
         originalIndex: number;
     }
 
+  
+
     type GroupedCards = {
         [key: string]: CardWithOriginalIndex[];
     }
 
-    $: groupedCityCards = cityCards.reduce((acc: GroupedCards, cardWithIndex) => {
-        const cardName = cardWithIndex.card.data.name;
+    $: groupedCityCards = selectedCityCards.reduce((acc: GroupedCards, cardWithIndex) => {
+        const cardName = cardWithIndex.card.name;
         (acc[cardName] = acc[cardName] || []).push(cardWithIndex);
         return acc;
     }, {});
 
-
-   
     $: showBuildButton = (
-        cityCards.length >= 3 && 
-        cityCards.filter(({ card }) => card.inBuildArea).length === 3 &&
+        selectedCityCards.length >= 3 && 
+        selectedCityCards.filter(({ card }) => card.inBuildArea).length === 3 &&
         getColorOfCity(playerLocation) === buildAreaColor
     );
 
     const dispatch = createEventDispatcher();
 
-    function handleSliderChange(cardName: string, originalIndex: number, event: Event) {
+    function handleSliderChange(originalIndex: number, event: Event) {
         const target = event.target as HTMLInputElement;
         if (target) {
             const value = parseInt(target.value);
             const inBuildArea = value === 10;
-            dispatch('updateCard', { cardName, originalIndex, inBuildArea });
+            dispatch('updateCard', { originalIndex, inBuildArea });
         }
     }
 
@@ -49,16 +49,15 @@
         <div style="margin: 3.5px; padding: 3.5px; border: 1px solid #ccc; background-color: white;">
             <div style="font-size: 70%;">{cardName}</div>
             {#each groupedCityCards[cardName] as cardWithIndex}
-                <input type="range" id={`slider-${cardWithIndex.card.data.name}-${cardWithIndex.originalIndex}`} style="width: 70%;" min="0" max="10" value={cardWithIndex.card.inBuildArea ? 10 : 0}
-                on:change={(event) => handleSliderChange(cardWithIndex.card.data.name, cardWithIndex.originalIndex, event)}>
+                <input type="range" id={`slider-${cardWithIndex.card.name}-${cardWithIndex.originalIndex}`} style="width: 70%;" min="0" max="10" value={cardWithIndex.card.inBuildArea ? 10 : 0}
+                on:change={(event) => handleSliderChange(cardWithIndex.originalIndex, event)}>
             {/each}
 
         </div>
     {/each}
     {#if showBuildButton}
-    <button 
-            style="flex-grow: 1; flex-shrink: 0;"
-            on:click={() => buildSupplyCenter(playerLocation)}>🏗️</button>
-{/if}
+        <button 
+                style="flex-grow: 1; flex-shrink: 0;"
+                on:click={() => buildSupplyCenter(playerLocation)}>🏗️</button>
+    {/if}
 </div>
-

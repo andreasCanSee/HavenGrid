@@ -30,7 +30,7 @@ export type GameState = {
   boardState: FieldState[];
   infectionDeck: DeckState<InfectionCard>;
   players: PlayerState[];
-  playerDeck: DeckState<CityCard>;
+  playerDeck: DeckState<PlayerCard>;
   activePlayerIndex: number;
   infectionRate: number;
   outbreaks: number;
@@ -38,9 +38,9 @@ export type GameState = {
 
 export type PlayerState = {
   playerIndex: number;
-  currentLocation: string
+  currentLocation: string;
   supplies: number;
-  handCards: CityCard[]
+  handCards: PlayerHand;
 }
 
 export type FieldState = {
@@ -49,23 +49,43 @@ export type FieldState = {
   hasSupplyCenter: boolean;
 }
 
-export type Card = CityCard | InfectionCard;
+export type PlayerHand = {
+  cityCards: CityCard[];
+  actionCards: (EventCard | ProduceSuppliesCard)[];
+}
+
+export type Card = PlayerCard | InfectionCard;
+export type PlayerCard = EpidemicCard | PlayerHandCard;
+export type PlayerHandCard = CityCard | EventCard | ProduceSuppliesCard;
 
 export type CityCard = {
-    cardType: string;
-    data: {
-      name: string;
-      color: string;
-    };
+    cardType: 'city';
+    name: string;
     inBuildArea: boolean;
 }
 
-  export type InfectionCard = {
-    cardType: string;
-    data: {
-        name: string;  
-        color: string;
-    };
+export type EventCard = {
+  cardType: 'event',
+  name: string,
+  action: undefined
+}
+
+export type ProduceSuppliesCard = {
+  cardType: 'produceSupplies',
+  action: undefined
+}
+
+export type EpidemicCard = {
+  cardType: 'epidemic',
+  action: undefined
+}
+
+export type InfectionCard = {
+  cardType: 'infection';
+  data: {
+    name: string;  
+    color: string;
+  };
 };
 
 export type DeckState<T> = {

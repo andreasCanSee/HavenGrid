@@ -5,9 +5,10 @@
   import { gameState } from '../../Stores/gameStateStore';
   import { currentTurnActions } from '../../Stores/turnStateStore';
   import { showBoat, isDiscardMode } from '../../Stores/uiStore';
-  import { discardExcessCard } from '../../GameLogic/Actions/cardsAction';
+  import { discardExcessCityCard } from '../../GameLogic/Actions/cardsAction';
   import { animatedPlayerPosition, calculateSvgDimensions } from './boardUtils';
   import { handleDragOver } from '../../Utilities/uiHandlers';
+    import type { CityCard } from '../../Models/types';
 
     $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
@@ -28,16 +29,13 @@
         if (!event.dataTransfer) return;
         const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
   
-        if (dragData && dragData.type === 'discardCard') {
+        if (dragData && dragData.type === 'discardCityCard') {
           const card = {
-            data: {
-                name: dragData.cardData.name, 
-                color: dragData.cardData.color
-            },
-            cardType: 'city', // oder entsprechend anpassen, falls notwendig
+            cardType: 'city',
+            name: dragData.cardName, 
             inBuildArea: false  // Standardwert setzen
-        };
-          discardExcessCard(dragData.fromPlayerIndex, card)
+        } as CityCard;
+          discardExcessCityCard(dragData.fromPlayerIndex, card)
       }
     }
 

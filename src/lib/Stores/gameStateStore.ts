@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { GameState } from '../Models/types';
+import type { GameState, PlayerHand } from '../Models/types';
 import { initialBoardState } from '../Models/initialBoardData';
 import { initialPlayerData } from '../Models/initialPlayerData';
 import { initializeDecks } from '../GameLogic/Decks/deckInitialization';
@@ -26,15 +26,19 @@ function initializeGameState(): GameState {
     playerIndex: index,
     currentLocation:  player.currentLocation,
     supplies: player.supplies,
-    handCards: player.handCards // Handkarten initial leer setzen
+    handCards: {
+      cityCards: [],
+      actionCards: []
+    } as PlayerHand // Handkarten initial leer setzen
   }));
 
   // Verteile Startkarten an die Spieler
-  let currentPlayerDeck = { ...newPlayerDeck, deck: [...newPlayerDeck.deck] };
+  let currentPlayerDeck = { ...newPlayerDeck };
+
   for (let i = 0; i < initialPlayerData.length; i++) {
-    const result = performPlayerCardsPhase(currentPlayerDeck, updatedPlayers, i, 4);
+    const result = performPlayerCardsPhase(currentPlayerDeck, updatedPlayers[i], 4);
     currentPlayerDeck = result.updatedPlayerDeck;
-    updatedPlayers = result.updatedPlayers;
+    updatedPlayers[i] = result.updatedPlayer;
   }
 
   // Führe die Infektionsphase aus

@@ -3,7 +3,7 @@
     import PlayerSupplyArea from "./PlayerSupplyArea.svelte";
     import CardManagementArea from "./CardManagementArea.svelte";
     import { gameState } from "../../Stores/gameStateStore";
-    import type { PlayerState, CityCard } from "../../Models/types";
+    import type { PlayerState, PlayerHand } from "../../Models/types";
     import { transferCityCard } from "../../GameLogic/Actions/cardsAction";
     import { transferSupplies } from "../../GameLogic/Actions/supplyManagement";
     import { handleDragOver } from "../../Utilities/uiHandlers";
@@ -22,7 +22,7 @@
     let player: PlayerState | undefined;
     $: player = $playersStore[playerIndex];
     
-    let playerLocation: string, playerSupplies: number, playerHandCards: CityCard[];
+    let playerLocation: string, playerSupplies: number, playerHandCards: PlayerHand;
     $: if(player){
         playerLocation = player.currentLocation;
         playerSupplies = player.supplies;
@@ -44,9 +44,9 @@
             }
         }
         else if (dragData && dragData.type === 'cityCard'){
-            let cityName = dragData.cardData.name; 
+            let cityName = dragData.cardName; 
             if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {
-            transferCityCard(dragData.fromPlayerIndex, targetPlayerIndex, cityName);
+                transferCityCard(dragData.fromPlayerIndex, targetPlayerIndex, cityName);
         }
         }
     }

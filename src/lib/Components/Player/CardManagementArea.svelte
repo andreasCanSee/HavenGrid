@@ -1,12 +1,13 @@
 <script lang="ts">
-    import type { CityCard as CityCardType } from "../../Models/types";
+    import type { PlayerHand, CityCard as CityCardType } from "../../Models/types";
     import { gameState } from "../../Stores/gameStateStore";
     import CityCard from "./CityCard.svelte";
     import BuildArea from "./BuildArea.svelte";
     import { isDiscardMode } from "../../Stores/uiStore";
+    import { getColorOfCity } from "../../Models/initialBoardData";
 
     export let playerIndex: number;
-    export let playerHandCards: CityCardType[];
+    export let playerHandCards: PlayerHand;
     export let playerColor: string;
     export let isActive: boolean;
     export let isAtActivePlayerLocation: boolean;
@@ -24,13 +25,17 @@
         { color: 'black' }
     ];
 
+    // Trennen von CityCards und ActionCards
+    $: cityCards = playerHandCards.cityCards;
+    $: actionCards = playerHandCards.actionCards;
+    
     let showDiscardMessage: boolean;
     $: showDiscardMessage = $isDiscardMode.active && $isDiscardMode.playerIndex === playerIndex;
-    
 
-    $: groupedCards = playerHandCards.reduce((acc: GroupedCardsType, card) => {
+    $: groupedCards = cityCards.reduce((acc: GroupedCardsType, card) => {
         if (!card.inBuildArea) {
-            const color = card.data.color as keyof GroupedCardsType;
+            const cityName = card.name;
+            const color = getColorOfCity(cityName) as keyof GroupedCardsType;
             acc[color].push(card);
         }
         return acc;
@@ -38,8 +43,9 @@
 
     // Funktion, die die Farbe zurückgibt, wenn drei oder mehr Karten dieser Farbe vorhanden sind
     $: buildAreaColor = (() => {
-            const colorCounts = playerHandCards.reduce((acc: Record<string, number>, card) => {
-                const color = card.data.color;
+            const colorCounts = cityCards.reduce((acc: Record<string, number>, card) => {
+                const cityName = card.name;
+                const color = getColorOfCity(cityName);
                 acc[color] = (acc[color] || 0) + 1;
                 return acc;
             }, {});
@@ -52,12 +58,12 @@
     }
 
     function handleUpdateCard(event: CustomEvent<any>) {
-        const { cardName, originalIndex, inBuildArea } = event.detail;
+        const { originalIndex, inBuildArea } = event.detail;
 
         gameState.update(state => {
             const activePlayer = state.players[playerIndex];
             // Identifiziere die Karte anhand des Namens und des Indexes
-            const cardToUpdate = activePlayer.handCards[originalIndex];
+            const cardToUpdate = activePlayer.handCards.cityCards[originalIndex];
 
         if (cardToUpdate) {
             cardToUpdate.inBuildArea = inBuildArea;
@@ -69,26 +75,30 @@
     function resetBuildArea() {
         gameState.update(state => {
             const activePlayer = state.players[playerIndex];
-            activePlayer.handCards.forEach(card => {
+            activePlayer.handCards.cityCards.forEach(card => {
                 card.inBuildArea = false;
             });
             return state;
         });
     }
 
-</script>
+    $: selectedCityCards = cityCards
+        .map((card, originalIndex) => ({ card, originalIndex }))
+        .filter(({ card }) => getColorOfCity(card.name) === buildAreaColor);
 
+</script>
+<!-- 
 <div style="display: flex; flex-direction: column;">
     {#if showDiscardMessage && (isActive || isAtActivePlayerLocation)}
         <p style="color: red; text-align: center;">
             Bitte Karten abwerfen, bis maximal 7 Karten übrig bleiben!
         </p>
     {/if}
-    {#if playerHandCards.length > 0}
+    {#if playerHandCards.cityCards.length > 0}
         <div style="display: flex;">
             {#each cardColors as cardColor}
                 <div class="card-stack" style="margin: 5px;"> 
-                    {#each groupedCards[cardColor.color] as cityCard, index (cityCard.data.name + '-' + index)}
+                    {#each groupedCards[cardColor.color] as cityCard, index (cityCard.name + '-' + index)}
                         <CityCard {cityCard} {playerLocation} {playerIndex} {isActive} {isAtActivePlayerLocation} {playerColor} canDiscard={showDiscardMessage}/>
                     {/each}
                 </div>
@@ -101,3 +111,27 @@
         {/if}          
     {/if}
 </div>
+ -->
+ <div style="display: flex; flex-direction: column;"> 
+    {#if showDiscardMessage && (isActive || isAtActivePlayerLocation)}
+        <p style="color: red; text-align: center;">
+            Bitte Karten abwerfen, bis maximal 7 Karten übrig bleiben!
+        </p>
+    {/if}
+    {#if cityCards.length > 0}
+        <div style="display: flex;">
+            {#each cardColors as cardColor}
+                <div class="card-stack" style="margin: 5px;">
+                    {#each groupedCards[cardColor.color] as cityCard, index (cityCard.name + '-' + index)}
+                        <CityCard {cityCard} cardColor={cardColor.color} {playerLocation} {playerIndex} {isActive} {isAtActivePlayerLocation} {playerColor} canDiscard={showDiscardMessage}/>
+                    {/each}
+                </div>
+            {/each}
+        </div>
+        {#if buildAreaColor && isActive}
+            <BuildArea {buildAreaColor} {selectedCityCards} {playerLocation} on:updateCard={handleUpdateCard} />
+        {/if} 
+    {/if}
+</div>
+
+ 
