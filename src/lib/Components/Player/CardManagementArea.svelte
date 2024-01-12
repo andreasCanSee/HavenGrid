@@ -53,24 +53,19 @@
 
     function handleUpdateCard(event: CustomEvent<any>) {
         const { cardName, originalIndex, inBuildArea } = event.detail;
-        console.log(`${cardName}: ${originalIndex} -> ${inBuildArea}`)
 
         gameState.update(state => {
             const activePlayer = state.players[playerIndex];
-            console.log(activePlayer.handCards.map(card => card.data.name))
             // Identifiziere die Karte anhand des Namens und des Indexes
             const cardToUpdate = activePlayer.handCards[originalIndex];
 
         if (cardToUpdate) {
-            console.log(cardToUpdate)
             cardToUpdate.inBuildArea = inBuildArea;
         }
-
-
             return state;
         });
     }
-    
+
     function resetBuildArea() {
         gameState.update(state => {
             const activePlayer = state.players[playerIndex];

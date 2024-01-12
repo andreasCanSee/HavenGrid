@@ -4,7 +4,7 @@ import { performInfections } from "./Decks/infectionDeck";
 import { performPlayerCardsPhase } from "./Decks/playerDeck";
 import { get } from "svelte/store";
 import type { CityCard, GameState } from "../Models/types";
-import { isDiscardMode } from "../Stores/uiStore";
+import { setDiscardMode } from "../Stores/uiStore";
 
 let cardsDrawn = false;
 
@@ -22,19 +22,19 @@ export function endTurn() {
         const currentState = get(gameState);
 
         if (checkHandCardLimit(currentState.players[currentState.activePlayerIndex].handCards)) {
-            isDiscardMode.set({ active: true, playerIndex: currentState.activePlayerIndex });
+            setDiscardMode(currentState.activePlayerIndex)
             cardsDrawn = true; // Markiere, dass Karten gezogen wurden
         } else {
-            performInfectionPhase(currentState);
+            performInfectionPhaseAndMoveToNextPlayer(currentState);
         }
     } else {
         const currentState = get(gameState);
-        performInfectionPhase(currentState);
+        performInfectionPhaseAndMoveToNextPlayer(currentState);
         cardsDrawn = false; // Setze zurück für den nächsten Spieler
     }
 }
 
-function performInfectionPhase(state: GameState){
+function performInfectionPhaseAndMoveToNextPlayer(state: GameState){
     // Infektionsphase durchführen
     const { updatedInfectionDeck, updatedBoardState } = performInfections(state.infectionDeck, state.infectionRate, state.boardState);
 

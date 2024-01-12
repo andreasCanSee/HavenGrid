@@ -1,10 +1,10 @@
 import { gameState } from "../../Stores/gameStateStore";
 import type { Action, GameState, PlayerState, CityCard } from "../../Models/types";
-import { countNonFreeActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
+import { countNonFreeActions, addActionToCurrentTurn, currentTurnActions } from "../../Stores/turnStateStore";
 import { discardCard } from "./actionUtils";
 import { checkHandCardLimit } from "../turnCycleLogic";
 import { get } from "svelte/store";
-import { isDiscardMode } from "../../Stores/uiStore";
+import { setDiscardMode, resetDiscardMode, isDiscardMode } from "../../Stores/uiStore";
 
 export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
     if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
@@ -26,10 +26,8 @@ export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number,
 
     const currentState = get(gameState);
     if (checkHandCardLimit(currentState.players[toPlayerIndex].handCards)) {
-        isDiscardMode.set({active: true, playerIndex: toPlayerIndex});
-        console.log('Discard Mode', get(isDiscardMode))
+        setDiscardMode(toPlayerIndex);
     }
-
 
         const action: Action = {
             type: 'exchangeCard',
@@ -41,7 +39,6 @@ export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number,
         addActionToCurrentTurn(action); 
     }
 }
-
 
 export function buildSupplyCenter(playerLocation: string) {
     if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
@@ -78,4 +75,38 @@ export function buildSupplyCenter(playerLocation: string) {
 
     }
     
+}
+
+export function discardExcessCard(playerIndex: number, card: CityCard ){
+    gameState.update(currentState => {
+
+        let newState = {...currentState};
+        let affectedPlayer = { ...newState.players[playerIndex]}
+        const { newDiscardPile, newHandCards } = discardCard(
+                card.data.name, 
+                card.data.color, 
+                affectedPlayer.handCards, 
+                newState.playerDeck.discardPile
+            );
+
+        affectedPlayer.handCards = newHandCards;
+        newState.playerDeck.discardPile = newDiscardPile;
+        newState.players[playerIndex] = affectedPlayer;
+        
+        return newState;
+    })
+
+    // Prüfe und aktualisiere den isDiscardMode Zustand
+    const updatedState = get(gameState);
+    if (updatedState.players[playerIndex].handCards.length <= 7) {
+        resetDiscardMode();
+    }
+
+    const action: Action = {
+        type: 'discardCard',
+        transferringPlayerIndex: playerIndex,
+        cards: [card],
+        freeAction: true,
+    };
+    addActionToCurrentTurn(action); 
 }

@@ -2,6 +2,8 @@ import { get } from 'svelte/store';
 import { currentTurnActions } from '../Stores/turnStateStore';
 import type { Action } from '../Models/types';
 import { gameState } from '../Stores/gameStateStore';
+import { isDiscardMode, resetDiscardMode, setDiscardMode } from '../Stores/uiStore';
+import { checkHandCardLimit } from '../GameLogic/turnCycleLogic';
 
 export function undoLastMove() {
 
@@ -44,6 +46,10 @@ export function undoLastMove() {
             case 'buildSupplyCenter':
                 undoBuildSupplyCenterAction(lastActionRemoved);
                 break;
+            case 'discardCard':
+                undoDiscardExcessCardAction(lastActionRemoved);
+                break;
+    
         }
     }
    
@@ -159,26 +165,33 @@ export function undoTransferSuppliesAction(action: Action) {
 }
 
 export function undoexchangeCardAction(action: Action){
-    gameState.update(state => {
-        const updatedPlayers = [...state.players];
+    if (action.type === 'exchangeCard' && typeof action.transferringPlayerIndex === 'number' && typeof action.receivingPlayerIndex === 'number') {
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
 
-        if (typeof action.transferringPlayerIndex === 'number' && typeof action.receivingPlayerIndex === 'number') {
-            const fromPlayer = updatedPlayers[action.transferringPlayerIndex];
-            const toPlayer = updatedPlayers[action.receivingPlayerIndex];
+            if (typeof action.transferringPlayerIndex === 'number' && typeof action.receivingPlayerIndex === 'number') {
+                const fromPlayer = updatedPlayers[action.transferringPlayerIndex];
+                const toPlayer = updatedPlayers[action.receivingPlayerIndex];
 
-            // Finde die Karte im Handkartendeck des aufnehmenden Spielers
-            const cardIndex = toPlayer.handCards.findIndex(card => card.data.name === action.location);
+                // Finde die Karte im Handkartendeck des aufnehmenden Spielers
+                const cardIndex = toPlayer.handCards.findIndex(card => card.data.name === action.location);
 
-            if (cardIndex !== -1) {
-                // Entferne die Karte aus dem Handkartendeck des aufnehmenden Spielers und füge sie dem abgebenden Spieler hinzu
-                const [card] = toPlayer.handCards.splice(cardIndex, 1);
-                fromPlayer.handCards.push(card);
+                if (cardIndex !== -1) {
+                    // Entferne die Karte aus dem Handkartendeck des aufnehmenden Spielers und füge sie dem abgebenden Spieler hinzu
+                    const [card] = toPlayer.handCards.splice(cardIndex, 1);
+                    fromPlayer.handCards.push(card);
+                }
             }
+
+            return { ...state, players: updatedPlayers };
+        });
+        
+        // Prüfe und aktualisiere den isDiscardMode Zustand
+        const updatedState = get(gameState);
+        if (typeof action.receivingPlayerIndex === 'number' && !checkHandCardLimit(updatedState.players[action.receivingPlayerIndex].handCards)) {
+            resetDiscardMode();
         }
-
-        return { ...state, players: updatedPlayers };
-    });
-
+    }
 }
 
 export function undoSailToAction(action: Action) {
@@ -257,5 +270,45 @@ export function undoBuildSupplyCenterAction(action: Action) {
 
         return { ...state, players: updatedPlayers };
     });
+}
+
+function undoDiscardExcessCardAction(action: Action) {
+    console.log("Undo Discard:")
+    if (action.type === 'discardCard' && action.cards && action.cards.length > 0 && action.transferringPlayerIndex !== undefined) {
+        console.log("Undo Discard in progress")
+        const cardToReturn = action.cards[0];
+        const playerIndex = action.transferringPlayerIndex;
+        console.log('Player Index', playerIndex)
+
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
+            const affectedPlayer = updatedPlayers[playerIndex];
+            
+
+            // Füge die abgeworfene Karte zurück zu den Handkarten des Spielers
+            affectedPlayer.handCards.push(cardToReturn);
+
+            // Entferne die Karte aus dem Ablagestapel
+            const cardIndex = state.playerDeck.discardPile.findIndex(discardCard => 
+                discardCard.data.name === cardToReturn.data.name && discardCard.data.color === cardToReturn.data.color
+            );
+            if (cardIndex !== -1) {
+                state.playerDeck.discardPile.splice(cardIndex, 1);
+            }
+
+            return { ...state, players: updatedPlayers };
+        });
+
+         // Überprüfe, ob der isDiscardMode aktualisiert werden muss
+         const updatedState = get(gameState);
+         console.log(updatedState.players)
+         console.log('davor', get(isDiscardMode)) 
+         if (updatedState.players[playerIndex].handCards.length > 7) {
+             setDiscardMode(playerIndex);
+         } else {
+             resetDiscardMode();
+         }
+         console.log('danach', get(isDiscardMode)) 
+    }
 }
 

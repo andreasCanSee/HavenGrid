@@ -3,7 +3,7 @@
     import Board from '../lib/Components/Board/Board.svelte';
     import PlayerDashboard from '../lib/Components/Player/PlayerDashboard.svelte';
     import { gameState } from '../lib/Stores/gameStateStore';
-    import { resetGameState } from '../lib/Stores/gameStateStore';
+    import { setupNewGame } from '../lib/GameLogic/setupGame';
     import { initialPlayerData } from '../lib/Models/initialPlayerData';
     import { endTurn} from '../lib/GameLogic/turnCycleLogic';
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
@@ -23,7 +23,7 @@
 <header>
     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-left: 10px">
             <h1><span style="color: firebrick">Pandemic Legacy Season 2</span> <span style="color: navy">Prolog</span></h1>
-        <button on:click={resetGameState} style="margin-right: 20px">Neustart 🔄</button>
+        <button on:click={setupNewGame} style="margin-right: 20px">Neustart 🔄</button>
     </div>
 </header>
  

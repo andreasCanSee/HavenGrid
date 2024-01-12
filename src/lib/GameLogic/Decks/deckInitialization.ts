@@ -12,7 +12,7 @@ export function initializeDecks(): { playerDeck: DeckState<CityCard>, infectionD
         
             // Füge Karten zum Spielerdeck hinzu
             playerDeckCards.push(...Array.from({ length: 4 }, () => ({
-                cardType: 'City',
+                cardType: 'city',
                 data: {
                     name: field.name,
                     color: field.color,
@@ -22,7 +22,7 @@ export function initializeDecks(): { playerDeck: DeckState<CityCard>, infectionD
 
             // Füge Karten zum Infektionsdeck hinzu
             infectionDeckCards.push(...Array.from({ length: 3 }, () => ({
-                cardType: 'Infection',
+                cardType: 'infection',
                 data: {
                     name: field.name,
                     color: field.color,

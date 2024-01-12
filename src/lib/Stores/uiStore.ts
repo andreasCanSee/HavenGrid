@@ -6,6 +6,14 @@ export const charterBoatMode = writable(false);
 
 export const isDiscardMode = writable<{ active: boolean; playerIndex: number | null }>({ active: false, playerIndex: null });
 
+export function resetDiscardMode() {
+  isDiscardMode.set({ active: false, playerIndex: null });
+}
+
+export function setDiscardMode(playerIndex: number){
+  isDiscardMode.set({ active: true, playerIndex });
+}
+
 /* 
   Falls showBoat jedoch nur in wenigen spezifischen Komponenten relevant ist 
   oder wenn es sich um eine UI-spezifische Zustandsinformation handelt, 

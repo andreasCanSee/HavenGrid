@@ -1,16 +1,13 @@
 <script lang="ts">
-    import BoardLayout from './BoardLayout.svelte';
-    import { showBoat } from '../../Stores/uiStore';
-    import { fade } from 'svelte/transition';
-    import { animatedPlayerPosition } from './boardUtils';
-    import { currentTurnActions } from '../../Stores/turnStateStore';
-    import { calculateSvgDimensions } from './boardUtils';
-    import { gameState } from '../../Stores/gameStateStore';
-    import { derived } from 'svelte/store';
-    import { handleDragOver } from '../../Utilities/uiHandlers';
-    import { discardCard } from '../../GameLogic/Actions/actionUtils';
-    import { isDiscardMode } from '../../Stores/uiStore';
-    import { get } from 'svelte/store';
+  import { derived } from 'svelte/store';
+  import { fade } from 'svelte/transition';
+  import BoardLayout from './BoardLayout.svelte';
+  import { gameState } from '../../Stores/gameStateStore';
+  import { currentTurnActions } from '../../Stores/turnStateStore';
+  import { showBoat, isDiscardMode } from '../../Stores/uiStore';
+  import { discardExcessCard } from '../../GameLogic/Actions/cardsAction';
+  import { animatedPlayerPosition, calculateSvgDimensions } from './boardUtils';
+  import { handleDragOver } from '../../Utilities/uiHandlers';
 
     $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
 
@@ -32,30 +29,15 @@
         const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
   
         if (dragData && dragData.type === 'discardCard') {
-          gameState.update(currentState => {
-
-            let newState = {...currentState};
-            let affectedPlayer = { ...newState.players[dragData.fromPlayerIndex]}
-            const { newDiscardPile, newHandCards } = discardCard(
-                    dragData.cardData.name, 
-                    dragData.cardData.color, 
-                    affectedPlayer.handCards, 
-                    newState.playerDeck.discardPile
-                );
-
-            affectedPlayer.handCards = newHandCards;
-            newState.playerDeck.discardPile = newDiscardPile;
-            newState.players[dragData.fromPlayerIndex] = affectedPlayer;
-            
-            return newState;
-          })
-
-          // Überprüfe den aktualisierten Spielzustand und setze isDiscardMode zurück, falls notwendig
-        const updatedState = get(gameState);
-       
-        if (updatedState.players[dragData.fromPlayerIndex].handCards.length <= 7) {
-          isDiscardMode.set({ active: false, playerIndex: null });
-        }
+          const card = {
+            data: {
+                name: dragData.cardData.name, 
+                color: dragData.cardData.color
+            },
+            cardType: 'city', // oder entsprechend anpassen, falls notwendig
+            inBuildArea: false  // Standardwert setzen
+        };
+          discardExcessCard(dragData.fromPlayerIndex, card)
       }
     }
 
