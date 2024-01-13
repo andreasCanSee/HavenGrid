@@ -6,7 +6,7 @@ import { checkHandCardLimit } from "../turnCycleLogic";
 import { get } from "svelte/store";
 import { setDiscardMode, resetDiscardMode, isDiscardMode } from "../../Stores/uiStore";
 
-export function transferCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
+export function exchangeCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
     if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
         gameState.update(state => {
             const updatedPlayers = [...state.players];
@@ -104,7 +104,7 @@ export function discardExcessCityCard(playerIndex: number, card: CityCard ){
     }
 
     const action: Action = {
-        type: 'discardCard',
+        type: 'discardCityCard',
         transferringPlayerIndex: playerIndex,
         cards: [card],
         freeAction: true,

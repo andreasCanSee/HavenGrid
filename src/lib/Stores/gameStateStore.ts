@@ -5,6 +5,7 @@ import { initialPlayerData } from '../Models/initialPlayerData';
 import { initializeDecks } from '../GameLogic/Decks/deckInitialization';
 import { performPlayerCardsPhase } from '../GameLogic/Decks/playerDeck';
 import { performInfections } from '../GameLogic/Decks/infectionDeck';
+import { insertEpidemicCards } from '../GameLogic/Decks/epidemicActions';
 
 // Initialisiere den Spielzustand für den Store
 const initialGameState = initializeGameState();
@@ -41,6 +42,9 @@ function initializeGameState(): GameState {
     updatedPlayers[i] = result.updatedPlayer;
   }
 
+  // Die Epidemie-Karten in das Spielerdeck mischen
+  currentPlayerDeck.deck = insertEpidemicCards(currentPlayerDeck.deck);
+
   // Führe die Infektionsphase aus
   const initialInfectionRate = 9; // Anpassen, falls erforderlich
   let boardState = initialBoardState.map(({ name, supplies, hasSupplyCenter }) => ({
@@ -57,7 +61,7 @@ function initializeGameState(): GameState {
     players: updatedPlayers,
     playerDeck: currentPlayerDeck,
     activePlayerIndex: 0,
-    infectionRate: 2,
+    infectionRateIndex: 0,
     outbreaks: 0
   };
 

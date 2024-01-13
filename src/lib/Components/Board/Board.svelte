@@ -3,26 +3,21 @@
   import { fade } from 'svelte/transition';
   import BoardLayout from './BoardLayout.svelte';
   import { gameState } from '../../Stores/gameStateStore';
-  import { currentTurnActions } from '../../Stores/turnStateStore';
+  import type { CityCard } from '../../Models/types';
   import { showBoat, isDiscardMode } from '../../Stores/uiStore';
   import { discardExcessCityCard } from '../../GameLogic/Actions/cardsAction';
   import { animatedPlayerPosition, calculateSvgDimensions } from './boardUtils';
   import { handleDragOver } from '../../Utilities/uiHandlers';
-    import type { CityCard } from '../../Models/types';
+  import { getInfectionRates } from '../../Models/infectionRate';
 
-    $: remainingActions = $currentTurnActions.filter(action => !action.freeAction).length;
+  const gameInfo = derived(gameState, $gameState => ({
+    infectionRateInfo: getInfectionRates($gameState.infectionRateIndex),
+    outbreaks: $gameState.outbreaks
+  }));
 
-    const dimensions = calculateSvgDimensions();
-    const svgWidth = dimensions.width;
-    const svgHeight = dimensions.height;
-
-    const infectionDeck = derived(gameState, $gameState => $gameState.infectionDeck)
-    
-    let showTooltip = false;
-
-    function toggleTooltip() {
-        showTooltip = !showTooltip;
-    }
+  const dimensions = calculateSvgDimensions();
+  const svgWidth = dimensions.width;
+  const svgHeight = dimensions.height;
 
     function handleDrop(event: DragEvent) {
         event.preventDefault();
@@ -39,10 +34,6 @@
       }
     }
 
-   // $: rectHeight = $drawnInfectionCards.length * 21;
-   //let rectHeight = 21 * 11;
-
-
 </script>
   
 <div on:dragover={ $isDiscardMode.active ? handleDragOver : undefined} on:drop={ $isDiscardMode.active ? event => handleDrop(event) : undefined } role="listbox" tabindex="0">
@@ -58,28 +49,14 @@
           out:fade={{ duration: 300 }}/>
       </g>
     {/if}
-        
-    <!--width={($animatedPlayerPosition.imageFile == '/ship.png') ? 45 : 30}-->
-    <!-- Info-Box als Slot-Inhalt -->
-    <rect x={svgWidth - 280} y={svgHeight - 150} width={250} height={120} fill="transparent" stroke="white" stroke-width="5"/>
-    <text x={svgWidth - 270} y={svgHeight - 120} fill="white" font-size="18px" font-family="Arial, sans-serif">
-      Verbleibende Aktionen: {4 - remainingActions}
+
+    <rect x={svgWidth - 320} y={svgHeight - 150} width={300} height={80} fill="transparent" stroke="navy" stroke-width="5"/>
+    <text x={svgWidth - 310} y={svgHeight - 90} fill="navy" font-size="18px" font-family="Arial, sans-serif">
+      Vorfälle: {$gameInfo.outbreaks} / 8 = 💀
+    </text>
+    <text x={svgWidth - 310} y={svgHeight - 120} fill="navy" font-size="18px" font-family="Arial, sans-serif">
+      Infektionsrate: {$gameInfo.infectionRateInfo.current} (nächste Stufe: {$gameInfo.infectionRateInfo.next})
     </text>
 
-    <foreignObject x={svgWidth - 270} y={svgHeight - 100} width="250" height="25">
-      <div>
-        <button on:click={()=> toggleTooltip()}>Infektionskartenablagestapel</button>
-          </div>
-  </foreignObject>
-  {#if showTooltip}
-    <rect fill="black" x={svgWidth - 400} y={svgHeight - 300} width="100" height={$infectionDeck.discardPile.length * 21}></rect>
-    {#each $infectionDeck.discardPile as card, index}
-        <text x={svgWidth - 390} y={svgHeight - 280 + index * 20} fill="white" font-size="16px" font-family="Arial, sans-serif">
-            {card.data.name}
-        </text>
-    {/each}
-{/if}
-</BoardLayout>
+  </BoardLayout>
 </div>
-
-  

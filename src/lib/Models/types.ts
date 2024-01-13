@@ -32,7 +32,7 @@ export type GameState = {
   players: PlayerState[];
   playerDeck: DeckState<PlayerCard>;
   activePlayerIndex: number;
-  infectionRate: number;
+  infectionRateIndex: number;
   outbreaks: number;
 };
 
@@ -77,7 +77,7 @@ export type ProduceSuppliesCard = {
 
 export type EpidemicCard = {
   cardType: 'epidemic',
-  action: undefined
+  action: (boardState: FieldState[], infectionDeck: DeckState<InfectionCard>, infectionRateIndex: number) => Partial<GameState>;
 }
 
 export type InfectionCard = {
@@ -94,7 +94,7 @@ export type DeckState<T> = {
 };
 
 export type Action = {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard' | 'buildSupplyCenter' | 'discardCard';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard' | 'buildSupplyCenter' | 'discardCityCard';
   location?: string;
   startLocation?: string;
   supplies?: number;

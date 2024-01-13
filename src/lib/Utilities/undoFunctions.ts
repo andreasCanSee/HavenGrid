@@ -46,7 +46,7 @@ export function undoLastMove() {
             case 'buildSupplyCenter':
                 undoBuildSupplyCenterAction(lastActionRemoved);
                 break;
-            case 'discardCard':
+            case 'discardCityCard':
                 undoDiscardExcessCardAction(lastActionRemoved);
                 break;
     
@@ -276,7 +276,7 @@ export function undoBuildSupplyCenterAction(action: Action) {
 
 function undoDiscardExcessCardAction(action: Action) {
 
-    if (action.type === 'discardCard' && action.cards && action.cards.length > 0 && action.transferringPlayerIndex !== undefined) {
+    if (action.type === 'discardCityCard' && action.cards && action.cards.length > 0 && action.transferringPlayerIndex !== undefined) {
 
         const cardToReturn = action.cards[0] as CityCard;
         const playerIndex = action.transferringPlayerIndex;

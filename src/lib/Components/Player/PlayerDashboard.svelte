@@ -4,7 +4,7 @@
     import CardManagementArea from "./CardManagementArea.svelte";
     import { gameState } from "../../Stores/gameStateStore";
     import type { PlayerState, PlayerHand } from "../../Models/types";
-    import { transferCityCard } from "../../GameLogic/Actions/cardsAction";
+    import { exchangeCityCard } from "../../GameLogic/Actions/cardsAction";
     import { transferSupplies } from "../../GameLogic/Actions/supplyManagement";
     import { handleDragOver } from "../../Utilities/uiHandlers";
 
@@ -46,7 +46,7 @@
         else if (dragData && dragData.type === 'cityCard'){
             let cityName = dragData.cardName; 
             if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {
-                transferCityCard(dragData.fromPlayerIndex, targetPlayerIndex, cityName);
+                exchangeCityCard(dragData.fromPlayerIndex, targetPlayerIndex, cityName);
         }
         }
     }
