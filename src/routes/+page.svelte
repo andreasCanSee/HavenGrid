@@ -8,6 +8,7 @@
     import { endTurn} from '../lib/GameLogic/turnCycleLogic';
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
     import { isDiscardMode } from '../lib/Stores/uiStore';
+    import type { InfectionCard } from '../lib/Models/types';
 
     function createPlayerOrder(activePlayerIndex: number, totalPlayers: number) {
         return Array.from({ length: totalPlayers }, (_, i) => (activePlayerIndex + i) % totalPlayers);
@@ -17,47 +18,28 @@
         gameState,
         $gameState => createPlayerOrder($gameState.activePlayerIndex, initialPlayerData.length)
     );
+
+    let reversedDiscardPile: InfectionCard[] = [];
+
+    $: {
+        const discardPile: InfectionCard[] = $gameState.infectionDeck.discardPile;
+        reversedDiscardPile = [...discardPile].reverse();
+    }
 </script>
   
 <header>
 
 
-    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;background-color: rgba(0, 0, 0, 0.8);">
-            <h1><span style="color: firebrick; margin-left: 10px;">Pandemic Legacy Season 2:</span> <span style="color: deepskyblue">Prolog</span></h1>
-
-            <div style="
-                    position: relative;
-                    background-color: navy;
-                    color: firebrick;
-                    padding: 10px;
-                    text-align: center;
-                    border-radius: 5px;
-                    margin-top: 10px;
-                    margin-bottom: 10px;">
-                    Infektionskarten<br>
-                    Ablagestapel 🦠
-            </div>
-            <div 
-                style="
-                background-color: firebrick;
-                color: navy;
-                padding: 10px;
-                text-align: center;
-                border-radius: 5px;
-                margin-top: 10px;
-                margin-bottom: 10px;">
-                    Spielerkarten<br>
-                    Ablagestapel ⛵️
-            </div>
-
-
+    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;background-color: rgba(0,0,128, 0.7);">
+            <h1><span style="color: firebrick; margin-left: 10px;padding: 10px;">Pandemic Legacy Season 2:</span><span style="color: deepskyblue">Prolog</span></h1>
 
             <button 
             on:click={setupNewGame} 
             style="
-                background-color: black;
-                color: deepskyblue;
+                background-color: deepskyblue; 
+                color: firebrick;
                 padding: 10px;
+                font-size: 16px;
                 cursor: pointer;
                 text-align: center;
                 border-radius: 5px;
@@ -86,9 +68,27 @@
             playerIndex={index}
         />
             {#if index === $gameState.activePlayerIndex}
-                <div style="margin-bottom: 30px">
-                    <button on:click={undoLastMove}>Aktion zurücknehmen ⏮️</button>
-                    <button on:click={endTurn} disabled={$isDiscardMode.active}> Aktionsphase abschließen ☑️</button>
+                <div style="margin-bottom: 30px; display: flex:">
+                    <button on:click={undoLastMove} style="padding: 10px;
+                    cursor: pointer;
+                    font-weight: 700;
+                    font-size: 14px;
+                    background-color: navy;
+                    color: firebrick;
+                    text-align: center;
+                    border-radius: 5px;
+                    margin-right: 20px;
+                    border: none;">Aktion zurücknehmen ⏮️</button>
+                    <button on:click={endTurn} disabled={$isDiscardMode.active} style="padding: 10px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 700;
+                    background-color: navy;
+                    color: firebrick;
+                    text-align: center;
+                    border-radius: 5px;
+                    margin-right: 20px;
+                    border: none;"> Aktionsphase abschließen ☑️</button>
                 </div>
             {/if}
         {/each}   
@@ -104,7 +104,7 @@
             </tr>
         </thead>
         <tbody>
-            {#each $gameState.infectionDeck.discardPile as card}
+            {#each reversedDiscardPile as card}
                 <tr>
                     <td style="border: 1px solid white; padding: 10px; text-align: center; background-color: {card.data.color}; color: {card.data.color === 'yellow' ? 'black' : 'white'};">
                         {card.data.name}

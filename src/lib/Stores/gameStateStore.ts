@@ -47,10 +47,11 @@ function initializeGameState(): GameState {
 
   // Führe die Infektionsphase aus
   const initialInfectionRate = 9; // Anpassen, falls erforderlich
-  let boardState = initialBoardState.map(({ name, supplies, hasSupplyCenter }) => ({
+  let boardState = initialBoardState.map(({ name, supplies, hasSupplyCenter, plagueLevel }) => ({
     name,
     supplies,
-    hasSupplyCenter
+    hasSupplyCenter,
+    plagueLevel
   }));
   const { updatedInfectionDeck, updatedBoardState } = performInfections(newInfectionDeck, initialInfectionRate, boardState);
 

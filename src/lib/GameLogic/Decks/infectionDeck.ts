@@ -5,21 +5,25 @@ export function performInfections(infectionDeck: DeckState<InfectionCard>, infec
 
     // Infection Phase I: Draw & Discard Infection Cards
     const [remainingInfectionDeck, drawnInfectionCards] = drawCards(infectionDeck.deck, infectionRate);
-        const updatedDiscardPile = [...infectionDeck.discardPile, ...drawnInfectionCards];
-        const updatedInfectionDeck = {
-            deck: remainingInfectionDeck,
-            discardPile: updatedDiscardPile
-        };
+    const updatedDiscardPile = [...infectionDeck.discardPile, ...drawnInfectionCards];
+    const updatedInfectionDeck = {
+        deck: remainingInfectionDeck,
+        discardPile: updatedDiscardPile
+    };
 
-        // Infection Phases II; Infect Cities
-        const affectedCities = drawnInfectionCards.map(card => card.data.name);
-        const updatedBoardState = boardState.map(city => {
-            if (affectedCities.includes(city.name)) {
-                const infectionCount = affectedCities.filter(affectedCity => affectedCity === city.name).length;
-                return { ...city, supplies: Math.max(city.supplies - infectionCount, 0) };
+    // Infection Phases II; Infect Cities
+    let newOutbreaks = 0;
+    const updatedBoardState = boardState.map(city => {
+        if(drawnInfectionCards.some(card => card.data.name === city.name)){
+            if (city.supplies === 0) {
+                city.plagueLevel = Math.min(city.plagueLevel + 1, 3);
+                newOutbreaks += 1;
+            } else {
+                city.supplies -= 1;
             }
-            return city;
-        });
+        }
+        return city;
+    });
 
-        return {updatedInfectionDeck, updatedBoardState}
+    return {updatedInfectionDeck, updatedBoardState, newOutbreaks}
 }

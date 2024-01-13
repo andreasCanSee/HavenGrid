@@ -50,7 +50,7 @@ export function endTurn() {
 
 function performInfectionPhaseAndMoveToNextPlayer(state: GameState){
     // Infektionsphase durchführen
-    const { updatedInfectionDeck, updatedBoardState } = performInfections(state.infectionDeck, getCurrentInfectionRate(state.infectionRateIndex), state.boardState);
+    const { updatedInfectionDeck, updatedBoardState, newOutbreaks } = performInfections(state.infectionDeck, getCurrentInfectionRate(state.infectionRateIndex), state.boardState);
 
     // Zum nächsten Spieler übergehen
     const nextPlayerIndex = (state.activePlayerIndex + 1) % state.players.length;
@@ -59,7 +59,8 @@ function performInfectionPhaseAndMoveToNextPlayer(state: GameState){
         ...state,
         boardState: updatedBoardState,
         infectionDeck: updatedInfectionDeck,
-        activePlayerIndex: nextPlayerIndex
+        activePlayerIndex: nextPlayerIndex,
+        outbreaks: state.outbreaks + newOutbreaks
     });
 
     // den aktuellen Zug vorbereiten (Startstandort speichern)

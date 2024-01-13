@@ -47,6 +47,7 @@ export type FieldState = {
   name: string;
   supplies: number;
   hasSupplyCenter: boolean;
+  plagueLevel: number;
 }
 
 export type PlayerHand = {

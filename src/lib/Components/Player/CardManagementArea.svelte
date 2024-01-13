@@ -50,7 +50,7 @@
                 return acc;
             }, {});
 
-            return Object.keys(colorCounts).find(color => colorCounts[color] >= 3) || null;
+            return Object.keys(colorCounts).find(color => colorCounts[color] >= 5) || null;
     })();
 
     $: if (buildAreaColor == null || !isActive) {

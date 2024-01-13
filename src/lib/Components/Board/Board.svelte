@@ -51,12 +51,18 @@
     {/if}
 
     <rect x={svgWidth - 320} y={svgHeight - 150} width={300} height={80} fill="transparent" stroke="navy" stroke-width="5"/>
-    <text x={svgWidth - 310} y={svgHeight - 90} fill="navy" font-size="18px" font-family="Arial, sans-serif">
-      Vorfälle: {$gameInfo.outbreaks} / 8 = 💀
+    {#if $gameInfo.outbreaks < 7}
+      <text x={svgWidth - 310} y={svgHeight - 90} fill="navy" font-size="18px" font-family="Arial, sans-serif">
+        Vorfälle: {$gameInfo.outbreaks} / 8 = 💀
+      </text>
+      <text x={svgWidth - 310} y={svgHeight - 120} fill="navy" font-size="18px" font-family="Arial, sans-serif">
+        Infektionsrate: {$gameInfo.infectionRateInfo.current} (nächste Stufe: {$gameInfo.infectionRateInfo.next})
+      </text>
+    {:else}
+    <text x={svgWidth - 315} y={svgHeight - 105} fill="navy" font-size="36px" font-family="Arial, sans-serif">
+    🌊🌊⚰️🌊🌊⚰️🌊🌊
     </text>
-    <text x={svgWidth - 310} y={svgHeight - 120} fill="navy" font-size="18px" font-family="Arial, sans-serif">
-      Infektionsrate: {$gameInfo.infectionRateInfo.current} (nächste Stufe: {$gameInfo.infectionRateInfo.next})
-    </text>
+    {/if}
 
   </BoardLayout>
 </div>
