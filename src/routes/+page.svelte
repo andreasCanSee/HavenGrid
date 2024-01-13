@@ -9,7 +9,6 @@
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
     import { isDiscardMode } from '../lib/Stores/uiStore';
 
-
     function createPlayerOrder(activePlayerIndex: number, totalPlayers: number) {
         return Array.from({ length: totalPlayers }, (_, i) => (activePlayerIndex + i) % totalPlayers);
     }
@@ -21,9 +20,52 @@
 </script>
   
 <header>
-    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-left: 10px">
-            <h1><span style="color: firebrick">Pandemic Legacy Season 2</span> <span style="color: navy">Prolog</span></h1>
-        <button on:click={setupNewGame} style="margin-right: 20px">Neustart 🔄</button>
+
+
+    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;background-color: rgba(0, 0, 0, 0.8);">
+            <h1><span style="color: firebrick; margin-left: 10px;">Pandemic Legacy Season 2:</span> <span style="color: deepskyblue">Prolog</span></h1>
+
+            <div style="
+                    position: relative;
+                    background-color: navy;
+                    color: firebrick;
+                    padding: 10px;
+                    text-align: center;
+                    border-radius: 5px;
+                    margin-top: 10px;
+                    margin-bottom: 10px;">
+                    Infektionskarten<br>
+                    Ablagestapel 🦠
+            </div>
+            <div 
+                style="
+                background-color: firebrick;
+                color: navy;
+                padding: 10px;
+                text-align: center;
+                border-radius: 5px;
+                margin-top: 10px;
+                margin-bottom: 10px;">
+                    Spielerkarten<br>
+                    Ablagestapel ⛵️
+            </div>
+
+
+
+            <button 
+            on:click={setupNewGame} 
+            style="
+                background-color: black;
+                color: deepskyblue;
+                padding: 10px;
+                cursor: pointer;
+                text-align: center;
+                border-radius: 5px;
+                margin-right: 20px;
+                border: none;
+                font-size: 1em;">
+            Neustart 🔄
+        </button>
     </div>
 </header>
  
@@ -52,4 +94,24 @@
         {/each}   
         </div>
     </div>
-  </main>
+
+
+  <div style="margin-top: 50px">
+    <table style="width: 50%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid white; padding: 10px; color: black;">Infektionskartenablagestapel</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each $gameState.infectionDeck.discardPile as card}
+                <tr>
+                    <td style="border: 1px solid white; padding: 10px; text-align: center; background-color: {card.data.color}; color: {card.data.color === 'yellow' ? 'black' : 'white'};">
+                        {card.data.name}
+                    </td>
+                </tr>
+                {/each}
+            </tbody>
+        </table>
+    </div>
+    </main>

@@ -26,8 +26,8 @@ export function executeEpidemic(
     return {
         boardState: updatedBoardState,
         infectionDeck: {
-            deck: [...infectionDeck.deck],
-            discardPile: updatedDiscardPile
+            deck: [...infectionDeck.deck, ...updatedDiscardPile],
+            discardPile: []
         },
         infectionRateIndex: newInfectionIndex
     };
