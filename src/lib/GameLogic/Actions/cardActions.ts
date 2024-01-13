@@ -76,7 +76,6 @@ export function buildSupplyCenter(playerLocation: string) {
         };
         addActionToCurrentTurn(action); 
     }
-    
 }
 
 export function discardExcessCityCard(playerIndex: number, card: CityCard ){

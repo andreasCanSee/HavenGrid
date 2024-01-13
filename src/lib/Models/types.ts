@@ -57,7 +57,8 @@ export type PlayerHand = {
 
 export type Card = PlayerCard | InfectionCard;
 export type PlayerCard = EpidemicCard | PlayerHandCard;
-export type PlayerHandCard = CityCard | EventCard | ProduceSuppliesCard;
+export type PlayerHandCard = CityCard | ActionCard;
+export type ActionCard = EventCard | ProduceSuppliesCard;
 
 export type CityCard = {
     cardType: 'city';
@@ -73,7 +74,7 @@ export type EventCard = {
 
 export type ProduceSuppliesCard = {
   cardType: 'produceSupplies',
-  action: undefined
+  action: (currentLocation: string, playerIndex: number) => void;
 }
 
 export type EpidemicCard = {
@@ -95,7 +96,7 @@ export type DeckState<T> = {
 };
 
 export type Action = {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard' | 'buildSupplyCenter' | 'discardCityCard';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard' | 'buildSupplyCenter' | 'discardCityCard' | 'produceSupplies';
   location?: string;
   startLocation?: string;
   supplies?: number;

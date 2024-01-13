@@ -2,6 +2,7 @@
     import type { PlayerHand, CityCard as CityCardType } from "../../Models/types";
     import { gameState } from "../../Stores/gameStateStore";
     import CityCard from "./CityCard.svelte";
+    import ActionCard from "./ActionCard.svelte";
     import BuildArea from "./BuildArea.svelte";
     import { isDiscardMode } from "../../Stores/uiStore";
     import { getColorOfCity } from "../../Models/initialBoardData";
@@ -87,37 +88,14 @@
         .filter(({ card }) => getColorOfCity(card.name) === buildAreaColor);
 
 </script>
-<!-- 
-<div style="display: flex; flex-direction: column;">
-    {#if showDiscardMessage && (isActive || isAtActivePlayerLocation)}
-        <p style="color: red; text-align: center;">
-            Bitte Karten abwerfen, bis maximal 7 Karten übrig bleiben!
-        </p>
-    {/if}
-    {#if playerHandCards.cityCards.length > 0}
-        <div style="display: flex;">
-            {#each cardColors as cardColor}
-                <div class="card-stack" style="margin: 5px;"> 
-                    {#each groupedCards[cardColor.color] as cityCard, index (cityCard.name + '-' + index)}
-                        <CityCard {cityCard} {playerLocation} {playerIndex} {isActive} {isAtActivePlayerLocation} {playerColor} canDiscard={showDiscardMessage}/>
-                    {/each}
-                </div>
-            {/each}
-        </div>
-        {#if buildAreaColor && isActive}
-            <BuildArea {buildAreaColor} cityCards={playerHandCards
-                .map((card, originalIndex) => ({ card, originalIndex }))
-                .filter(({ card }) => card.data.color === buildAreaColor)} {playerLocation} on:updateCard={handleUpdateCard} />
-        {/if}          
-    {/if}
-</div>
- -->
+
  <div style="display: flex; flex-direction: column;"> 
     {#if showDiscardMessage && (isActive || isAtActivePlayerLocation)}
         <p style="color: red; text-align: center;">
             Bitte Karten abwerfen, bis maximal 7 Karten übrig bleiben!
         </p>
     {/if}
+    <!-- CityCards -->
     {#if cityCards.length > 0}
         <div style="display: flex;">
             {#each cardColors as cardColor}
@@ -132,6 +110,13 @@
             <BuildArea {buildAreaColor} {selectedCityCards} {playerLocation} on:updateCard={handleUpdateCard} />
         {/if} 
     {/if}
-</div>
+    <!-- ActionCards -->
 
- 
+{#if actionCards.length > 0}
+    <div style="display: flex; justify-content: flex-start; background-color: grey; padding: 5px; border-radius: 10px; width: 100%">
+        {#each actionCards as actionCard}
+            <ActionCard {actionCard} {playerIndex} {isActive} {playerLocation} canDiscard={showDiscardMessage}/>
+        {/each}
+    </div>
+{/if}
+</div>

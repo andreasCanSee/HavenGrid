@@ -9,6 +9,7 @@
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
     import { isDiscardMode } from '../lib/Stores/uiStore';
     import type { InfectionCard } from '../lib/Models/types';
+    import { currentTurnActions } from '../lib/Stores/turnStateStore';
 
     function createPlayerOrder(activePlayerIndex: number, totalPlayers: number) {
         return Array.from({ length: totalPlayers }, (_, i) => (activePlayerIndex + i) % totalPlayers);
@@ -25,6 +26,8 @@
         const discardPile: InfectionCard[] = $gameState.infectionDeck.discardPile;
         reversedDiscardPile = [...discardPile].reverse();
     }
+
+    $: remainingActions = 4 - $currentTurnActions.filter(action => !action.freeAction).length;
 </script>
   
 <header>
@@ -68,7 +71,18 @@
             playerIndex={index}
         />
             {#if index === $gameState.activePlayerIndex}
-                <div style="margin-bottom: 30px; display: flex:">
+        
+                <div style="margin-bottom: 30px; display: flex;">
+                    <div style="
+                        background-color: {initialPlayerData[index].color}; 
+                        color: white;
+                        padding: 10px; 
+                        margin-right: 20px;  
+                        font-weight: bold;
+                        display: flex;
+                        align-items: center">
+                    Noch {remainingActions} {remainingActions === 1 ? 'Zug' : 'Züge'}
+                    </div>
                     <button on:click={undoLastMove} style="padding: 10px;
                     cursor: pointer;
                     font-weight: 700;
@@ -78,7 +92,7 @@
                     text-align: center;
                     border-radius: 5px;
                     margin-right: 20px;
-                    border: none;">Aktion zurücknehmen ⏮️</button>
+                    border: none;">Aktion zurück-<br>nehmen ⏮️</button>
                     <button on:click={endTurn} disabled={$isDiscardMode.active} style="padding: 10px;
                     cursor: pointer;
                     font-size: 14px;
@@ -88,7 +102,7 @@
                     text-align: center;
                     border-radius: 5px;
                     margin-right: 20px;
-                    border: none;"> Aktionsphase abschließen ☑️</button>
+                    border: none;"> Aktionsphase <br>abschließen ☑️</button>
                 </div>
             {/if}
         {/each}   

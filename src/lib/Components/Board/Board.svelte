@@ -5,7 +5,7 @@
   import { gameState } from '../../Stores/gameStateStore';
   import type { CityCard } from '../../Models/types';
   import { showBoat, isDiscardMode } from '../../Stores/uiStore';
-  import { discardExcessCityCard } from '../../GameLogic/Actions/cardsAction';
+  import { discardExcessCityCard } from '../../GameLogic/Actions/cardActions';
   import { animatedPlayerPosition, calculateSvgDimensions } from './boardUtils';
   import { handleDragOver } from '../../Utilities/uiHandlers';
   import { getInfectionRates } from '../../Models/infectionRate';
@@ -29,9 +29,15 @@
             cardType: 'city',
             name: dragData.cardName, 
             inBuildArea: false  // Standardwert setzen
-        } as CityCard;
+          } as CityCard;
           discardExcessCityCard(dragData.fromPlayerIndex, card)
-      }
+        }
+        if (dragData && dragData.type === 'discardActionCard'){
+          console.log("Futsch und weg")
+        }
+
+
+
     }
 
 </script>
@@ -52,7 +58,7 @@
 
     <rect x={svgWidth - 320} y={svgHeight - 150} width={300} height={80} fill="transparent" stroke="navy" stroke-width="5"/>
     {#if $gameInfo.outbreaks < 7}
-      <text x={svgWidth - 310} y={svgHeight - 90} fill="navy" font-size="18px" font-family="Arial, sans-serif">
+      <text x={svgWidth - 310} y={svgHeight - 90} fill="rgb(0,255,0)" font-size="18px" font-family="Arial, sans-serif">
         Vorfälle: {$gameInfo.outbreaks} / 8 = 💀
       </text>
       <text x={svgWidth - 310} y={svgHeight - 120} fill="navy" font-size="18px" font-family="Arial, sans-serif">

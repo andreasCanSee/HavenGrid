@@ -1,4 +1,4 @@
-import type { PlayerCard, CityCard } from "../../Models/types";
+import type { PlayerCard, CityCard, ActionCard } from "../../Models/types";
 
 export function discardCityCard(
     cardName: string, 
@@ -21,4 +21,24 @@ export function discardCityCard(
     }
 
     return { newDiscardPile, newCityCards };
+}
+
+export function discardActionCard(
+    cardType: string,
+    actionCards: ActionCard[],
+    discardPile: PlayerCard[]
+){
+    const cardIndex = actionCards.findIndex(card => card.cardType === cardType);
+
+    let newDiscardPile = [...discardPile];
+    let newActionCards = [...actionCards];
+
+    if (cardIndex !== -1) {
+        const cardToDiscard: ActionCard = actionCards[cardIndex];
+        newDiscardPile.push(cardToDiscard);
+        newActionCards.splice(cardIndex, 1);
+    }
+
+    return { newDiscardPile, newActionCards };
+
 }

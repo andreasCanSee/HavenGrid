@@ -4,7 +4,7 @@
     import CardManagementArea from "./CardManagementArea.svelte";
     import { gameState } from "../../Stores/gameStateStore";
     import type { PlayerState, PlayerHand } from "../../Models/types";
-    import { exchangeCityCard } from "../../GameLogic/Actions/cardsAction";
+    import { exchangeCityCard } from "../../GameLogic/Actions/cardActions";
     import { transferSupplies } from "../../GameLogic/Actions/supplyManagement";
     import { handleDragOver } from "../../Utilities/uiHandlers";
 

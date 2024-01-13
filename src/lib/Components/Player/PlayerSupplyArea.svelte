@@ -21,10 +21,10 @@
 </script>
 
 <div 
-    style="margin-top: 10px; display: flex; flex-wrap: wrap; background-color:grey; padding: 5px; border-radius: 10px; width: 100%">
+    style="margin-top: 10px; display: flex; flex-wrap: wrap; font-size: 30px; background-color:grey; padding: 5px; border-radius: 10px; width: 100%">
     {#each Array(playerSupplies) as _}
         <div 
-            style="width: 20px; height: 20px; background-color: firebrick;border: 2px solid firebrick; margin-right: 5px; margin-bottom: 5px"
+            style="width: 30px; height: 30px; background-color: firebrick;border: 2px solid firebrick; margin-right: 5px; margin-bottom: 5px"
             draggable={(isActive || isAtActivePlayerLocation) ? "true" : "false"}
             on:dragstart={(event) => handleDragStart(event, playerIndex)}
             role="button"
@@ -33,7 +33,7 @@
     {/each}
     {#if isActive}
         <div 
-            style="width: 20px; height: 20px; background-color: transparent; border: 2px solid black; margin-right: 5px;"
+            style="width: 30px; height: 30px; background-color: transparent; border: 2px solid black; margin-right: 5px;"
             draggable="true"
             role="button"
             tabindex="0"

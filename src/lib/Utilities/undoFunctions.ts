@@ -1,11 +1,12 @@
 import { get } from 'svelte/store';
 import { currentTurnActions } from '../Stores/turnStateStore';
-import type { Action, CityCard, PlayerCard } from '../Models/types';
+import type { Action, CityCard } from '../Models/types';
 import { gameState } from '../Stores/gameStateStore';
-import { isDiscardMode, resetDiscardMode, setDiscardMode } from '../Stores/uiStore';
+import { resetDiscardMode, setDiscardMode } from '../Stores/uiStore';
 import { checkHandCardLimit } from '../GameLogic/turnCycleLogic';
 
 export function undoLastMove() {
+
 
     let lastActionRemoved: Action | undefined;
 
@@ -41,7 +42,7 @@ export function undoLastMove() {
                 undoCharterBoatToAction(lastActionRemoved);
                 break;
             case 'exchangeCard':
-                undoexchangeCardAction(lastActionRemoved);
+                undoExchangeCardAction(lastActionRemoved);
                 break;
             case 'buildSupplyCenter':
                 undoBuildSupplyCenterAction(lastActionRemoved);
@@ -49,7 +50,9 @@ export function undoLastMove() {
             case 'discardCityCard':
                 undoDiscardExcessCardAction(lastActionRemoved);
                 break;
-    
+            case 'produceSupplies':
+                undoProduceSuppliesAction(lastActionRemoved);
+                break;
         }
     }
    
@@ -75,7 +78,7 @@ function findLastLocation(): string {
     return lastLocation;
 }
 
-export function undoMoveToAction() {
+function undoMoveToAction() {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         const activePlayer = updatedPlayers[state.activePlayerIndex];
@@ -84,7 +87,7 @@ export function undoMoveToAction() {
     });         
 }
 
-export function undoPickUpSuppliesAction(action: Action) {
+function undoPickUpSuppliesAction(action: Action) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         const activePlayer = updatedPlayers[state.activePlayerIndex];
@@ -106,7 +109,7 @@ export function undoPickUpSuppliesAction(action: Action) {
     });
 }
 
-export function undoMakeSupplyAction() {
+function undoMakeSupplyAction() {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         const activePlayer = updatedPlayers[state.activePlayerIndex];
@@ -120,7 +123,7 @@ export function undoMakeSupplyAction() {
     });
 }
 
-export function undoDeliverSuppliesAction(action: Action) {
+function undoDeliverSuppliesAction(action: Action) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         const activePlayer = updatedPlayers[state.activePlayerIndex];
@@ -145,7 +148,7 @@ export function undoDeliverSuppliesAction(action: Action) {
 }
 
 
-export function undoTransferSuppliesAction(action: Action) {
+function undoTransferSuppliesAction(action: Action) {
     
         gameState.update(state => {
             const updatedPlayers = [...state.players];
@@ -164,7 +167,7 @@ export function undoTransferSuppliesAction(action: Action) {
     
 }
 
-export function undoexchangeCardAction(action: Action){
+function undoExchangeCardAction(action: Action){
     if (action.type === 'exchangeCard' && typeof action.transferringPlayerIndex === 'number' && typeof action.receivingPlayerIndex === 'number') {
         gameState.update(state => {
             const updatedPlayers = [...state.players];
@@ -194,7 +197,7 @@ export function undoexchangeCardAction(action: Action){
     }
 }
 
-export function undoSailToAction(action: Action) {
+function undoSailToAction(action: Action) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         const currentPlayer = updatedPlayers[state.activePlayerIndex];
@@ -306,6 +309,37 @@ function undoDiscardExcessCardAction(action: Action) {
          } else {
              resetDiscardMode();
          }
+    }
+}
+
+function undoProduceSuppliesAction(action: Action) {
+    if (action.type === 'produceSupplies') {
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
+            const activePlayer = updatedPlayers[state.activePlayerIndex];
+
+            // Setze die Vorräte am Standort zurück
+            let updatedBoardState = state.boardState.map(field => {
+                if (field.name === action.location) {
+                    const supplies = action.supplies !== undefined ? action.supplies : field.supplies;
+                    return { ...field, supplies };
+                }
+                return field;
+            });
+
+            // Hole die "ProduceSupplies"-Karte vom Ablagestapel zurück
+            const cardIndex = state.playerDeck.discardPile.findIndex(discardCard => 
+                discardCard.cardType === 'produceSupplies'
+            );
+            if (cardIndex !== -1) {
+                const [cardToReturn] = state.playerDeck.discardPile.splice(cardIndex, 1);
+                if (cardToReturn.cardType === 'produceSupplies') {
+                    activePlayer.handCards.actionCards.push(cardToReturn);
+                }
+            }
+
+            return { ...state, players: updatedPlayers, boardState: updatedBoardState };
+        });
     }
 }
 

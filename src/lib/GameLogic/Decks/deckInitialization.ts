@@ -1,6 +1,7 @@
-import type { DeckState, PlayerCard, InfectionCard, CityCard } from "../../Models/types";
+import type { DeckState, PlayerCard, InfectionCard, CityCard, ProduceSuppliesCard } from "../../Models/types";
 import { initialBoardState } from "../../Models/initialBoardData";
 import { shuffleArray } from "./deckUtils";
+import { produceSuppliesAction } from "../Actions/eventActions";
 
 export function initializeDecks(): { playerDeck: DeckState<PlayerCard>, infectionDeck: DeckState<InfectionCard>}{
     const playerDeckCards: PlayerCard[] = [];
@@ -27,17 +28,26 @@ export function initializeDecks(): { playerDeck: DeckState<PlayerCard>, infectio
             })));
         });
 
-        const shuffledPlayerDeck = shuffleArray(playerDeckCards);
-        const shuffledInfectionDeck = shuffleArray(infectionDeckCards);
+    // Erstelle ProduceSupplies-Karten
+    const produceSuppliesCards: ProduceSuppliesCard[] = Array.from({ length: 8 }, (): ProduceSuppliesCard => ({
+        cardType: 'produceSupplies',
+        action: produceSuppliesAction // Hier kannst du die entsprechende Aktion definieren, wenn nötig
+    }));
 
-        return {
-            playerDeck: {
-                deck: shuffledPlayerDeck,
-                discardPile: []
-            },
-            infectionDeck: {
-                deck: shuffledInfectionDeck,
-                discardPile: []
-            }
-        };
+    // Füge die ProduceSupplies-Karten zum Spielerdeck hinzu
+    playerDeckCards.push(...produceSuppliesCards);
+
+    const shuffledPlayerDeck = shuffleArray(playerDeckCards);
+    const shuffledInfectionDeck = shuffleArray(infectionDeckCards);
+
+    return {
+        playerDeck: {
+            deck: shuffledPlayerDeck,
+            discardPile: []
+        },
+        infectionDeck: {
+            deck: shuffledInfectionDeck,
+            discardPile: []
+        }
+    };
 }

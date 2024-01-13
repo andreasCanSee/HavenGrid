@@ -2,7 +2,7 @@
     import type { CityCard as CityCardType } from "../../Models/types";
     import { createEventDispatcher } from "svelte";
     import { getColorOfCity } from "../../Models/initialBoardData";
-    import { buildSupplyCenter } from "../../GameLogic/Actions/cardsAction";
+    import { buildSupplyCenter } from "../../GameLogic/Actions/cardActions";
 
     export let buildAreaColor: string;
     export let selectedCityCards: CardWithOriginalIndex[];
