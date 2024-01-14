@@ -6,6 +6,7 @@ import { initializeDecks } from '../GameLogic/Decks/deckInitialization';
 import { performPlayerCardsPhase } from '../GameLogic/Decks/playerDeck';
 import { performInfections } from '../GameLogic/Decks/infectionDeck';
 import { insertEpidemicCards } from '../GameLogic/Decks/epidemicActions';
+import { startingPlayerIndex } from '../GameLogic/config';
 
 // Initialisiere den Spielzustand für den Store
 const initialGameState = initializeGameState();
@@ -61,7 +62,7 @@ function initializeGameState(): GameState {
     infectionDeck: updatedInfectionDeck,
     players: updatedPlayers,
     playerDeck: currentPlayerDeck,
-    activePlayerIndex: 0,
+    activePlayerIndex: startingPlayerIndex,
     infectionRateIndex: 0,
     outbreaks: 0
   };

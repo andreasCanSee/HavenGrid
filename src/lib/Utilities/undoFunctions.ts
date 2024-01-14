@@ -1,4 +1,4 @@
-import { updateCurrentTurnActions } from '../Stores/turnStateStore';
+import { currentTurnActions, updateCurrentTurnActions } from '../Stores/turnStateStore';
 import type { Action, ActionCard, CityCard, PlayerHandCard } from '../Models/types';
 import { gameState } from '../Stores/gameStateStore';
 import { resetDiscardMode, setDiscardMode } from '../Stores/uiStore';
@@ -6,6 +6,8 @@ import { checkHandCardLimit } from '../GameLogic/turnCycleLogic';
 import { get } from 'svelte/store';
 
 export function undoLastMove(currentActions: Action[]) {
+
+    console.log(get(currentTurnActions))
 
     // 1. Zwischenspeichern des Anfangszustands
     const originalActions = [...currentActions];
@@ -80,21 +82,17 @@ function removeLastAction(currentActions: Action[]): [Action[], Action | undefin
     return [updatedActions, lastAction];
 }
 
-const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo', 'startAt'];
-
-function isMovementAction(actionType: string) {
-    return movementActionTypes.includes(actionType);
-}
-
 function findLastLocation(actions: Action[]): string {
-    let lastLocation = '';
+    const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo', 'startAt'];
+    let lastLocation = undefined;
+    console.log('Aktion', actions)
     
     for (let i = actions.length - 1; i >= 0; i--) {
         const action = actions[i];
-        if (isMovementAction(action.type)) {
-            lastLocation = action.location || '';
+        if (movementActionTypes.includes(action.type)) {
+            lastLocation = action.location;
             break;
-        }
+        }      
     }
 
     // Überprüfe, ob ein gültiger Standort gefunden wurde

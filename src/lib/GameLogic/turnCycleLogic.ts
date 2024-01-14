@@ -33,6 +33,10 @@ export function endTurn() {
                 Object.assign(newState, epidemicChanges);
             });
 
+            // Aktualisiere den discardPile des playerDeck mit den gezogenen Epidemie-Karten
+            const updatedDiscardPile = [...state.playerDeck.discardPile, ...drawnEpidemicCards];
+            newState.playerDeck.discardPile = updatedDiscardPile;
+
             return newState;
         });
         const currentState = get(gameState);

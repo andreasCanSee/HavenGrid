@@ -3,10 +3,11 @@ import { initialPlayerData } from '../Models/initialPlayerData';
 import { isDiscardModeActive } from './uiStore';
 import type { Action } from '../Models/types';
 import { isShowBoatActive } from './uiStore';
+import { startingPlayerIndex } from '../GameLogic/config';
 
 
 // Hole die Anfangsposition des ersten Spielers
-const startLocation = initialPlayerData[0].currentLocation; // Startspieler hat Index 0
+const startLocation = initialPlayerData[startingPlayerIndex].currentLocation; // Startspieler hat Index 0
 
 // Initialisiere currentTurnActions mit der Startaktion
 export const currentTurnActions = writable<Action[]>([{ type: 'startAt', location: startLocation, freeAction: true }]);

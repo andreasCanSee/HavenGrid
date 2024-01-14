@@ -108,6 +108,7 @@ export async function sailToLocation(currentLocation: string, targetLocation: st
     const sailToLocationAction: Action = {
       type: 'sailTo',
       card: cardToDiscard,
+      location: cardToDiscard?.name,
       freeAction: false
     };
     addActionToCurrentTurn(sailToLocationAction);
