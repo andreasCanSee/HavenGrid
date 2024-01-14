@@ -8,8 +8,9 @@
     import { endTurn} from '../lib/GameLogic/turnCycleLogic';
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
     import { isDiscardMode } from '../lib/Stores/uiStore';
-    import type { InfectionCard } from '../lib/Models/types';
+    import type { InfectionCard, PlayerCard } from '../lib/Models/types';
     import { currentTurnActions } from '../lib/Stores/turnStateStore';
+    import { getColorOfCity } from '../lib/Models/initialBoardData';
 
     function createPlayerOrder(activePlayerIndex: number, totalPlayers: number) {
         return Array.from({ length: totalPlayers }, (_, i) => (activePlayerIndex + i) % totalPlayers);
@@ -25,6 +26,13 @@
     $: {
         const discardPile: InfectionCard[] = $gameState.infectionDeck.discardPile;
         reversedDiscardPile = [...discardPile].reverse();
+    }
+
+    let reversedPlayerDiscardPile: PlayerCard[] = [];
+
+    $: {
+        const playerDiscardPile: PlayerCard[] = $gameState.playerDeck.discardPile;
+        reversedPlayerDiscardPile = [...playerDiscardPile].reverse();
     }
 
     $: remainingActions = 4 - $currentTurnActions.filter(action => !action.freeAction).length;
@@ -81,18 +89,19 @@
                         font-weight: bold;
                         display: flex;
                         align-items: center">
-                    Noch {remainingActions} {remainingActions === 1 ? 'Zug' : 'Züge'}
-                    </div>
-                    <button on:click={undoLastMove} style="padding: 10px;
-                    cursor: pointer;
-                    font-weight: 700;
-                    font-size: 14px;
-                    background-color: navy;
-                    color: firebrick;
-                    text-align: center;
-                    border-radius: 5px;
-                    margin-right: 20px;
-                    border: none;">Aktion zurück-<br>nehmen ⏮️</button>
+                    <h3>Noch {remainingActions} {remainingActions === 1 ? 'Aktion' : 'Aktionen'}</h3>
+                    <button on:click={() => undoLastMove($currentTurnActions)} style="padding: 10px;
+                        cursor: pointer;
+                        font-weight: 700;
+                        font-size: 14px;
+                        background-color: navy;
+                        color: firebrick;
+                        text-align: center;
+                        border-radius: 5px;
+                        margin-left: 20px;
+                        border: none;">Aktion zurück-<br>nehmen ⏮️</button>
+                </div>
+                  
                     <button on:click={endTurn} disabled={$isDiscardMode.active} style="padding: 10px;
                     cursor: pointer;
                     font-size: 14px;
@@ -110,7 +119,8 @@
     </div>
 
 
-  <div style="margin-top: 50px">
+  <div style="margin-top: 50px; display:flex">
+    <!-- ... (Infektionskartenablagestapel Tabelle) -->
     <table style="width: 50%; border-collapse: collapse;">
         <thead>
             <tr>
@@ -124,6 +134,24 @@
                         {card.data.name}
                     </td>
                 </tr>
+                {/each}
+            </tbody>
+        </table>
+
+        <!-- Tabelle für playerDeck.discardPile -->
+        <table style="width: 50%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid white; padding: 10px; color: black;">Spielerkartenablagestapel</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each reversedPlayerDiscardPile as card}
+                    <tr>
+                        <td style="border: 1px solid white; padding: 10px; text-align: center;background-color: {getColorOfCity(card.name)}; color: {getColorOfCity(card.name) === 'yellow' ? 'black' : 'white'};">
+                            {card.name}
+                        </td>
+                    </tr>
                 {/each}
             </tbody>
         </table>

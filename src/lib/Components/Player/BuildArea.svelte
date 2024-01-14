@@ -45,7 +45,7 @@
 <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; margin: 7px; padding: 7px; border: 2px solid black; background-color: white;">
     {#each Object.keys(groupedCityCards) as cardName}
         <div style="margin: 3.5px; padding: 3.5px; border: 1px solid #ccc; background-color: {buildAreaColor};">
-            <div style="font-size: 70%; color: white">{cardName}</div>
+            <div style="font-size: 70%; color: {buildAreaColor === 'yellow' ? 'black' : 'white'}">{cardName}</div>
             {#each groupedCityCards[cardName] as cardWithIndex}
                 <input type="range" id={`slider-${cardWithIndex.card.name}-${cardWithIndex.originalIndex}`} style="width: 70%;" min="0" max="10" value={cardWithIndex.card.inBuildArea ? 10 : 0}
                 on:change={(event) => handleSliderChange(cardWithIndex.originalIndex, event)}>

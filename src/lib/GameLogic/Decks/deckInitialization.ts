@@ -1,7 +1,6 @@
-import type { DeckState, PlayerCard, InfectionCard, CityCard, ProduceSuppliesCard } from "../../Models/types";
+import type { DeckState, PlayerCard, InfectionCard, CityCard, ActionCard } from "../../Models/types";
 import { initialBoardState } from "../../Models/initialBoardData";
 import { shuffleArray } from "./deckUtils";
-import { produceSuppliesAction } from "../Actions/eventActions";
 
 export function initializeDecks(): { playerDeck: DeckState<PlayerCard>, infectionDeck: DeckState<InfectionCard>}{
     const playerDeckCards: PlayerCard[] = [];
@@ -29,9 +28,10 @@ export function initializeDecks(): { playerDeck: DeckState<PlayerCard>, infectio
         });
 
     // Erstelle ProduceSupplies-Karten
-    const produceSuppliesCards: ProduceSuppliesCard[] = Array.from({ length: 8 }, (): ProduceSuppliesCard => ({
-        cardType: 'produceSupplies',
-        action: produceSuppliesAction // Hier kannst du die entsprechende Aktion definieren, wenn nötig
+    const produceSuppliesCards: ActionCard[] = Array.from({ length: 8 }, (): ActionCard => ({
+        cardType: 'action',
+        eventType: 'produceSupplies',
+        name: 'Vorräte produzieren' // Hier kannst du die entsprechende Aktion definieren, wenn nötig
     }));
 
     // Füge die ProduceSupplies-Karten zum Spielerdeck hinzu

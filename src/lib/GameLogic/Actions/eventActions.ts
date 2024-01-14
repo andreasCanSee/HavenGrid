@@ -1,38 +1,38 @@
-import type { Action } from "../../Models/types";
-import { get } from "svelte/store";
+import type { Action, ActionCard } from "../../Models/types";
 import { gameState } from "../../Stores/gameStateStore";
-import { addActionToCurrentTurn } from "../../Stores/turnStateStore";
-import { discardActionCard } from "./actionUtils";
+import { addActionToCurrentTurn, countNonFreeActions, isTurnFinished } from "../../Stores/turnStateStore";
+import { isDiscardModeActive } from "../../Stores/uiStore";
+import { discardCard } from "./actionUtils";
 
 export function produceSuppliesAction(currentLocation: string, playerIndex: number){
-    let oldSupplies = 0
+
+    if(countNonFreeActions() >= 4 || isDiscardModeActive() || isTurnFinished()) return
+    let oldSupplies = 0;
+    let cardToDiscard: ActionCard | undefined;
     
     gameState.update(currentState => {
 
         let newState = { ...currentState };
 
-        let updatedBoardState = newState.boardState.map(city => {
+        newState.boardState = newState.boardState.map(city => {
             if (city.name === currentLocation && city.hasSupplyCenter) {
                 oldSupplies = city.supplies
-                
                 // Fülle die Vorräte auf
                 return { ...city, supplies: 3 };
             }
             return city;
         });
 
-        // Aktualisiere den boardState im newState
-        newState.boardState = updatedBoardState;
+        const activePlayer = newState.players[playerIndex];
 
-        const { newDiscardPile, newActionCards } = discardActionCard(
-            'produceSupplies', 
-            currentState.players[playerIndex].handCards.actionCards, 
-            currentState.playerDeck.discardPile
-        );
+        // Finde die "ProduceSupplies"-Karte
+        cardToDiscard = activePlayer.handCards.actionCards.find(card => card.eventType === 'produceSupplies');
 
-        // Aktualisiere die Karten des Spielers und den Ablagestapel
-        newState.players[playerIndex].handCards.actionCards = newActionCards;
-        newState.playerDeck.discardPile = newDiscardPile;
+        if (cardToDiscard) {
+            const result = discardCard(cardToDiscard, activePlayer.handCards.actionCards, newState.playerDeck.discardPile);
+            activePlayer.handCards.actionCards = result.newPlayerCards as ActionCard[];
+            newState.playerDeck.discardPile = result.newDiscardPile;
+        }
 
         // Gebe den aktualisierten Zustand zurück
         return newState;
@@ -41,6 +41,7 @@ export function produceSuppliesAction(currentLocation: string, playerIndex: numb
     // Protokolliere die Aktion vor der Aktualisierung des Zustands
     const action: Action = {
         type: 'produceSupplies',
+        card: cardToDiscard,
         location: currentLocation,
         supplies: oldSupplies,
         freeAction: false,

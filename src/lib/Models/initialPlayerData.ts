@@ -16,7 +16,7 @@ export const initialPlayerData: ExtendedPlayerData[] = (() => {
     {
       name: "Spieler 2",
       currentLocation: "Avalon",
-      color: "orange",
+      color: "SaddleBrown",
       image: '/survivor-female.png',
       supplies: 0,
       handCards: {

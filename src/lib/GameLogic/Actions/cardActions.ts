@@ -1,26 +1,27 @@
 import { gameState } from "../../Stores/gameStateStore";
-import type { Action, GameState, PlayerState, CityCard } from "../../Models/types";
-import { countNonFreeActions, addActionToCurrentTurn } from "../../Stores/turnStateStore";
-import { discardCityCard } from "./actionUtils";
+import type { Action, GameState, PlayerState, CityCard, PlayerHandCard, ActionCard } from "../../Models/types";
+import { countNonFreeActions, addActionToCurrentTurn, isTurnFinished } from "../../Stores/turnStateStore";
+import { discardCard } from "./actionUtils";
 import { checkHandCardLimit } from "../turnCycleLogic";
 import { get } from "svelte/store";
-import { setDiscardMode, resetDiscardMode, isDiscardMode } from "../../Stores/uiStore";
+import { setDiscardMode, resetDiscardMode, isDiscardModeActive } from "../../Stores/uiStore";
 
-export function exchangeCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityName: string){
-    if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
-        gameState.update(state => {
-            const updatedPlayers = [...state.players];
-            const fromPlayer = updatedPlayers[fromPlayerIndex];
-            const toPlayer = updatedPlayers[toPlayerIndex];
 
-            // Finde die StadtKarte im Handkartendeck des abgebenden Spielers
-            const cardIndex = fromPlayer.handCards.cityCards.findIndex(card => card.name === cityName);
+export function exchangeCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityCard: CityCard){
+    if(countNonFreeActions() >= 4 || isDiscardModeActive() || isTurnFinished()) return
+    
+    gameState.update(state => {
+        const updatedPlayers = [...state.players];
+        const fromPlayer = updatedPlayers[fromPlayerIndex];
+        const toPlayer = updatedPlayers[toPlayerIndex];
 
-            if (cardIndex !== -1) {
-                // Entferne die Karte aus dem Handkartendeck des abgebenden Spielers und füge sie dem empfangenden Spieler hinzu
-                const [card] = fromPlayer.handCards.cityCards.splice(cardIndex, 1);
-                toPlayer.handCards.cityCards.push(card);
-            }
+        // Finde die StadtKarte im Handkartendeck des abgebenden Spielers
+        const cardIndex = fromPlayer.handCards.cityCards.findIndex(card => card.name === cityCard.name);
+
+        if (cardIndex !== -1) {
+            fromPlayer.handCards.cityCards.splice(cardIndex, 1);
+            toPlayer.handCards.cityCards.push(cityCard);
+        }
         return { ...state, players: updatedPlayers}
     })
 
@@ -32,69 +33,78 @@ export function exchangeCityCard(fromPlayerIndex: number, toPlayerIndex: number,
             type: 'exchangeCard',
             transferringPlayerIndex: fromPlayerIndex,
             receivingPlayerIndex: toPlayerIndex,
-            location: cityName,
+            card: cityCard,
             freeAction: false,
         };
         addActionToCurrentTurn(action); 
-    }
 }
 
 export function buildSupplyCenter(playerLocation: string) {
-    if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
-        let discardedCards: CityCard[] = [];
-        gameState.update((state: GameState) => {
-            const activePlayer: PlayerState = state.players[state.activePlayerIndex];
-            discardedCards = activePlayer.handCards.cityCards.filter(card => card.inBuildArea);
-    
-            // Entferne alle Karten mit inBuildArea = true aus den Handkarten des Spielers
-            // Entferne alle Karten mit inBuildArea = true und füge sie dem Ablagestapel hinzu
-            activePlayer.handCards.cityCards.forEach((card: CityCard) => {
-                if (card.inBuildArea) {
-                    const { newDiscardPile, newCityCards } = discardCityCard(
-                        card.name, 
-                        activePlayer.handCards.cityCards, 
-                        state.playerDeck.discardPile
-                    );
-                    activePlayer.handCards.cityCards = newCityCards;
-                    state.playerDeck.discardPile = newDiscardPile;
-                }
-            });
-    
-            // Setze hasSupplyCenter auf true am aktuellen Standort des Spielers
-            const locationIndex = state.boardState.findIndex(field => field.name === playerLocation);
-            if (locationIndex !== -1) {
-                state.boardState[locationIndex].hasSupplyCenter = true;
-            }
-    
-            return state;
+    if(countNonFreeActions() >= 4 || isDiscardModeActive() || isTurnFinished()) return
+        
+    let discardedCards: CityCard[] = [];
+    gameState.update((state: GameState) => {
+
+        // Flache Kopie des aktuellen Spielzustands
+        let newState = { ...state };
+
+        // Referenz auf den aktiven Spieler im neuen Zustand
+        const activePlayer: PlayerState = newState.players[newState.activePlayerIndex];
+        
+        // Filtern und Verarbeiten der Karten
+        discardedCards = activePlayer.handCards.cityCards.filter(card => card.inBuildArea);
+
+        discardedCards.forEach(card => {
+            const result = discardCard<CityCard>(card, activePlayer.handCards.cityCards, newState.playerDeck.discardPile);
+            activePlayer.handCards.cityCards = result.newPlayerCards;
+            newState.playerDeck.discardPile = result.newDiscardPile;
         });
-        const action: Action = {
-            type: 'buildSupplyCenter',
-            cards: discardedCards,
-            location: playerLocation,
-            freeAction: false,
-        };
-        addActionToCurrentTurn(action); 
-    }
+
+        // Update des Supply Center Status
+        const locationIndex = newState.boardState.findIndex(field => field.name === playerLocation);
+        if (locationIndex !== -1) {
+            newState.boardState[locationIndex].hasSupplyCenter = true;
+        }
+        
+        return newState;
+    });
+
+    const action: Action = {
+        type: 'buildSupplyCenter',
+        cards: discardedCards,
+        location: playerLocation,
+        freeAction: false,
+    };
+    addActionToCurrentTurn(action); 
 }
 
-export function discardExcessCityCard(playerIndex: number, card: CityCard ){
+export function discardExcessCard(playerIndex: number, card: PlayerHandCard ){
     gameState.update(currentState => {
 
         let newState = {...currentState};
         let affectedPlayer = { ...newState.players[playerIndex]}
-        const { newDiscardPile, newCityCards } = discardCityCard(
-                card.name, 
-                affectedPlayer.handCards.cityCards, 
-                newState.playerDeck.discardPile
-            );
 
-        affectedPlayer.handCards.cityCards = newCityCards;
-        newState.playerDeck.discardPile = newDiscardPile;
+        // Generische Behandlung für das Aussortieren von Karten
+        if(card.cardType === 'city' || card.cardType === 'action'){
+            const playerCards = card.cardType === 'city' ? affectedPlayer.handCards.cityCards : affectedPlayer.handCards.actionCards;
+
+            const result = discardCard(card, playerCards, newState.playerDeck.discardPile);
+            
+            if (card.cardType === 'city') {
+                affectedPlayer.handCards.cityCards = result.newPlayerCards as CityCard[];
+            } else {
+                affectedPlayer.handCards.actionCards = result.newPlayerCards as ActionCard[];
+            }
+            newState.playerDeck.discardPile = result.newDiscardPile;
+        } else {
+            // Handle unexpected card type
+            throw new Error('Unexpected card type');
+        }
+
         newState.players[playerIndex] = affectedPlayer;
         
         return newState;
-    })
+    });
 
     // Prüfe und aktualisiere den isDiscardMode Zustand
     const updatedState = get(gameState);
@@ -103,9 +113,9 @@ export function discardExcessCityCard(playerIndex: number, card: CityCard ){
     }
 
     const action: Action = {
-        type: 'discardCityCard',
+        type: 'discardCard',
         transferringPlayerIndex: playerIndex,
-        cards: [card],
+        card: card,
         freeAction: true,
     };
     addActionToCurrentTurn(action); 

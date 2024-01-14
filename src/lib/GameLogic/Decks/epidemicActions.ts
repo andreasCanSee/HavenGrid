@@ -37,7 +37,7 @@ export function executeEpidemic(
 export function insertEpidemicCards(deck: PlayerCard[]): PlayerCard[]{
     const epidemicCards: EpidemicCard[] = Array(5).fill({
         cardType: 'epidemic',
-        action: executeEpidemic
+        name: 'Epidemie'
     });
 
     // Erstelle zuerst eine flache Kopie des Originaldecks

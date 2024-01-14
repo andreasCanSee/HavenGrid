@@ -1,4 +1,5 @@
 import { gameState } from "../Stores/gameStateStore";
+import { executeEpidemic } from "./Decks/epidemicActions";
 import { initializeNextTurn } from "../Stores/turnStateStore";
 import { performInfections } from "./Decks/infectionDeck";
 import { performPlayerCardsPhase } from "./Decks/playerDeck";
@@ -6,12 +7,14 @@ import { get } from "svelte/store";
 import type { GameState, PlayerHand } from "../Models/types";
 import { setDiscardMode } from "../Stores/uiStore";
 import { getCurrentInfectionRate } from "../Models/infectionRate";
+import { addActionToCurrentTurn } from "../Stores/turnStateStore";
 
 let cardsDrawn = false;
 
 export function endTurn() {
 
     if(!cardsDrawn){
+        addActionToCurrentTurn({type: 'turnFinished', freeAction: true})
 
         gameState.update(state => {
 
@@ -27,7 +30,7 @@ export function endTurn() {
 
             for (const epidemicCard of drawnEpidemicCards) {
                 // Verarbeite jede Epidemie-Karte und aktualisiere den neuen Zustand
-                const epidemicChanges = epidemicCard.action(newState.boardState, newState.infectionDeck, newState.infectionRateIndex);
+                const epidemicChanges = executeEpidemic(newState.boardState, newState.infectionDeck, newState.infectionRateIndex);
                 Object.assign(newState, epidemicChanges);
             }
 

@@ -36,9 +36,9 @@
     // Karten tauschen
     function handleCardDragStart(event: DragEvent, card: CityCardType, playerIndex: number, isDiscardOnly: boolean) {
         const dragData = {
-            type: isDiscardOnly ? 'discardCityCard' : 'cityCard',
-            fromPlayerIndex: playerIndex,
-            cardName: card.name,
+            type: isDiscardOnly ? 'discardCard' : 'cityCard',
+            cardData: card,
+            fromPlayerIndex: playerIndex
         };
         if(event.dataTransfer){
             event.dataTransfer.setData("application/json", JSON.stringify(dragData));

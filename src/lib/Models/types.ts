@@ -52,13 +52,12 @@ export type FieldState = {
 
 export type PlayerHand = {
   cityCards: CityCard[];
-  actionCards: (EventCard | ProduceSuppliesCard)[];
+  actionCards: ActionCard[];
 }
 
 export type Card = PlayerCard | InfectionCard;
 export type PlayerCard = EpidemicCard | PlayerHandCard;
 export type PlayerHandCard = CityCard | ActionCard;
-export type ActionCard = EventCard | ProduceSuppliesCard;
 
 export type CityCard = {
     cardType: 'city';
@@ -66,20 +65,15 @@ export type CityCard = {
     inBuildArea: boolean;
 }
 
-export type EventCard = {
-  cardType: 'event',
-  name: string,
-  action: undefined
-}
-
-export type ProduceSuppliesCard = {
-  cardType: 'produceSupplies',
-  action: (currentLocation: string, playerIndex: number) => void;
-}
+export type ActionCard = {
+  cardType: 'action';
+  eventType: 'produceSupplies' | 'event'; // Füge weitere Eventtypen nach Bedarf hinzu
+  name: string; // Name der Karte, wie er auf der Karte angezeigt wird
+};
 
 export type EpidemicCard = {
-  cardType: 'epidemic',
-  action: (boardState: FieldState[], infectionDeck: DeckState<InfectionCard>, infectionRateIndex: number) => Partial<GameState>;
+  cardType: 'epidemic';
+  name: string;
 }
 
 export type InfectionCard = {
@@ -96,12 +90,13 @@ export type DeckState<T> = {
 };
 
 export type Action = {
-  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard' | 'buildSupplyCenter' | 'discardCityCard' | 'produceSupplies';
+  type: 'moveTo' | 'startAt' | 'makeSupply' | 'pickUpSupplies' | 'deliverSupplies' | 'transferSupplies' | 'sailTo' | 'charterBoatTo' | 'exchangeCard' | 'buildSupplyCenter' | 'discardCard' | 'produceSupplies' | 'turnFinished';
   location?: string;
   startLocation?: string;
   supplies?: number;
   freeAction: boolean;
   transferringPlayerIndex?: number;
   receivingPlayerIndex?: number;
-  cards?: CityCard[]
+  cards?: PlayerHandCard[];
+  card?: PlayerHandCard;
 }

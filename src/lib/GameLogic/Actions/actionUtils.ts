@@ -1,44 +1,19 @@
-import type { PlayerCard, CityCard, ActionCard } from "../../Models/types";
+import type { PlayerCard, PlayerHandCard } from "../../Models/types";
 
-export function discardCityCard(
-    cardName: string, 
-    cityCards: CityCard[], 
-    discardPile: PlayerCard[]
-) {
-    const cardIndex = cityCards.findIndex(card => card.cardType === 'city' && card.name === cardName);
-    
-    let newDiscardPile = [...discardPile];
-    let newCityCards = [...cityCards];
-
-    if (cardIndex !== -1) {
-        const cardToDiscard: CityCard = {
-            cardType: 'city', 
-            name: cardName,
-            inBuildArea: false
-        };
-        newDiscardPile.push(cardToDiscard);
-        newCityCards.splice(cardIndex, 1);
-    }
-
-    return { newDiscardPile, newCityCards };
-}
-
-export function discardActionCard(
-    cardType: string,
-    actionCards: ActionCard[],
+export function discardCard<T extends PlayerHandCard>(
+    card: T,
+    playerCards: T[],
     discardPile: PlayerCard[]
 ){
-    const cardIndex = actionCards.findIndex(card => card.cardType === cardType);
+    const cardIndex = playerCards.findIndex(c => c.name === card.name);
 
-    let newDiscardPile = [...discardPile];
-    let newActionCards = [...actionCards];
+    let newDiscardPile = [...discardPile]
+    let newPlayerCards = [...playerCards];
 
     if (cardIndex !== -1) {
-        const cardToDiscard: ActionCard = actionCards[cardIndex];
-        newDiscardPile.push(cardToDiscard);
-        newActionCards.splice(cardIndex, 1);
+        newDiscardPile.push(card);
+        newPlayerCards.splice(cardIndex, 1);
     }
 
-    return { newDiscardPile, newActionCards };
-
+    return { newDiscardPile, newPlayerCards };
 }

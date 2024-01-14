@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { get } from "svelte/store";
 
 export const showBoat = writable(false); 
 
@@ -12,6 +13,11 @@ export function resetDiscardMode() {
 
 export function setDiscardMode(playerIndex: number){
   isDiscardMode.set({ active: true, playerIndex });
+}
+
+export function isDiscardModeActive(){
+  const discardMode = get(isDiscardMode);
+  return discardMode.active;
 }
 
 /* 

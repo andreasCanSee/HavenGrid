@@ -115,7 +115,7 @@
 {#if actionCards.length > 0}
     <div style="display: flex; justify-content: flex-start; background-color: grey; padding: 5px; border-radius: 10px; width: 100%">
         {#each actionCards as actionCard}
-            <ActionCard {actionCard} {playerIndex} {isActive} {playerLocation} canDiscard={showDiscardMessage}/>
+            <ActionCard {actionCard} {playerIndex} {isActive} {playerLocation} {isAtActivePlayerLocation} canDiscard={showDiscardMessage}/>
         {/each}
     </div>
 {/if}

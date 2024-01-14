@@ -3,9 +3,9 @@
   import { fade } from 'svelte/transition';
   import BoardLayout from './BoardLayout.svelte';
   import { gameState } from '../../Stores/gameStateStore';
-  import type { CityCard } from '../../Models/types';
+  import type { CityCard, ActionCard } from '../../Models/types';
   import { showBoat, isDiscardMode } from '../../Stores/uiStore';
-  import { discardExcessCityCard } from '../../GameLogic/Actions/cardActions';
+  import { discardExcessCard } from '../../GameLogic/Actions/cardActions';
   import { animatedPlayerPosition, calculateSvgDimensions } from './boardUtils';
   import { handleDragOver } from '../../Utilities/uiHandlers';
   import { getInfectionRates } from '../../Models/infectionRate';
@@ -24,22 +24,12 @@
         if (!event.dataTransfer) return;
         const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
   
-        if (dragData && dragData.type === 'discardCityCard') {
-          const card = {
-            cardType: 'city',
-            name: dragData.cardName, 
-            inBuildArea: false  // Standardwert setzen
-          } as CityCard;
-          discardExcessCityCard(dragData.fromPlayerIndex, card)
+        if (dragData && (dragData.type === 'discardCard')) {
+        // Verarbeite das Abwerfen einer Karte (Stadt- oder Aktions-Karte)
+          const card = dragData.cardData;
+          discardExcessCard(dragData.fromPlayerIndex, card);
         }
-        if (dragData && dragData.type === 'discardActionCard'){
-          console.log("Futsch und weg")
-        }
-
-
-
     }
-
 </script>
   
 <div on:dragover={ $isDiscardMode.active ? handleDragOver : undefined} on:drop={ $isDiscardMode.active ? event => handleDrop(event) : undefined } role="listbox" tabindex="0">

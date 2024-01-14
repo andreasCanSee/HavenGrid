@@ -1,13 +1,13 @@
 import { get } from "svelte/store";
-import { addActionToCurrentTurn, countNonFreeActions } from "../../Stores/turnStateStore";
+import { addActionToCurrentTurn, countNonFreeActions, isTurnFinished } from "../../Stores/turnStateStore";
 import { showBoat } from "../../Stores/uiStore";
 import { gameState } from "../../Stores/gameStateStore";
 import type { Action } from "../../Models/types";
-import { isDiscardMode } from "../../Stores/uiStore";
+import { isDiscardModeActive } from "../../Stores/uiStore";
 
 export function increasePlayerSupplies(playerIndex: number) {
   
-    if(countNonFreeActions() < 4 && !get(isDiscardMode).active){
+    if(countNonFreeActions() < 4 && !isDiscardModeActive() && !isTurnFinished()){
         gameState.update(state => {
             const updatedPlayers = [...state.players];
             const activePlayer = updatedPlayers[playerIndex];
@@ -24,7 +24,7 @@ export function increasePlayerSupplies(playerIndex: number) {
 
 export function transferSupplies(fromPlayerIndex: number, toPlayerIndex: number){
 
-  if(!get(isDiscardMode).active){
+  if(!isDiscardModeActive() && !isTurnFinished()){
 
   
     gameState.update(state => {
@@ -50,7 +50,7 @@ export function deliverSupplies(index: number, supplies: number, capacity: numbe
     let currentPlayer = currentGameState.players[currentGameState.activePlayerIndex];
     let deliveryQuantity = index - supplies + 1;
   
-    if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat) && countNonFreeActions() < 4 && !get(isDiscardMode).active){
+    if ( deliveryQuantity <= currentPlayer.supplies && currentPlayer.currentLocation === name && !get(showBoat) && countNonFreeActions() < 4 && !isDiscardModeActive() && !isTurnFinished()){
         gameState.update(state => {
           let updatedPlayers = [...state.players];
           let updatedPlayer = updatedPlayers[state.activePlayerIndex];
@@ -80,30 +80,33 @@ export function deliverSupplies(index: number, supplies: number, capacity: numbe
   }
   
   export function pickUpSupplies(name: string) {
-    const currentGameState = get(gameState);
-    if (currentGameState.players[currentGameState.activePlayerIndex].currentLocation === name) {
-      // Aktion hinzufügen
-      const action: Action = {
-          type: 'pickUpSupplies',
-          location: name,
-          freeAction: true
-      };
-      addActionToCurrentTurn(action);
-  
-      gameState.update(state => {
-        let updatedPlayers = [...state.players];
-        let updatedPlayer = updatedPlayers[state.activePlayerIndex];
-  
-        updatedPlayer.supplies += 1;
-  
-        let updatedBoardState = state.boardState.map(field => {
-            if (field.name === name) {
-                return { ...field, supplies: field.supplies - 1 };
-            }
-            return field;
+    if(isDiscardModeActive() || isTurnFinished()) return
+
+      const currentGameState = get(gameState);
+      if (currentGameState.players[currentGameState.activePlayerIndex].currentLocation === name) {
+        // Aktion hinzufügen
+        const action: Action = {
+            type: 'pickUpSupplies',
+            location: name,
+            freeAction: true
+        };
+        addActionToCurrentTurn(action);
+    
+        gameState.update(state => {
+          let updatedPlayers = [...state.players];
+          let updatedPlayer = updatedPlayers[state.activePlayerIndex];
+    
+          updatedPlayer.supplies += 1;
+    
+          let updatedBoardState = state.boardState.map(field => {
+              if (field.name === name) {
+                  return { ...field, supplies: field.supplies - 1 };
+              }
+              return field;
+          });
+    
+          return { ...state, players: updatedPlayers, boardState: updatedBoardState };
         });
-  
-        return { ...state, players: updatedPlayers, boardState: updatedBoardState };
-      });
-    }
+      }
+    
   }

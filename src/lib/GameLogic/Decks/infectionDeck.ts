@@ -13,16 +13,21 @@ export function performInfections(infectionDeck: DeckState<InfectionCard>, infec
 
     // Infection Phases II; Infect Cities
     let newOutbreaks = 0;
-    const updatedBoardState = boardState.map(city => {
-        if(drawnInfectionCards.some(card => card.data.name === city.name)){
+    const updatedBoardState = [...boardState]; // Erstelle eine Kopie von boardState
+
+    // Gehe jede gezogene Infektionskarte durch und infiziere die entsprechende Stadt
+    drawnInfectionCards.forEach(infectionCard => {
+        const cityIndex = updatedBoardState.findIndex(city => city.name === infectionCard.data.name);
+        if (cityIndex !== -1) {
+            const city = updatedBoardState[cityIndex];
             if (city.supplies === 0) {
                 city.plagueLevel = Math.min(city.plagueLevel + 1, 3);
                 newOutbreaks += 1;
             } else {
                 city.supplies -= 1;
             }
+            updatedBoardState[cityIndex] = city; // Aktualisiere die Stadt im Array
         }
-        return city;
     });
 
     return {updatedInfectionDeck, updatedBoardState, newOutbreaks}

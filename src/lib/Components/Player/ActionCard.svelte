@@ -1,12 +1,14 @@
 <script lang="ts">
 import type { ActionCard } from "../../Models/types";
 import { gameState } from "../../Stores/gameStateStore";
+import { produceSuppliesAction } from "../../GameLogic/Actions/eventActions";
 
 export let actionCard: ActionCard;
 export let playerIndex: number;
 export let isActive: boolean;
 export let playerLocation: string;
 export let canDiscard: boolean;
+export let isAtActivePlayerLocation: boolean;
 
 let canProduceSupplies = false;
 
@@ -14,24 +16,24 @@ $: canProduceSupplies = isActive && $gameState.boardState.some(field =>
     field.name === playerLocation && field.hasSupplyCenter
 );
 
-$: isCardDraggable = (isActive && canDiscard)
+$: isCardDraggable = ((isActive || isAtActivePlayerLocation) && canDiscard)
 
 function executeAction() {
-    if (canProduceSupplies && actionCard.cardType === 'produceSupplies') {
-        actionCard.action(playerLocation, playerIndex); 
+    if (canProduceSupplies && actionCard.eventType === 'produceSupplies') {
+        produceSuppliesAction(playerLocation, playerIndex); 
     }
 }
 
 function handleCardDragStart(event: DragEvent, card: ActionCard, playerIndex: number) {
         const dragData = {
-            type: 'discardActionCard',
+            type: 'discardCard',
+            cardData: card,
             fromPlayerIndex: playerIndex,
         };
         if(event.dataTransfer){
             event.dataTransfer.setData("application/json", JSON.stringify(dragData));
         }
     }
-
 </script>
 
 <button 
@@ -51,7 +53,5 @@ function handleCardDragStart(event: DragEvent, card: ActionCard, playerIndex: nu
            cursor: pointer; 
            border: none;
            text-align: center;">
-    {#if actionCard.cardType === 'produceSupplies'}
-        Vorräte produzieren
-    {/if}
+        {actionCard.name}
 </button>

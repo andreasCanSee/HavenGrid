@@ -44,9 +44,8 @@
             }
         }
         else if (dragData && dragData.type === 'cityCard'){
-            let cityName = dragData.cardName; 
             if (fromPlayer && toPlayer && fromPlayer.currentLocation === toPlayer.currentLocation) {
-                exchangeCityCard(dragData.fromPlayerIndex, targetPlayerIndex, cityName);
+                exchangeCityCard(dragData.fromPlayerIndex, targetPlayerIndex, dragData.cardData);
         }
         }
     }

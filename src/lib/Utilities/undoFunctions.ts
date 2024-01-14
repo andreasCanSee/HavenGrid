@@ -1,61 +1,78 @@
-import { get } from 'svelte/store';
-import { currentTurnActions } from '../Stores/turnStateStore';
-import type { Action, CityCard } from '../Models/types';
+import { updateCurrentTurnActions } from '../Stores/turnStateStore';
+import type { Action, ActionCard, CityCard, PlayerHandCard } from '../Models/types';
 import { gameState } from '../Stores/gameStateStore';
 import { resetDiscardMode, setDiscardMode } from '../Stores/uiStore';
 import { checkHandCardLimit } from '../GameLogic/turnCycleLogic';
+import { get } from 'svelte/store';
 
-export function undoLastMove() {
+export function undoLastMove(currentActions: Action[]) {
 
+    // 1. Zwischenspeichern des Anfangszustands
+    const originalActions = [...currentActions];
 
-    let lastActionRemoved: Action | undefined;
-
-    currentTurnActions.update(actions => {
-        // Nie den Startort einer Runde entfernen
-        if (actions.length > 1) {
-            lastActionRemoved = actions.pop();
+    try {
+         // 2. Durchführen der Operationen
+        let [updatedActions, lastActionRemoved] = removeLastAction(currentActions);
+        
+        if (lastActionRemoved) {
+            switch (lastActionRemoved.type) {
+                case 'moveTo':
+                    undoMoveToAction(updatedActions);
+                    break;
+                case 'pickUpSupplies':
+                    undoPickUpSuppliesAction(lastActionRemoved);
+                    break;
+                case 'makeSupply':
+                    undoMakeSupplyAction();
+                    break;
+                case 'deliverSupplies':
+                    undoDeliverSuppliesAction(lastActionRemoved);
+                    break;
+                case 'transferSupplies':
+                    undoTransferSuppliesAction(lastActionRemoved);
+                    break;
+                case 'sailTo':
+                    undoSailToAction(updatedActions, lastActionRemoved);
+                    break;
+                case 'charterBoatTo':
+                    undoCharterBoatToAction(lastActionRemoved);
+                    break;
+                case 'exchangeCard':
+                    undoExchangeCardAction(lastActionRemoved);
+                    break;
+                case 'buildSupplyCenter':
+                    undoBuildSupplyCenterAction(lastActionRemoved);
+                    break;
+                case 'discardCard':
+                    undoDiscardExcessCardAction(lastActionRemoved);
+                    break;
+                case 'produceSupplies':
+                    undoProduceSuppliesAction(lastActionRemoved);
+                    break;
+            }
+            // 3. Aktualisieren des Zustands, wenn alles erfolgreich war
+            updateCurrentTurnActions(updatedActions);
+        
         }
-        return actions;
-    });
-    
-    if (lastActionRemoved) {
-        switch (lastActionRemoved.type) {
-            case 'moveTo':
-                undoMoveToAction();
-                break;
-            case 'pickUpSupplies':
-                undoPickUpSuppliesAction(lastActionRemoved);
-                break;
-            case 'makeSupply':
-                undoMakeSupplyAction();
-                break;
-            case 'deliverSupplies':
-                undoDeliverSuppliesAction(lastActionRemoved);
-                break;
-            case 'transferSupplies':
-                undoTransferSuppliesAction(lastActionRemoved);
-                break;
-            case 'sailTo':
-                undoSailToAction(lastActionRemoved);
-                break;
-            case 'charterBoatTo':
-                undoCharterBoatToAction(lastActionRemoved);
-                break;
-            case 'exchangeCard':
-                undoExchangeCardAction(lastActionRemoved);
-                break;
-            case 'buildSupplyCenter':
-                undoBuildSupplyCenterAction(lastActionRemoved);
-                break;
-            case 'discardCityCard':
-                undoDiscardExcessCardAction(lastActionRemoved);
-                break;
-            case 'produceSupplies':
-                undoProduceSuppliesAction(lastActionRemoved);
-                break;
-        }
+    } catch (error) {
+        // Im Fehlerfall den ursprünglichen Zustand wiederherstellen
+        console.error("Fehler beim Rückgängigmachen der Aktion: ", error);
+        updateCurrentTurnActions(originalActions);
     }
-   
+}
+
+function removeLastAction(currentActions: Action[]): [Action[], Action | undefined] {
+    let lastAction: Action | undefined;
+  
+    // Die neue Liste der Aktionen, nachdem die letzte Aktion entfernt wurde
+    let updatedActions = [...currentActions];
+  
+    if(updatedActions.length > 1){
+      lastAction = updatedActions.pop();
+    }
+  
+    // Rückgabe des aktualisierten Aktionsarrays und der entfernten letzten Aktion
+    return [updatedActions, lastAction];
 }
 
 const movementActionTypes = ['moveTo', 'sailTo', 'charterBoatTo', 'startAt'];
@@ -64,25 +81,30 @@ function isMovementAction(actionType: string) {
     return movementActionTypes.includes(actionType);
 }
 
-function findLastLocation(): string {
+function findLastLocation(actions: Action[]): string {
     let lastLocation = '';
     
-    for (let i = get(currentTurnActions).length - 1; i >= 0; i--) {
-        const action = get(currentTurnActions)[i];
-        if (isMovementAction(action.type )) {
+    for (let i = actions.length - 1; i >= 0; i--) {
+        const action = actions[i];
+        if (isMovementAction(action.type)) {
             lastLocation = action.location || '';
             break;
         }
     }
 
+    // Überprüfe, ob ein gültiger Standort gefunden wurde
+    if (!lastLocation) {
+        throw new Error('Kein gültiger letzter Standort gefunden');
+    }
+
     return lastLocation;
 }
 
-function undoMoveToAction() {
+function undoMoveToAction(actions: Action[]) {
     gameState.update(state => {
         const updatedPlayers = [...state.players];
         const activePlayer = updatedPlayers[state.activePlayerIndex];
-        activePlayer.currentLocation = findLastLocation();
+        activePlayer.currentLocation = findLastLocation(actions);
         return { ...state, players: updatedPlayers };
     });         
 }
@@ -147,7 +169,6 @@ function undoDeliverSuppliesAction(action: Action) {
     });
 }
 
-
 function undoTransferSuppliesAction(action: Action) {
     
         gameState.update(state => {
@@ -169,6 +190,8 @@ function undoTransferSuppliesAction(action: Action) {
 
 function undoExchangeCardAction(action: Action){
     if (action.type === 'exchangeCard' && typeof action.transferringPlayerIndex === 'number' && typeof action.receivingPlayerIndex === 'number') {
+        const cardToReturn = action.card as CityCard;
+
         gameState.update(state => {
             const updatedPlayers = [...state.players];
 
@@ -177,12 +200,12 @@ function undoExchangeCardAction(action: Action){
                 const toPlayer = updatedPlayers[action.receivingPlayerIndex];
 
                 // Finde die Karte im Handkartendeck des aufnehmenden Spielers
-                const cardIndex = toPlayer.handCards.cityCards.findIndex(card => card.name === action.location);
+                const cardIndex = toPlayer.handCards.cityCards.findIndex(card => card.name === cardToReturn.name);
 
                 if (cardIndex !== -1) {
                     // Entferne die Karte aus dem Handkartendeck des aufnehmenden Spielers und füge sie dem abgebenden Spieler hinzu
-                    const [card] = toPlayer.handCards.cityCards.splice(cardIndex, 1);
-                    fromPlayer.handCards.cityCards.push(card);
+                    toPlayer.handCards.cityCards.splice(cardIndex, 1);
+                    fromPlayer.handCards.cityCards.push(cardToReturn);
                 }
             }
 
@@ -191,59 +214,72 @@ function undoExchangeCardAction(action: Action){
         
         // Prüfe und aktualisiere den isDiscardMode Zustand
         const updatedState = get(gameState);
-        if (typeof action.receivingPlayerIndex === 'number' && !checkHandCardLimit(updatedState.players[action.receivingPlayerIndex].handCards)) {
+        if (checkHandCardLimit(updatedState.players[action.receivingPlayerIndex].handCards)) {
+            setDiscardMode(action.receivingPlayerIndex);
+        } else {
             resetDiscardMode();
         }
     }
 }
 
-function undoSailToAction(action: Action) {
-    gameState.update(state => {
-        const updatedPlayers = [...state.players];
-        const currentPlayer = updatedPlayers[state.activePlayerIndex];
-        
-        // Karte vom discardPile zurückholen
-        const cardIndex = state.playerDeck.discardPile.findIndex(card => card.cardType === 'city' && card.name === action.location);
-        let cardToReturn = null;
-        if (cardIndex !== -1) {
-            cardToReturn = state.playerDeck.discardPile.splice(cardIndex, 1)[0] as CityCard;
-        }
+function undoSailToAction(currentActions: Action[], action: Action) {
+    if (action.type === 'sailTo' && action.card) {
 
-        // Wenn eine Karte zurückgeholt wird, füge sie den Handkarten des aktuellen Spielers hinzu
-        if (cardToReturn) {
+        const cardToReturn = action.card as CityCard;
+
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
+            const updatedDiscardPile = [...state.playerDeck.discardPile];
+
+            const currentPlayer = updatedPlayers[state.activePlayerIndex];
+
+            // Entferne die Karte aus dem discardPile
+            const cardIndex = updatedDiscardPile.findIndex(card => card === cardToReturn);
+            if (cardIndex !== -1) {
+                updatedDiscardPile.splice(cardIndex, 1);
+            }
+
+            // Füge die Karte zurück zu den Handkarten des aktuellen Spielers
             currentPlayer.handCards.cityCards.push(cardToReturn);
-        }
 
-        // Aktualisiere die aktuelle Position des Spielers
-        currentPlayer.currentLocation = findLastLocation();
+            // Aktualisiere die aktuelle Position des Spielers
+            currentPlayer.currentLocation = findLastLocation(currentActions);
 
-        return { ...state, players: updatedPlayers };
-    });
+            return { ...state, players: updatedPlayers, playerDeck: {...state.playerDeck, discardPile: updatedDiscardPile} };
+        });
+    } else {
+        console.error('Invalid action data for undoSailToAction');
+    }
 }
 
 export function undoCharterBoatToAction(action: Action) {
-    gameState.update(state => {
-        const updatedPlayers = [...state.players];
-        const currentPlayer = updatedPlayers[state.activePlayerIndex];
+    
+    if (action.type === 'charterBoatTo' && action.card) {
+        const cardToReturn = action.card as CityCard;
 
-        // Karte vom discardPile zurückholen
-        const cardIndex = state.playerDeck.discardPile.findIndex(card => card.cardType === 'city' && card.name === action.startLocation);
-        if (cardIndex !== -1) {
-            const cardToReturn = state.playerDeck.discardPile.splice(cardIndex, 1)[0] as CityCard;
-            // Wenn eine Karte zurückgeholt wird, füge sie den Handkarten des aktuellen Spielers hinzu
+        gameState.update(state => {
+            const updatedPlayers = [...state.players];
+            const updatedDiscardPile = [...state.playerDeck.discardPile];
+
+            const currentPlayer = updatedPlayers[state.activePlayerIndex];
+
+            // Entferne die Karte aus dem discardPile
+            const cardIndex = updatedDiscardPile.findIndex(card => card === cardToReturn);
+            if (cardIndex !== -1) {
+                updatedDiscardPile.splice(cardIndex, 1);
+            }
+
+            // Füge die Karte zurück zu den Handkarten des aktuellen Spielers
             currentPlayer.handCards.cityCards.push(cardToReturn);
-        }
 
-        // Aktualisiere die aktuelle Position des Spielers
-        if (action.startLocation) {
-            currentPlayer.currentLocation = action.startLocation;
-        }
-        else{
-            currentPlayer.currentLocation = findLastLocation();
-        }
+            // Aktualisiere die aktuelle Position des Spielers
+            currentPlayer.currentLocation = cardToReturn.name;
 
-        return { ...state, players: updatedPlayers };
-    });
+            return { ...state, players: updatedPlayers, playerDeck: {...state.playerDeck, discardPile: updatedDiscardPile} };
+        });
+    } else {
+        console.error('Invalid action data for undoCharterBoatToAction');
+    }
 }
 
 export function undoBuildSupplyCenterAction(action: Action) {
@@ -251,17 +287,10 @@ export function undoBuildSupplyCenterAction(action: Action) {
         const updatedPlayers = [...state.players];
         const activePlayer = updatedPlayers[state.activePlayerIndex];
 
-        // Karten vom Ablagestapel zurück in die Hand des Spielers legen
+        // Füge die Karten zurück zu den Handkarten des Spielers
         action.cards?.forEach(card => {
-            const cardIndex = state.playerDeck.discardPile.findIndex(discardCard => 
-               discardCard.cardType === 'city' && discardCard.name === card.name 
-            );
-
-            if (cardIndex !== -1) {
-                const [cardToReturn] = state.playerDeck.discardPile.splice(cardIndex, 1);
-                if (cardToReturn.cardType === 'city') {
-                    activePlayer.handCards.cityCards.push(cardToReturn);
-                }
+            if (card.cardType === 'city') {
+                activePlayer.handCards.cityCards.push(card as CityCard);
             }
         });
 
@@ -279,9 +308,9 @@ export function undoBuildSupplyCenterAction(action: Action) {
 
 function undoDiscardExcessCardAction(action: Action) {
 
-    if (action.type === 'discardCityCard' && action.cards && action.cards.length > 0 && action.transferringPlayerIndex !== undefined) {
+    if (action.type === 'discardCard' && action.card && action.transferringPlayerIndex !== undefined) {
 
-        const cardToReturn = action.cards[0] as CityCard;
+        const cardToReturn = action.card as PlayerHandCard;
         const playerIndex = action.transferringPlayerIndex;
        
         gameState.update(state => {
@@ -289,12 +318,14 @@ function undoDiscardExcessCardAction(action: Action) {
             const affectedPlayer = updatedPlayers[playerIndex];
             
             // Füge die abgeworfene Karte zurück zu den Handkarten des Spielers
-            affectedPlayer.handCards.cityCards.push(cardToReturn);
+            if (cardToReturn.cardType === 'city') {
+                affectedPlayer.handCards.cityCards.push(cardToReturn as CityCard);
+            } else if (cardToReturn.cardType === 'action') {
+                affectedPlayer.handCards.actionCards.push(cardToReturn as ActionCard);
+            }
 
             // Entferne die Karte aus dem Ablagestapel
-            const cardIndex = state.playerDeck.discardPile.findIndex(discardCard => 
-                discardCard.cardType === 'city' && discardCard.name === cardToReturn.name 
-            );
+            const cardIndex = state.playerDeck.discardPile.findIndex(discardCard => discardCard === cardToReturn);
             if (cardIndex !== -1) {
                 state.playerDeck.discardPile.splice(cardIndex, 1);
             }
@@ -313,33 +344,46 @@ function undoDiscardExcessCardAction(action: Action) {
 }
 
 function undoProduceSuppliesAction(action: Action) {
-    if (action.type === 'produceSupplies') {
+    if (action.type === 'produceSupplies' && action.card) {
+        const cardToReturn = action.card as ActionCard;
+
         gameState.update(state => {
+            // Flache Kopien der benötigten Arrays erstellen
             const updatedPlayers = [...state.players];
+            const updatedBoardState = [...state.boardState];
+            const updatedDiscardPile = [...state.playerDeck.discardPile];
+
+
             const activePlayer = updatedPlayers[state.activePlayerIndex];
 
-            // Setze die Vorräte am Standort zurück
-            let updatedBoardState = state.boardState.map(field => {
-                if (field.name === action.location) {
-                    const supplies = action.supplies !== undefined ? action.supplies : field.supplies;
-                    return { ...field, supplies };
-                }
-                return field;
-            });
-
-            // Hole die "ProduceSupplies"-Karte vom Ablagestapel zurück
-            const cardIndex = state.playerDeck.discardPile.findIndex(discardCard => 
-                discardCard.cardType === 'produceSupplies'
-            );
+            // Entferne die Karte aus dem discardPile
+            const cardIndex = updatedDiscardPile.findIndex(card => card === cardToReturn);
             if (cardIndex !== -1) {
-                const [cardToReturn] = state.playerDeck.discardPile.splice(cardIndex, 1);
-                if (cardToReturn.cardType === 'produceSupplies') {
-                    activePlayer.handCards.actionCards.push(cardToReturn);
+                updatedDiscardPile.splice(cardIndex, 1);
+            }
+
+            // Füge die Karte zurück zu den Handkarten des Spielers
+            activePlayer.handCards.actionCards.push(cardToReturn);
+
+            // Setze die Vorräte am Standort zurück
+            for (let i = 0; i < updatedBoardState.length; i++) {
+                if (updatedBoardState[i].name === action.location) {
+                    updatedBoardState[i] = {
+                        ...updatedBoardState[i],
+                        supplies: action.supplies !== undefined ? action.supplies : updatedBoardState[i].supplies
+                    };
+                    break; // Abbruch der Schleife nach dem Update
                 }
             }
 
-            return { ...state, players: updatedPlayers, boardState: updatedBoardState };
+            return { 
+                ...state, 
+                players: updatedPlayers, 
+                boardState: updatedBoardState, 
+                playerDeck: {...state.playerDeck, discardPile: updatedDiscardPile} 
+            };
         });
+    } else {
+        console.error('Invalid action data for undoProduceSuppliesAction');
     }
 }
-
