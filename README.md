@@ -62,9 +62,9 @@ They represent individual locations on the board, handling both the display (lab
 
 📌  **Integration of TailwindCSS**: To replace the provisional inline styling.
 
-📌 **Disease and Epidemic Mechanics**: A key game component yet to be realized.
-
 📌  **Implementation of Victory/Loss Conditions**: Adding these elements will complete the game loop, bringing it closer to the original board game experience.
+
+📌 **Outbreak Chain Mechanics**: A key game component yet to be realized.
 
 📌  **Event Cards and Character Abilities**: Game elements still to be implemented, will introduce more depth and variety to the gameplay.
 

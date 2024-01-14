@@ -63,7 +63,12 @@ export function undoLastMove(currentActions: Action[]) {
 
 function removeLastAction(currentActions: Action[]): [Action[], Action | undefined] {
     let lastAction: Action | undefined;
-  
+
+    // Prüfe, ob die letzte Aktion 'turnFinished' ist
+    if (currentActions.length > 0 && currentActions[currentActions.length - 1].type === 'turnFinished') {
+        return [currentActions, undefined];
+    }
+
     // Die neue Liste der Aktionen, nachdem die letzte Aktion entfernt wurde
     let updatedActions = [...currentActions];
   

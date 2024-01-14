@@ -1,14 +1,13 @@
 import { gameState } from "../../Stores/gameStateStore";
 import type { Action, GameState, PlayerState, CityCard, PlayerHandCard, ActionCard } from "../../Models/types";
-import { countNonFreeActions, addActionToCurrentTurn, isTurnFinished } from "../../Stores/turnStateStore";
+import { addActionToCurrentTurn, canPerformAction } from "../../Stores/turnStateStore";
 import { discardCard } from "./actionUtils";
 import { checkHandCardLimit } from "../turnCycleLogic";
 import { get } from "svelte/store";
-import { setDiscardMode, resetDiscardMode, isDiscardModeActive } from "../../Stores/uiStore";
-
+import { setDiscardMode, resetDiscardMode } from "../../Stores/uiStore";
 
 export function exchangeCityCard(fromPlayerIndex: number, toPlayerIndex: number, cityCard: CityCard){
-    if(countNonFreeActions() >= 4 || isDiscardModeActive() || isTurnFinished()) return
+    if(!canPerformAction()) return
     
     gameState.update(state => {
         const updatedPlayers = [...state.players];
@@ -40,8 +39,8 @@ export function exchangeCityCard(fromPlayerIndex: number, toPlayerIndex: number,
 }
 
 export function buildSupplyCenter(playerLocation: string) {
-    if(countNonFreeActions() >= 4 || isDiscardModeActive() || isTurnFinished()) return
-        
+    if(!canPerformAction()) return
+
     let discardedCards: CityCard[] = [];
     gameState.update((state: GameState) => {
 

@@ -1,12 +1,11 @@
 import type { Action, ActionCard } from "../../Models/types";
 import { gameState } from "../../Stores/gameStateStore";
-import { addActionToCurrentTurn, countNonFreeActions, isTurnFinished } from "../../Stores/turnStateStore";
-import { isDiscardModeActive } from "../../Stores/uiStore";
+import { addActionToCurrentTurn, canPerformAction } from "../../Stores/turnStateStore";
 import { discardCard } from "./actionUtils";
 
 export function produceSuppliesAction(currentLocation: string, playerIndex: number){
 
-    if(countNonFreeActions() >= 4 || isDiscardModeActive() || isTurnFinished()) return
+    if(!canPerformAction()) return
     let oldSupplies = 0;
     let cardToDiscard: ActionCard | undefined;
     

@@ -31,7 +31,7 @@ export function initializeDecks(): { playerDeck: DeckState<PlayerCard>, infectio
     const produceSuppliesCards: ActionCard[] = Array.from({ length: 8 }, (): ActionCard => ({
         cardType: 'action',
         eventType: 'produceSupplies',
-        name: 'Vorräte produzieren' // Hier kannst du die entsprechende Aktion definieren, wenn nötig
+        name: 'Vorräte produzieren' 
     }));
 
     // Füge die ProduceSupplies-Karten zum Spielerdeck hinzu

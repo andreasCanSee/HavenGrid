@@ -7,14 +7,13 @@ import { get } from "svelte/store";
 import type { GameState, PlayerHand } from "../Models/types";
 import { setDiscardMode } from "../Stores/uiStore";
 import { getCurrentInfectionRate } from "../Models/infectionRate";
-import { addActionToCurrentTurn } from "../Stores/turnStateStore";
-
-let cardsDrawn = false;
+import { markTurnAsFinished } from "../Stores/turnStateStore";
+import { isTurnFinished } from "../Stores/turnStateStore";
 
 export function endTurn() {
 
-    if(!cardsDrawn){
-        addActionToCurrentTurn({type: 'turnFinished', freeAction: true})
+    if(!isTurnFinished()){
+        markTurnAsFinished();
 
         gameState.update(state => {
 
@@ -28,11 +27,11 @@ export function endTurn() {
             newState.playerDeck = updatedPlayerDeck;
             newState.players[newState.activePlayerIndex] = updatedPlayer;
 
-            for (const epidemicCard of drawnEpidemicCards) {
+            drawnEpidemicCards.forEach(epidemicCard => {
                 // Verarbeite jede Epidemie-Karte und aktualisiere den neuen Zustand
                 const epidemicChanges = executeEpidemic(newState.boardState, newState.infectionDeck, newState.infectionRateIndex);
                 Object.assign(newState, epidemicChanges);
-            }
+            });
 
             return newState;
         });
@@ -40,14 +39,12 @@ export function endTurn() {
 
         if (checkHandCardLimit(currentState.players[currentState.activePlayerIndex].handCards)) {
             setDiscardMode(currentState.activePlayerIndex)
-            cardsDrawn = true; // Markiere, dass Karten gezogen wurden
         } else {
             performInfectionPhaseAndMoveToNextPlayer(currentState);
         }
     } else {
         const currentState = get(gameState);
         performInfectionPhaseAndMoveToNextPlayer(currentState);
-        cardsDrawn = false; // Setze zurück für den nächsten Spieler
     }
 }
 

@@ -25,10 +25,16 @@
         { color: 'blue' },
         { color: 'black' }
     ];
-
+    
     // Trennen von CityCards und ActionCards
-    $: cityCards = playerHandCards.cityCards;
     $: actionCards = playerHandCards.actionCards;
+
+    // Reaktive Zuweisung für unsortierte Stadtkarten
+    $: unsortedCityCards = playerHandCards.cityCards;
+    // Reaktive Zuweisung für sortierte Stadtkarten
+    $: cityCards = unsortedCityCards.slice().sort((a, b) => {
+        return a.name.localeCompare(b.name);
+    });
     
     let showDiscardMessage: boolean;
     $: showDiscardMessage = $isDiscardMode.active && $isDiscardMode.playerIndex === playerIndex;
@@ -83,7 +89,7 @@
         });
     }
 
-    $: selectedCityCards = cityCards
+    $: selectedCityCards = unsortedCityCards
         .map((card, originalIndex) => ({ card, originalIndex }))
         .filter(({ card }) => getColorOfCity(card.name) === buildAreaColor);
 
@@ -91,8 +97,8 @@
 
  <div style="display: flex; flex-direction: column;"> 
     {#if showDiscardMessage && (isActive || isAtActivePlayerLocation)}
-        <p style="color: red; text-align: center;">
-            Bitte Karten abwerfen, bis maximal 7 Karten übrig bleiben!
+        <p style="color: white; text-align: center; background-color:grey; padding: 5px; font-weight: 700">
+            Handkarten auf 7 reduzieren!
         </p>
     {/if}
     <!-- CityCards -->

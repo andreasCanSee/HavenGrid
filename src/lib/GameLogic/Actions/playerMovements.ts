@@ -3,14 +3,13 @@ import { gameState } from "../../Stores/gameStateStore";
 import { findPath } from "../../Utilities/utils";
 import { animateFerry } from "../../Components/Board/boardUtils";
 import type { Action, CityCard } from "../../Models/types";
-import { charterBoatMode, isDiscardModeActive, showBoat} from "../../Stores/uiStore";
-import { addActionToCurrentTurn, countNonFreeActions, currentTurnActions, isTurnFinished } from "../../Stores/turnStateStore";
+import { charterBoatMode, isDiscardModeActive } from "../../Stores/uiStore";
+import { addActionToCurrentTurn, countNonFreeActions, currentTurnActions, isTurnFinished, canPerformAction } from "../../Stores/turnStateStore";
 import { discardCard } from "./actionUtils";
 
 
 export function moveToLocation(targetLocation: string) {
-
-  if(countNonFreeActions() >=4 || get(showBoat) || isDiscardModeActive() || isTurnFinished()) return
+  if(!canPerformAction()) return
 
   const currentGameState = get(gameState);
   const activeLocation = currentGameState.players[currentGameState.activePlayerIndex].currentLocation;
@@ -83,28 +82,28 @@ export async function charterToLocation(currentLocation: string, targetLocation:
 
 export async function sailToLocation(currentLocation: string, targetLocation: string, playerIndex: number) {
 
-  if(countNonFreeActions() >= 4 || get(showBoat) || currentLocation === targetLocation || isDiscardModeActive() || isTurnFinished()) return;
+  if(!canPerformAction() || currentLocation === targetLocation) return
 
-    await animateFerry(currentLocation, targetLocation, 'sailTo');
+  await animateFerry(currentLocation, targetLocation, 'sailTo');
 
-    let cardToDiscard: CityCard | undefined;
+  let cardToDiscard: CityCard | undefined;
 
-    gameState.update(state => {
-      const updatedPlayers = [...state.players];
-      const activePlayer = updatedPlayers[playerIndex]
-      activePlayer.currentLocation = targetLocation;
+  gameState.update(state => {
+    const updatedPlayers = [...state.players];
+    const activePlayer = updatedPlayers[playerIndex]
+    activePlayer.currentLocation = targetLocation;
 
-      // Finde die zu entsorgende CityCard basierend auf dem Namen der Ziellocation
-      cardToDiscard = activePlayer.handCards.cityCards.find(card => card.name === targetLocation);
+    // Finde die zu entsorgende CityCard basierend auf dem Namen der Ziellocation
+    cardToDiscard = activePlayer.handCards.cityCards.find(card => card.name === targetLocation);
 
-      if (cardToDiscard) {
-        const result = discardCard<CityCard>(cardToDiscard, activePlayer.handCards.cityCards, state.playerDeck.discardPile);
-        activePlayer.handCards.cityCards = result.newPlayerCards as CityCard[];
-        state.playerDeck.discardPile = result.newDiscardPile;
-      }
+    if (cardToDiscard) {
+      const result = discardCard<CityCard>(cardToDiscard, activePlayer.handCards.cityCards, state.playerDeck.discardPile);
+      activePlayer.handCards.cityCards = result.newPlayerCards as CityCard[];
+      state.playerDeck.discardPile = result.newDiscardPile;
+    }
       
-      return { ...state, players: updatedPlayers };
-    });
+    return { ...state, players: updatedPlayers };
+  });
     
     const sailToLocationAction: Action = {
       type: 'sailTo',
@@ -113,6 +112,3 @@ export async function sailToLocation(currentLocation: string, targetLocation: st
     };
     addActionToCurrentTurn(sailToLocationAction);
 }
-
-
-

@@ -3,7 +3,15 @@ import { get } from "svelte/store";
 
 export const showBoat = writable(false); 
 
+export function isShowBoatActive() {
+  return get(showBoat);
+}
+
 export const charterBoatMode = writable(false);
+
+export function isCharterBoatModeActive() {
+  return get(charterBoatMode);
+}
 
 export const isDiscardMode = writable<{ active: boolean; playerIndex: number | null }>({ active: false, playerIndex: null });
 

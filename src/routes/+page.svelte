@@ -2,13 +2,13 @@
     import { derived } from 'svelte/store';
     import Board from '../lib/Components/Board/Board.svelte';
     import PlayerDashboard from '../lib/Components/Player/PlayerDashboard.svelte';
+    import type { InfectionCard, PlayerCard } from '../lib/Models/types';
     import { gameState } from '../lib/Stores/gameStateStore';
     import { setupNewGame } from '../lib/GameLogic/setupGame';
     import { initialPlayerData } from '../lib/Models/initialPlayerData';
     import { endTurn} from '../lib/GameLogic/turnCycleLogic';
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
-    import { isDiscardMode } from '../lib/Stores/uiStore';
-    import type { InfectionCard, PlayerCard } from '../lib/Models/types';
+    import { isDiscardMode, showBoat } from '../lib/Stores/uiStore';
     import { currentTurnActions } from '../lib/Stores/turnStateStore';
     import { getColorOfCity } from '../lib/Models/initialBoardData';
 
@@ -36,6 +36,7 @@
     }
 
     $: remainingActions = 4 - $currentTurnActions.filter(action => !action.freeAction).length;
+
 </script>
   
 <header>
@@ -90,11 +91,11 @@
                         display: flex;
                         align-items: center">
                     <h3>Noch {remainingActions} {remainingActions === 1 ? 'Aktion' : 'Aktionen'}</h3>
-                    <button on:click={() => undoLastMove($currentTurnActions)} style="padding: 10px;
-                        cursor: pointer;
+                    <button on:click={() => {!$showBoat  && undoLastMove($currentTurnActions)}} style="padding: 10px;
                         font-weight: 700;
                         font-size: 14px;
                         background-color: navy;
+                        cursor: {$showBoat  ? 'not-allowed' : 'pointer'};
                         color: firebrick;
                         text-align: center;
                         border-radius: 5px;
@@ -102,11 +103,11 @@
                         border: none;">Aktion zurück-<br>nehmen ⏮️</button>
                 </div>
                   
-                    <button on:click={endTurn} disabled={$isDiscardMode.active} style="padding: 10px;
-                    cursor: pointer;
+                    <button on:click={endTurn} disabled={$isDiscardMode.active || $showBoat} style="padding: 10px;
                     font-size: 14px;
                     font-weight: 700;
                     background-color: navy;
+                    cursor: {$showBoat || $isDiscardMode.active  ? 'not-allowed' : 'pointer'};
                     color: firebrick;
                     text-align: center;
                     border-radius: 5px;

@@ -1,6 +1,8 @@
 import { writable, get } from 'svelte/store';
 import { initialPlayerData } from '../Models/initialPlayerData';
+import { isDiscardModeActive } from './uiStore';
 import type { Action } from '../Models/types';
+import { isShowBoatActive } from './uiStore';
 
 
 // Hole die Anfangsposition des ersten Spielers
@@ -26,10 +28,26 @@ export function countNonFreeActions(): number{
   return actions.filter(action => !action.freeAction).length;
 }
 
+export function markTurnAsFinished() {
+  addActionToCurrentTurn({ type: 'turnFinished', freeAction: true });
+}
+
 export function isTurnFinished(): boolean {
   const actions = get(currentTurnActions);
-  if (actions.length === 0) {
-      return false;
+  // Rückwärts durch das Array gehen
+  for (let i = actions.length - 1; i >= 0; i--) {
+    if (actions[i].type === 'turnFinished') {
+        return true;
+    }
   }
-  return actions[actions.length - 1].type === 'turnFinished';
+  return false;
+  // Alternativ: `return actions.some(action => action.type === 'turnFinished');`
+}
+
+export function canPerformFreeAction(): boolean {
+  return !isDiscardModeActive() && !isTurnFinished();
+}
+
+export function canPerformAction(): boolean {
+  return canPerformFreeAction() && (countNonFreeActions() < 4) && !isShowBoatActive();
 }
