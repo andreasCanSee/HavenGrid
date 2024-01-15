@@ -11,6 +11,10 @@
     import { isDiscardMode, showBoat } from '../lib/Stores/uiStore';
     import { currentTurnActions } from '../lib/Stores/turnStateStore';
     import { getColorOfCity } from '../lib/Models/initialBoardData';
+    import Header from '../lib/Components/Header.svelte';
+
+
+    //import './tailwind.css';
 
     function createPlayerOrder(activePlayerIndex: number, totalPlayers: number) {
         return Array.from({ length: totalPlayers }, (_, i) => (activePlayerIndex + i) % totalPlayers);
@@ -39,31 +43,9 @@
 
 </script>
   
-<header>
 
+      <Header/>
 
-    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;background-color: rgba(0,0,128, 0.7);">
-            <h1><span style="color: firebrick; margin-left: 10px;padding: 10px;">Pandemic Legacy Season 2:</span><span style="color: deepskyblue">Prolog</span></h1>
-
-            <button 
-            on:click={setupNewGame} 
-            style="
-                background-color: deepskyblue; 
-                color: firebrick;
-                padding: 10px;
-                font-size: 16px;
-                cursor: pointer;
-                text-align: center;
-                border-radius: 5px;
-                margin-right: 20px;
-                border: none;
-                font-size: 1em;">
-            Neustart 🔄
-        </button>
-    </div>
-</header>
- 
-  
   <main>
     <div style="display: flex; width:100%">
         <div style="flex: 1; min-width: 0;">
