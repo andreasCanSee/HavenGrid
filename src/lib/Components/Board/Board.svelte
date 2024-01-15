@@ -3,7 +3,6 @@
   import { fade } from 'svelte/transition';
   import BoardLayout from './BoardLayout.svelte';
   import { gameState } from '../../Stores/gameStateStore';
-  import type { CityCard, ActionCard } from '../../Models/types';
   import { showBoat, isDiscardMode } from '../../Stores/uiStore';
   import { discardExcessCard } from '../../GameLogic/Actions/cardActions';
   import { animatedPlayerPosition, calculateSvgDimensions } from './boardUtils';
