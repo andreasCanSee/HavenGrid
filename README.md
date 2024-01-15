@@ -31,7 +31,7 @@ The "Pandemic" board game is a cooperative game where players work together as m
 - **Game Board as SVG**: A new challenge for me was to recreate the board game in digital form
 - **DALL-E Generated Images**: All graphics used are created by DALL-E
 
-![Vorschau des Projekts](/static/preview.png)
+![Vorschau des Projekts](/static/gameplay-preview.png)
 
 
 ## Project Structure
