@@ -3,31 +3,17 @@
     import type { Line } from "../../Models/types";
     import { initialBoardState } from "../../Models/initialBoardData";
     import { createCurvePath } from "./boardUtils";
-    import { gridSize } from "./config";
     import { calculateLines } from "./boardUtils";
 
     export let svgWidth: number;
     export let svgHeight: number;
+    export let gridSize: number;
     
-    let lines: Line[] = calculateLines(); // Berechnen der Linien
+    let lines: Line[] = calculateLines(gridSize); // Berechnen der Linien
 </script>
 
-<div style="position: relative;">
-    <!-- Oberes Rechteck -->
-    <svg width={`${svgWidth + 60}px`} height="30" style="position: absolute; top: 0; left:0px; z-index: 10;">
-        <rect width={`${svgWidth + 60}px`} height="30" fill="deepskyblue" opacity="0.5"/>
-    </svg>
-    <!-- Linkes Rechteck -->
-    <svg width="30" height={svgHeight} style="position: absolute; top: 30px; left: 0; z-index: 10;">
-        <rect width="30" height={svgHeight} fill="deepskyblue" opacity="0.5"/>
-    </svg>
-
-    <!-- Rechtes Rechteck -->
-    <svg width="30" height={svgHeight} style={`position: absolute; top: 30px; left: ${svgWidth + 30}px; z-index: 10;`}>
-        <rect width="30" height={svgHeight} fill="deepskyblue" opacity="0.5"/>
-    </svg>
-
-    <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 30px;left: 30px;">
+<div>
+    <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
         <rect width={svgWidth} height={svgHeight} fill="deepskyblue" opacity="0.5"/>
             <!-- Die Pfade einzeichnen -->
             {#each lines as line}
@@ -36,7 +22,7 @@
             <!-- Die Felder für die Orte einzeichnen -->
             {#each initialBoardState as field (field.name)}
                 <g transform={`translate(${(field.coordinates.x - 1) * gridSize}, ${(field.coordinates.y - 1) * gridSize})`}>
-                    <Field name={field.name} color={field.color} capacity={field.capacity} />
+                    <Field name={field.name} color={field.color} capacity={field.capacity} {gridSize} />
                 </g>
             {/each}
             <slot></slot>

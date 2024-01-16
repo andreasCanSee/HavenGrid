@@ -1,38 +1,75 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { derived } from 'svelte/store';
   import { fade } from 'svelte/transition';
   import BoardLayout from './BoardLayout.svelte';
   import { gameState } from '../../Stores/gameStateStore';
   import { showBoat, isDiscardMode } from '../../Stores/uiStore';
   import { discardExcessCard } from '../../GameLogic/Actions/cardActions';
-  import { animatedPlayerPosition, calculateSvgDimensions } from './boardUtils';
+  import { animatedPlayerPosition } from './boardUtils';
   import { handleDragOver } from '../../Utilities/uiHandlers';
   import { getInfectionRates } from '../../Models/infectionRate';
+  import { getMaxCoordinates } from '../../Models/initialBoardData';
 
   const gameInfo = derived(gameState, $gameState => ({
     infectionRateInfo: getInfectionRates($gameState.infectionRateIndex),
     outbreaks: $gameState.outbreaks
   }));
 
-  const dimensions = calculateSvgDimensions();
-  const svgWidth = dimensions.width;
-  const svgHeight = dimensions.height;
+  // Größe des Spielfelds
 
-    function handleDrop(event: DragEvent) {
-        event.preventDefault();
-        if (!event.dataTransfer) return;
-        const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
+  let gridSize = 100; // Startwert für gridSize
+  let svgWidth: number, svgHeight: number;
+  const { maxX, maxY } = getMaxCoordinates();
+
+  function calculateSvgDimensions() {
+    svgWidth = maxX * gridSize;
+    svgHeight = maxY * gridSize;
+  }
+
+  function adjustGridSize(containerWidth: number) {
+    gridSize = Math.round(containerWidth / maxX);
+    console.log(gridSize)
+    calculateSvgDimensions(); // SVG-Dimensionen neu berechnen
+  }
+
+  onMount(() => {
+    const container = document.querySelector('#board-container');
+    console.log('container', container)
+    if(container){
+      console.log(container.clientWidth)
+      adjustGridSize(container.clientWidth);
   
-        if (dragData && (dragData.type === 'discardCard')) {
-        // Verarbeite das Abwerfen einer Karte (Stadt- oder Aktions-Karte)
-          const card = dragData.cardData;
-          discardExcessCard(dragData.fromPlayerIndex, card);
+      const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+          adjustGridSize(entry.contentRect.width);
         }
+      });
+      resizeObserver.observe(container);
+      return () => resizeObserver.disconnect();
+
     }
+
+  });
+
+  // Karten wegwerfen
+
+  function handleDrop(event: DragEvent) {
+    event.preventDefault();
+    if (!event.dataTransfer) return;
+    
+    const dragData = JSON.parse(event.dataTransfer.getData("application/json"));
+  
+    if (dragData && (dragData.type === 'discardCard')) {
+      // Verarbeite das Abwerfen einer Karte (Stadt- oder Aktions-Karte)
+      const card = dragData.cardData;
+      discardExcessCard(dragData.fromPlayerIndex, card);
+    }
+  }
 </script>
   
-<div on:dragover={ $isDiscardMode.active ? handleDragOver : undefined} on:drop={ $isDiscardMode.active ? event => handleDrop(event) : undefined } role="listbox" tabindex="0">
-  <BoardLayout {svgWidth} {svgHeight}>
+<div id="board-container" on:dragover={ $isDiscardMode.active ? handleDragOver : undefined} on:drop={ $isDiscardMode.active ? event => handleDrop(event) : undefined } role="listbox" tabindex="0">
+  <BoardLayout {svgWidth} {svgHeight} {gridSize}>
     {#if $showBoat}
       <g transform={`translate(${($animatedPlayerPosition.x)}, ${($animatedPlayerPosition.y)}) scale(${$animatedPlayerPosition.scaleX}, 1)`}> 
         <image 

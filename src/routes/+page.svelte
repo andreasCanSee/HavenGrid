@@ -4,7 +4,6 @@
     import PlayerDashboard from '../lib/Components/Player/PlayerDashboard.svelte';
     import type { InfectionCard, PlayerCard } from '../lib/Models/types';
     import { gameState } from '../lib/Stores/gameStateStore';
-    import { setupNewGame } from '../lib/GameLogic/setupGame';
     import { initialPlayerData } from '../lib/Models/initialPlayerData';
     import { endTurn} from '../lib/GameLogic/turnCycleLogic';
     import { undoLastMove } from '../lib/Utilities/undoFunctions';
@@ -12,9 +11,6 @@
     import { currentTurnActions } from '../lib/Stores/turnStateStore';
     import { getColorOfCity } from '../lib/Models/initialBoardData';
     import Header from '../lib/Components/Header.svelte';
-
-
-    //import './tailwind.css';
 
     function createPlayerOrder(activePlayerIndex: number, totalPlayers: number) {
         return Array.from({ length: totalPlayers }, (_, i) => (activePlayerIndex + i) % totalPlayers);
@@ -44,65 +40,61 @@
 </script>
   
 
-      <Header/>
+<Header/>
 
-  <main>
-    <div style="display: flex; width:100%">
-        <div style="flex: 1; min-width: 0;">
-            <Board/>
-        </div>
-        <div style="display: block; margin-right: 10px">
-    {#each $playerOrder as index}
-  
-        <PlayerDashboard 
-            name={initialPlayerData[index].name}
-            playerColor={initialPlayerData[index].color}
-            image={initialPlayerData[index].image}
-            isActive={index === $gameState.activePlayerIndex}
-            playerIndex={index}
-        />
-            {#if index === $gameState.activePlayerIndex}
-        
-                <div style="margin-bottom: 30px; display: flex;">
-                    <div style="
-                        background-color: {initialPlayerData[index].color}; 
-                        color: white;
-                        padding: 10px; 
-                        margin-right: 20px;  
-                        font-weight: bold;
-                        display: flex;
-                        align-items: center">
-                    <h3>Noch {remainingActions} {remainingActions === 1 ? 'Aktion' : 'Aktionen'}</h3>
-                    <button on:click={() => {!$showBoat  && undoLastMove($currentTurnActions)}} style="padding: 10px;
-                        font-weight: 700;
-                        font-size: 14px;
-                        background-color: navy;
-                        cursor: {$showBoat  ? 'not-allowed' : 'pointer'};
-                        color: firebrick;
-                        text-align: center;
-                        border-radius: 5px;
-                        margin-left: 20px;
-                        border: none;">Aktion zurück-<br>nehmen ⏮️</button>
-                </div>
+<main class="flex">
+    <div class="w-full lg:w-2/3">
+        <Board/>
+        <div class="w-full lg:w-1/3 flex flex-col">
+            {#each $playerOrder as index}
+                <PlayerDashboard 
+                    name={initialPlayerData[index].name}
+                    playerColor={initialPlayerData[index].color}
+                    image={initialPlayerData[index].image}
+                    isActive={index === $gameState.activePlayerIndex}
+                    playerIndex={index}
+                />
+                {#if index === $gameState.activePlayerIndex}
+                    <div>
+                        <div style="
+                            background-color: {initialPlayerData[index].color}; 
+                            color: white; 
+                            font-weight: bold;
+                            align-items: center">
+                            <h3>Noch {remainingActions} {remainingActions === 1 ? 'Aktion' : 'Aktionen'}</h3>
+                            <button on:click={() => {!$showBoat  && undoLastMove($currentTurnActions)}} style="padding: 10px;
+                                font-weight: 700;
+                                font-size: 14px;
+                                background-color: navy;
+                                cursor: {$showBoat  ? 'not-allowed' : 'pointer'};
+                                color: firebrick;
+                                text-align: center;
+                                border-radius: 5px;
+                                margin-left: 20px;
+                                border: none;">Aktion zurück-<br>nehmen ⏮️</button>
+                        </div>
                   
-                    <button on:click={endTurn} disabled={$isDiscardMode.active || $showBoat} style="padding: 10px;
-                    font-size: 14px;
-                    font-weight: 700;
-                    background-color: navy;
-                    cursor: {$showBoat || $isDiscardMode.active  ? 'not-allowed' : 'pointer'};
-                    color: firebrick;
-                    text-align: center;
-                    border-radius: 5px;
-                    margin-right: 20px;
-                    border: none;"> Aktionsphase <br>abschließen ☑️</button>
-                </div>
-            {/if}
-        {/each}   
+                        <button on:click={endTurn} disabled={$isDiscardMode.active || $showBoat} style="padding: 10px;
+                            font-size: 14px;
+                            font-weight: 700;
+                            background-color: navy;
+                            cursor: {$showBoat || $isDiscardMode.active  ? 'not-allowed' : 'pointer'};
+                            color: firebrick;
+                            text-align: center;
+                            border-radius: 5px;
+                            margin-right: 20px;
+                            border: none;"> Aktionsphase <br>abschließen ☑️
+                        </button>
+                    </div>
+                {/if}
+            {/each}   
         </div>
     </div>
+</main>
 
 
-  <div style="margin-top: 50px; display:flex">
+
+<div style="margin-top: 50px; display:flex">
     <!-- ... (Infektionskartenablagestapel Tabelle) -->
     <table style="width: 50%; border-collapse: collapse;">
         <thead>
@@ -139,4 +131,4 @@
             </tbody>
         </table>
     </div>
-    </main>
+ 

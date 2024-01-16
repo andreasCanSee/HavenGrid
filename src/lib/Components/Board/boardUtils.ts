@@ -5,7 +5,7 @@ import { tweened } from 'svelte/motion';
 import { cubicOut, quadInOut } from 'svelte/easing';
 import { gridSize } from "./config";
 
-export function calculateSvgDimensions() {
+export function calculateSvgDimensions(gridSize: number) {
     const maxX = Math.max(...initialBoardState.map(field => field.coordinates.x));
     const maxY = Math.max(...initialBoardState.map(field => field.coordinates.y));
     return {
@@ -15,7 +15,7 @@ export function calculateSvgDimensions() {
 }
 
 // Funktion zur Berechnung der Linienpositionen
-export function calculateLines(): Line[] {
+export function calculateLines(gridSize: number): Line[] {
     let lines: Line[] = [];
     let processedConnections = new Set();
     let fieldsMap = new Map(initialBoardState.map(field => [field.name, field]));
